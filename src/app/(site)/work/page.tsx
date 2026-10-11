@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { PageTransition } from "@/components/motion/PageTransition";
+import { Reveal } from "@/components/motion/Reveal";
 import { CtaBand } from "@/components/site/CtaBand";
 import { ProjectList } from "@/components/site/ProjectList";
 import { getBlocks, getProjects, getSettings } from "@/lib/content";
@@ -14,14 +16,20 @@ export default async function WorkPage() {
   const [settings, blocks, projects] = await Promise.all([getSettings(), getBlocks("work"), getProjects()]);
 
   return (
-    <>
+    <PageTransition>
       <header className={`wrap ${styles.header}`}>
-        <h1 className={styles.title}>{blocks.header.label}</h1>
-        {blocks.header.intro ? <p className={styles.lead}>{blocks.header.intro}</p> : null}
+        <h1 className={styles.title}>
+          <span className="intro-line">
+            <span>{blocks.header.label}</span>
+          </span>
+        </h1>
+        {blocks.header.intro ? <p className={`intro-fade ${styles.lead}`}>{blocks.header.intro}</p> : null}
       </header>
 
       <section className={`wrap ${styles.section}`} aria-label="Projects">
-        <ProjectList projects={projects.map(toProjectItem)} headingLevel={2} />
+        <Reveal>
+          <ProjectList projects={projects.map(toProjectItem)} headingLevel={2} />
+        </Reveal>
       </section>
 
       <CtaBand
@@ -29,6 +37,6 @@ export default async function WorkPage() {
         primary={{ label: blocks.cta.primary_cta, href: "/contact" }}
         settings={settings}
       />
-    </>
+    </PageTransition>
   );
 }

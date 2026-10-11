@@ -1,10 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Mark } from "@/components/brand/Mark";
+import { Magnetic } from "@/components/motion/Magnetic";
+import { PageTransition } from "@/components/motion/PageTransition";
+import { Reveal } from "@/components/motion/Reveal";
 import { CtaBand } from "@/components/site/CtaBand";
 import { ProjectList } from "@/components/site/ProjectList";
 import { ButtonLink } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { HeroVisual } from "@/components/three/HeroVisual";
 import { getBlocks, getCapabilities, getProjects, getSettings, getSkills } from "@/lib/content";
 import { toProjectItem } from "@/lib/format";
 import { mediaUrl } from "@/lib/media";
@@ -24,27 +27,29 @@ export default async function HomePage() {
   const portrait = mediaUrl(settings.portrait_path);
 
   return (
-    <>
+    <PageTransition>
       <section className={`wrap ${styles.hero}`} aria-labelledby="hero-heading">
         <h1 id="hero-heading" className={styles.headline}>
           {blocks.hero.lines.map((line, i) => (
-            <span key={i} className={styles.line}>
-              {line}{" "}
+            <span key={i} className={`intro-line ${styles.line}`} style={{ "--line": i } as React.CSSProperties}>
+              <span>{line}</span>{" "}
             </span>
           ))}
         </h1>
-        <div className={styles.visual} aria-hidden="true">
-          <Mark className={styles.mark} />
-        </div>
-        <div className={styles.heroFoot}>
+        <HeroVisual className={`intro-fade ${styles.visual}`} />
+        <div className={`intro-fade ${styles.heroFoot}`} style={{ "--delay": "0.55s" } as React.CSSProperties}>
           <p className={styles.roleLine}>{settings.role_line}</p>
           <div className={styles.ctas}>
-            <ButtonLink href="/contact" icon="arrow-up-right">
-              {blocks.hero.primary_cta}
-            </ButtonLink>
-            <ButtonLink href="/work" variant="secondary">
-              {blocks.hero.secondary_cta}
-            </ButtonLink>
+            <Magnetic>
+              <ButtonLink href="/contact" icon="arrow-up-right">
+                {blocks.hero.primary_cta}
+              </ButtonLink>
+            </Magnetic>
+            <Magnetic>
+              <ButtonLink href="/work" variant="secondary">
+                {blocks.hero.secondary_cta}
+              </ButtonLink>
+            </Magnetic>
           </div>
         </div>
       </section>
@@ -70,16 +75,18 @@ export default async function HomePage() {
             {blocks.featured.link} <Icon name="arrow-right" size={16} />
           </Link>
         </div>
-        <ProjectList projects={shown} />
+        <Reveal>
+          <ProjectList projects={shown} />
+        </Reveal>
       </section>
 
       <section className={`wrap ${styles.section} ${styles.intro}`} aria-labelledby="intro-heading">
         {portrait ? (
-          <div className={styles.portrait}>
+          <Reveal className={styles.portrait}>
             <Image src={portrait} alt={settings.portrait_alt} fill sizes="(max-width: 760px) 100vw, 40vw" />
-          </div>
+          </Reveal>
         ) : null}
-        <div className={styles.introText}>
+        <Reveal className={styles.introText} delay={120}>
           <h2 id="intro-heading" className="label">
             {about.intro.label}
           </h2>
@@ -87,7 +94,7 @@ export default async function HomePage() {
           <ButtonLink href="/about" variant="secondary">
             {blocks.cta.secondary_cta}
           </ButtonLink>
-        </div>
+        </Reveal>
       </section>
 
       <section className={`wrap ${styles.section}`} aria-labelledby="what-heading">
@@ -99,14 +106,14 @@ export default async function HomePage() {
             {blocks.what_i_do.link} <Icon name="arrow-right" size={16} />
           </Link>
         </div>
-        <ul className={styles.cells}>
+        <Reveal as="ul" className={styles.cells} stagger>
           {capabilities.map((c) => (
             <li key={c.id} className={styles.cell}>
               <h3 className={styles.cellTitle}>{c.title}</h3>
               <p className={styles.cellBody}>{c.short_body}</p>
             </li>
           ))}
-        </ul>
+        </Reveal>
       </section>
 
       <CtaBand
@@ -115,6 +122,6 @@ export default async function HomePage() {
         secondary={{ label: blocks.cta.secondary_cta, href: "/about" }}
         settings={settings}
       />
-    </>
+    </PageTransition>
   );
 }

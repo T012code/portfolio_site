@@ -55,7 +55,12 @@ export function SiteHeader({ name }: { name: string }) {
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <header className={styles.header} data-scrolled={scrolled || undefined} data-open={open || undefined}>
+    <header
+      className={styles.header}
+      data-scrolled={scrolled || undefined}
+      data-open={open || undefined}
+      style={{ viewTransitionName: "site-header" }}
+    >
       <div className={`wrap ${styles.bar}`}>
         <Link href="/" className={styles.brand} aria-label={`${name}, home`}>
           <Wordmark className={styles.wordmark} />

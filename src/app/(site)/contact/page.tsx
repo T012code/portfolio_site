@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PageTransition } from "@/components/motion/PageTransition";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { getBlocks, getSettings } from "@/lib/content";
 import { whatsappUrl } from "@/lib/format";
@@ -27,10 +28,14 @@ export default async function ContactPage() {
   ];
 
   return (
-    <>
+    <PageTransition>
       <header className={`wrap ${shared.header}`}>
-        <h1 className={shared.title}>{blocks.header.label}</h1>
-        {blocks.header.intro ? <p className={shared.lead}>{blocks.header.intro}</p> : null}
+        <h1 className={shared.title}>
+          <span className="intro-line">
+            <span>{blocks.header.label}</span>
+          </span>
+        </h1>
+        {blocks.header.intro ? <p className={`intro-fade ${shared.lead}`}>{blocks.header.intro}</p> : null}
       </header>
 
       <section className={`wrap ${shared.section} ${styles.grid}`} aria-label="Contact options">
@@ -70,6 +75,6 @@ export default async function ContactPage() {
         </ul>
         </aside>
       </section>
-    </>
+    </PageTransition>
   );
 }

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { PageTransition } from "@/components/motion/PageTransition";
+import { Reveal } from "@/components/motion/Reveal";
 import { CtaBand } from "@/components/site/CtaBand";
 import { ButtonAnchor } from "@/components/ui/Button";
 import { TagList } from "@/components/ui/Tag";
@@ -36,10 +38,14 @@ export default async function AboutPage() {
   const cv = mediaUrl(settings.cv_path);
 
   return (
-    <>
+    <PageTransition>
       <header className={`wrap ${shared.header} ${styles.intro}`}>
-        <h1 className={`${shared.title} ${styles.introTitle}`}>{blocks.intro.label}</h1>
-        <div className={styles.introBody}>
+        <h1 className={`${shared.title} ${styles.introTitle}`}>
+          <span className="intro-line">
+            <span>{blocks.intro.label}</span>
+          </span>
+        </h1>
+        <div className={`intro-fade ${styles.introBody}`}>
           {blocks.intro.paragraphs.map((p, i) => (
             <p key={i} className={i === 0 ? styles.introLead : undefined}>
               {p}
@@ -52,7 +58,7 @@ export default async function AboutPage() {
           </ul>
         </div>
         {portrait ? (
-          <div className={styles.portrait}>
+          <div className={`intro-fade ${styles.portrait}`} style={{ "--delay": "0.35s" } as React.CSSProperties}>
             <Image src={portrait} alt={settings.portrait_alt} fill priority sizes="(max-width: 760px) 100vw, 34vw" />
           </div>
         ) : null}
@@ -62,21 +68,21 @@ export default async function AboutPage() {
         <h2 id="what-heading" className={`label ${styles.sectionLabel}`}>
           {blocks.what_i_do.label}
         </h2>
-        <ul className={styles.capabilities}>
+        <Reveal as="ul" className={styles.capabilities} stagger>
           {capabilities.map((c) => (
             <li key={c.id}>
               <h3 className={styles.capTitle}>{c.title}</h3>
               <p>{c.body}</p>
             </li>
           ))}
-        </ul>
+        </Reveal>
       </section>
 
       <section className={`wrap ${shared.section}`} aria-labelledby="services-heading">
         <h2 id="services-heading" className={`label ${styles.sectionLabel}`}>
           {blocks.services.label}
         </h2>
-        <ul className={styles.services}>
+        <Reveal as="ul" className={styles.services} stagger>
           {services.map((s) => (
             <li key={s.id} className={styles.service}>
               <h3 className={styles.serviceTitle}>{s.title}</h3>
@@ -84,14 +90,14 @@ export default async function AboutPage() {
               <TagList tags={s.tags} label={`${s.title} tools`} />
             </li>
           ))}
-        </ul>
+        </Reveal>
       </section>
 
       <section id="process" className={`wrap ${shared.section}`} aria-labelledby="process-heading">
         <h2 id="process-heading" className={`label ${styles.sectionLabel}`}>
           {blocks.process.label}
         </h2>
-        <ol className={styles.process}>
+        <Reveal as="ol" className={styles.process} stagger>
           {process.map((step, i) => (
             <li key={step.id} className={styles.step}>
               <span className={styles.stepNumber} aria-hidden="true">
@@ -101,7 +107,7 @@ export default async function AboutPage() {
               <p className={styles.stepBody}>{step.body}</p>
             </li>
           ))}
-        </ol>
+        </Reveal>
       </section>
 
       <section className={`wrap ${shared.section}`} aria-labelledby="experience-heading">
@@ -115,7 +121,7 @@ export default async function AboutPage() {
             </ButtonAnchor>
           ) : null}
         </div>
-        <ol className={styles.timeline}>
+        <Reveal as="ol" className={styles.timeline} stagger>
           {experience.map((e) => (
             <li key={e.id} className={styles.role}>
               <p className={styles.dates}>{experienceRange(e)}</p>
@@ -132,18 +138,18 @@ export default async function AboutPage() {
               </div>
             </li>
           ))}
-        </ol>
+        </Reveal>
       </section>
 
       <section className={`wrap ${shared.section}`} aria-labelledby="tools-heading">
         <h2 id="tools-heading" className={`label ${styles.sectionLabel}`}>
           {blocks.tools.label}
         </h2>
-        <ul className={styles.tools}>
+        <Reveal as="ul" className={styles.tools} stagger>
           {skills.map((s) => (
             <li key={s.id}>{s.name}</li>
           ))}
-        </ul>
+        </Reveal>
         {blocks.tools.note ? <p className={styles.toolsNote}>{blocks.tools.note}</p> : null}
       </section>
 
@@ -153,6 +159,6 @@ export default async function AboutPage() {
         secondary={{ label: blocks.cta.secondary_cta, href: "/work" }}
         settings={settings}
       />
-    </>
+    </PageTransition>
   );
 }

@@ -26,13 +26,8 @@
   justify-self: end;
   display: grid;
   place-items: center;
-  width: min(100%, 22rem);
+  width: min(100%, 24rem);
   aspect-ratio: 1;
-}
-
-.mark {
-  width: 100%;
-  height: auto;
   color: var(--color-ink);
 }
 
@@ -203,11 +198,14 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "headline"
+      "visual"
       "foot";
   }
 
   .visual {
-    display: none;
+    justify-self: center;
+    width: min(78%, 22rem);
+    margin-block: calc(-1 * var(--space-6));
   }
 }
 
