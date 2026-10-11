@@ -168,6 +168,8 @@ export type Database = {
       >;
       mail_log: Table<
         {
+          body_html: string | null;
+          body_text: string | null;
           created_at: string;
           detail: string;
           id: string;
@@ -175,6 +177,8 @@ export type Database = {
           message_id: string | null;
           ref_id: string | null;
           ref_type: string | null;
+          reply_to: string | null;
+          resent_from: string | null;
           status: string;
           subject: string;
           to_email: string;
@@ -189,6 +193,8 @@ export type Database = {
           from_name: string;
           host: string;
           id: boolean;
+          log_retention_days: number;
+          log_store_content: boolean;
           notify_email: string;
           notify_enquiries: boolean;
           notify_messages: boolean;
@@ -229,6 +235,22 @@ export type Database = {
         Args: { p_detail: string; p_gate: string; p_id: string; p_message_id: string | null; p_status: string };
         Returns: undefined;
       };
+      mail_log_open: {
+        Args: {
+          p_gate: string;
+          p_html?: string | null;
+          p_kind: string;
+          p_ref_id: string | null;
+          p_ref_type: string | null;
+          p_reply_to?: string | null;
+          p_resent_from?: string | null;
+          p_subject: string;
+          p_text?: string | null;
+          p_to: string;
+        };
+        Returns: Json;
+      };
+      mail_log_stats: { Args: never; Returns: Json };
       mail_runtime: { Args: { p_gate: string }; Returns: Json };
       mail_secret_status: { Args: never; Returns: Json };
       mail_set_secret: { Args: { p_gate_hash: string; p_password_enc: string | null }; Returns: undefined };

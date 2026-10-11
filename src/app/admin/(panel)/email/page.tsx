@@ -5,7 +5,10 @@ import { getMailHealth } from "@/lib/mail/status";
 import { TEMPLATE_KEYS } from "@/lib/mail/templates";
 import { getSettings } from "@/lib/content";
 import { SITE_URL } from "@/lib/env";
+import { pruneMailLog } from "@/lib/mail/log";
 import { Deliverability } from "./Deliverability";
+import { LogStorage, type LogStats } from "./LogStorage";
+import { MailLogTable } from "./MailLogTable";
 import { MailSettingsForm } from "./MailSettingsForm";
 import { TemplateEditor } from "./TemplateEditor";
 import styles from "../../admin.module.css";
@@ -17,15 +20,7 @@ const TABS = [
 ] as const;
 
 const LOG_STATUSES = ["all", "sent", "failed", "skipped"] as const;
-const KIND_LABELS: Record<string, string> = {
-  notification: "Notification",
-  autoreply: "Autoreply",
-  reply: "Reply",
-  test: "Test",
-};
 const PAGE_SIZE = 50;
-
-const dateFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Africa/Lagos" });
 
 export default async function EmailPage({
   searchParams,
@@ -36,6 +31,8 @@ export default async function EmailPage({
   const tab = TABS.some((t) => t.key === params.tab) ? params.tab! : "setup";
   const session = await requireAdminPage();
   const { supabase, email: adminEmail } = session;
+  // Applies the log retention setting before anything is counted or listed.
+  await pruneMailLog(supabase);
 
   const [health, settingsRes, templatesRes, stats] = await Promise.all([
     getMailHealth(session),
@@ -126,7 +123,12 @@ export default async function EmailPage({
 
       {tab === "autoresponders" ? <Autoresponders templates={templatesRes.data ?? []} adminEmail={adminEmail} /> : null}
 
-      {tab === "log" ? <MailLog status={params.status} page={params.page} /> : null}
+      {tab === "log" && settings ? (
+        <div className={styles.sections}>
+          <MailLog status={params.status} page={params.page} />
+          <MailStorage retention={settings.log_retention_days} storeContent={settings.log_store_content} />
+        </div>
+      ) : null}
     </>
   );
 }
@@ -161,13 +163,19 @@ async function Autoresponders({
   );
 }
 
+async function MailStorage({ retention, storeContent }: { retention: number; storeContent: boolean }) {
+  const { supabase } = await requireAdminPage();
+  const { data } = await supabase.rpc("mail_log_stats");
+  return <LogStorage retention={retention} storeContent={storeContent} stats={(data as LogStats | null) ?? null} />;
+}
+
 async function MailLog({ status, page }: { status?: string; page?: string }) {
   const { supabase } = await requireAdminPage();
   const filter = LOG_STATUSES.includes(status as (typeof LOG_STATUSES)[number]) ? status! : "all";
   const pageNumber = Math.max(1, Math.min(200, Number(page) || 1));
   let query = supabase
     .from("mail_log")
-    .select("*", { count: "exact" })
+    .select("id, created_at, kind, to_email, subject, status, detail, ref_type, ref_id, resent_from", { count: "exact" })
     .order("created_at", { ascending: false })
     .range((pageNumber - 1) * PAGE_SIZE, pageNumber * PAGE_SIZE - 1);
   if (filter !== "all") query = query.eq("status", filter);
@@ -180,14 +188,13 @@ async function MailLog({ status, page }: { status?: string; page?: string }) {
     if (next.page && next.page > 1) q.set("page", String(next.page));
     return `/admin/email?${q}`;
   };
-  const tone = (s: string) => (s === "sent" ? "ok" : s === "failed" ? "error" : s === "skipped" ? "warn" : "neutral");
 
   return (
     <div className={styles.stack}>
       <div className={styles.mediaButtons} role="group" aria-label="Filter by status">
         {LOG_STATUSES.map((s) => (
           <Link key={s} href={href({ status: s, page: 1 })} className={styles.pill} aria-pressed={filter === s}>
-            {s}
+            {s.charAt(0).toUpperCase() + s.slice(1)}
           </Link>
         ))}
       </div>
@@ -195,51 +202,7 @@ async function MailLog({ status, page }: { status?: string; page?: string }) {
       {data && data.length === 0 ? (
         <p className={styles.empty}>No emails yet. Every email the site sends, or decides not to send, shows up here.</p>
       ) : null}
-      {data && data.length > 0 ? (
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th scope="col">When</th>
-                <th scope="col">Type</th>
-                <th scope="col">To</th>
-                <th scope="col">Subject</th>
-                <th scope="col">Result</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((row) => (
-                <tr key={row.id}>
-                  <td className={styles.nowrap}>{dateFormat.format(new Date(row.created_at))}</td>
-                  <td className={styles.nowrap}>
-                    {KIND_LABELS[row.kind] ?? row.kind}
-                    {row.ref_id ? (
-                      <>
-                        {" "}
-                        <Link href={`/admin/inbox?tab=${row.ref_type === "message" ? "messages" : "enquiries"}&q=${encodeURIComponent(row.to_email)}`} className={styles.muted}>
-                          (view)
-                        </Link>
-                      </>
-                    ) : null}
-                  </td>
-                  <td className={styles.clip} title={row.to_email}>
-                    {row.to_email}
-                  </td>
-                  <td className={styles.clip} title={row.subject}>
-                    {row.subject}
-                  </td>
-                  <td>
-                    <span className={styles.tone} data-tone={tone(row.status)}>
-                      {row.status}
-                    </span>
-                    {row.detail ? <p className={styles.muted} style={{ marginTop: "var(--space-1)", maxWidth: "36ch" }}>{row.detail}</p> : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : null}
+      {data && data.length > 0 ? <MailLogTable rows={data} /> : null}
       {pages > 1 ? (
         <nav className={styles.inline} aria-label="Pages">
           {pageNumber > 1 ? (

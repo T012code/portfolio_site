@@ -951,26 +951,16 @@ a.kpi:hover {
   font-size: var(--text-label);
 }
 
+/* Status as plain coloured text: "Sent", "Failed", "New". */
 .tone {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: 0 var(--space-2);
-  border: 1px solid currentColor;
-  font-size: var(--text-label);
+  display: inline-block;
+  font-size: var(--text-small);
   font-weight: var(--weight-strong);
-  letter-spacing: 0.04em;
-  line-height: 1.6rem;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
-.tone::before {
-  content: "";
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: currentColor;
+.tone::first-letter {
+  text-transform: uppercase;
 }
 
 .tone[data-tone="ok"] {

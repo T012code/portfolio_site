@@ -21,7 +21,8 @@ export function HeroVisual({ className }: { className?: string }) {
     // After the preloader, at idle time, so the 3D bundle never competes with first paint.
     let idle: number | undefined;
     let timer: number | undefined;
-    const start = () => setEnabled(canRender3D());
+    // Phones and tablets show the flat mark only.
+    const start = () => setEnabled(window.matchMedia("(min-width: 761px) and (pointer: fine)").matches && canRender3D());
     const stopWaiting = whenPreloaded(() => {
       idle = window.requestIdleCallback?.(start, { timeout: 1500 });
       if (idle === undefined) timer = window.setTimeout(start, 400);

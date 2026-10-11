@@ -73,7 +73,12 @@ type Outgoing = {
   replyTo?: string;
   headers?: Record<string, string>;
   ref?: { type: "enquiry" | "message"; id: string };
+  /** Log entry this email repeats. Resends skip the autoreply limits. */
+  resentFrom?: string;
 };
+
+/** RFC 3834: marks automatic replies so other autoresponders don't answer them. */
+export const AUTOREPLY_HEADERS = { "Auto-Submitted": "auto-replied", "X-Auto-Response-Suppress": "All" };
 
 /** Sends one email and records it in the log, whatever the outcome. */
 export async function deliver(runtime: Runtime, mail: Outgoing): Promise<MailResult> {
@@ -81,13 +86,17 @@ export async function deliver(runtime: Runtime, mail: Outgoing): Promise<MailRes
   if (!gate) return { status: "failed", detail: "MAIL_SECRET is not set on the server." };
   const db = createPublicClient();
 
-  const { data: begun, error: beginError } = await db.rpc("mail_log_begin", {
+  const { data: begun, error: beginError } = await db.rpc("mail_log_open", {
     p_gate: gate,
     p_kind: mail.kind,
     p_to: mail.to,
     p_subject: mail.subject,
     p_ref_type: mail.ref?.type ?? null,
     p_ref_id: mail.ref?.id ?? null,
+    p_text: mail.text,
+    p_html: mail.html ?? null,
+    p_reply_to: mail.replyTo ?? null,
+    p_resent_from: mail.resentFrom ?? null,
   });
   if (beginError || !begun) return { status: "failed", detail: "Couldn't write to the email log." };
   const { id, allowed } = begun as { id: string; allowed: boolean };
@@ -200,8 +209,7 @@ export async function handleSubmissionEmails(sub: Submission) {
         text: email.text,
         html: email.html,
         replyTo: settings.from_email,
-        // RFC 3834: marks this as automatic so other autoresponders don't answer it.
-        headers: { "Auto-Submitted": "auto-replied", "X-Auto-Response-Suppress": "All" },
+        headers: AUTOREPLY_HEADERS,
         ref,
       }),
     );
