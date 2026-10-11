@@ -31,3 +31,26 @@ through `submit_enquiry` / `submit_message`, which validate input and rate-limit
 
 `src/components/brand` holds the mark and wordmark as vector paths taken from the
 business card artwork. Type is Archivo (variable width), self-hosted from `public/fonts`.
+
+## Going live
+
+1. **Vercel**: import this repository into the `portfolio_site` project and set:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+   - `NEXT_PUBLIC_SITE_URL` (the live URL, no trailing slash)
+2. **Supabase Auth**: add the admin user (Authentication → Users → Add user, auto-confirm),
+   then turn off "Allow new users to sign up". The first sign-in at `/admin` sets up the
+   authenticator app.
+3. **Cal.com webhook**: in Cal.com → Settings → Developer → Webhooks, add
+   `https://<project>.supabase.co/functions/v1/cal-webhook` with Booking Created, Rescheduled
+   and Cancelled, and a long random secret. Save the same secret in Supabase as the Edge
+   Function secret `CAL_WEBHOOK_SECRET`.
+4. **Email (Zoho)**: once `hello@` exists, add `SMTP_HOST` (smtp.zoho.com, or smtp.zoho.eu for
+   EU accounts), `SMTP_PORT=465`, `SMTP_USER`, `SMTP_PASSWORD` (a Zoho app password) and
+   `NOTIFY_EMAIL` in Vercel. Until then, submissions still arrive in the admin inbox.
+5. **Domain**: add `www.layothedeveloper.com` in Vercel, update `NEXT_PUBLIC_SITE_URL`, redeploy.
+
+## Testing the 3D hero without a GPU
+
+The hero falls back to the static mark on software-rendered WebGL. Append `?3d=force` to
+the URL to render the 3D scene anyway.
