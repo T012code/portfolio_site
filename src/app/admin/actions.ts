@@ -1,6 +1,6 @@
 "use server";
 
-import { updateTag } from "next/cache";
+import { refresh, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdminAction } from "@/lib/admin/auth";
 import { getCollection, SETTINGS_FIELDS } from "@/lib/admin/collections";
@@ -228,4 +228,28 @@ export async function signOut() {
   const supabase = await createSessionClient();
   await supabase.auth.signOut();
   redirect("/admin/login");
+}
+
+// ── Inbox ───────────────────────────────────────────────────────────────
+
+const ENQUIRY_STATUSES = ["new", "booked", "replied", "archived"] as const;
+const MESSAGE_STATUSES = ["new", "replied", "archived"] as const;
+
+export async function updateInboxItem(
+  kind: "enquiries" | "messages",
+  id: string,
+  patch: { status?: string; admin_notes?: string },
+) {
+  if (kind !== "enquiries" && kind !== "messages") throw new Error("Unknown inbox.");
+  const allowed: readonly string[] = kind === "enquiries" ? ENQUIRY_STATUSES : MESSAGE_STATUSES;
+  const update: { status?: string; admin_notes?: string } = {};
+  if (patch.status !== undefined) {
+    if (!allowed.includes(patch.status)) throw new Error("Unknown status.");
+    update.status = patch.status;
+  }
+  if (patch.admin_notes !== undefined) update.admin_notes = patch.admin_notes.slice(0, 5000);
+  const session = await requireAdminAction();
+  const { error } = await session.supabase.from(kind).update(update).eq("id", id);
+  if (error) throw new Error(friendly(error));
+  refresh();
 }

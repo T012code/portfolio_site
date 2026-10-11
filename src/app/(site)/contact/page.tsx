@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { ButtonAnchor } from "@/components/ui/Button";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { getBlocks, getSettings } from "@/lib/content";
 import { whatsappUrl } from "@/lib/format";
+import { ContactForms } from "./ContactForms";
 import shared from "../page.module.css";
 import styles from "./contact.module.css";
 
@@ -14,7 +14,6 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ContactPage() {
   const [settings, blocks] = await Promise.all([getSettings(), getBlocks("contact")]);
   const whatsapp = whatsappUrl(settings.whatsapp);
-  const calUrl = settings.cal_link ? `https://cal.com/${settings.cal_link}` : null;
 
   const methods: { icon: IconName; label: string; value: string; href: string; external?: boolean }[] = [
     { icon: "mail", label: "Email", value: settings.email, href: `mailto:${settings.email}` },
@@ -35,17 +34,22 @@ export default async function ContactPage() {
       </header>
 
       <section className={`wrap ${shared.section} ${styles.grid}`} aria-label="Contact options">
-        <div className={styles.book}>
-          <h2 className="label">{blocks.header.enquiry_tab}</h2>
-          <p className={styles.bookText}>Pick a time for a free 30-minute discovery call.</p>
-          {calUrl ? (
-            <ButtonAnchor href={calUrl} target="_blank" rel="noopener" icon="calendar">
-              Book a discovery call
-            </ButtonAnchor>
-          ) : null}
-          <p className={styles.note}>{blocks.header.response_note}</p>
-        </div>
+        <ContactForms
+          labels={{
+            enquiry: blocks.header.enquiry_tab,
+            message: blocks.header.message_tab,
+            responseNote: blocks.header.response_note,
+          }}
+          options={{
+            services: settings.service_options,
+            budgets: settings.budget_options,
+            timelines: settings.timeline_options,
+          }}
+          calLink={settings.cal_link}
+          email={settings.email}
+        />
 
+        <aside aria-label="Other ways to reach me">
         <ul className={styles.methods}>
           {methods.map((m) => (
             <li key={m.label}>
@@ -64,6 +68,7 @@ export default async function ContactPage() {
             </li>
           ))}
         </ul>
+        </aside>
       </section>
     </>
   );
