@@ -1,0 +1,275 @@
+.intro {
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  grid-template-areas:
+    "title title"
+    "body portrait";
+  gap: var(--space-12) var(--space-16);
+  align-items: start;
+}
+
+.introTitle {
+  grid-area: title;
+}
+
+.introBody {
+  grid-area: body;
+  display: grid;
+  gap: var(--space-5);
+  max-width: 60ch;
+  padding-top: var(--space-6);
+  border-top: var(--rule-width) solid var(--color-rule);
+}
+
+.introLead {
+  font-size: var(--text-h3);
+  line-height: 1.4;
+}
+
+.taglines {
+  display: grid;
+  gap: var(--space-1);
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-h3);
+  font-weight: var(--weight-display);
+  font-stretch: var(--stretch-display);
+  letter-spacing: var(--tracking-display);
+  line-height: 1.15;
+}
+
+.portrait {
+  grid-area: portrait;
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.portrait img {
+  object-fit: cover;
+}
+
+.sectionLabel {
+  margin-bottom: var(--space-6);
+}
+
+/* What I do: three equal ruled cells */
+.capabilities {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--rule-width) solid var(--color-rule);
+}
+
+.capabilities li {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  padding: var(--space-8) var(--space-8) 0 0;
+  color: var(--color-ink-muted);
+}
+
+.capabilities li + li {
+  padding-left: var(--space-8);
+  border-left: var(--rule-width) solid var(--color-rule);
+}
+
+.capTitle {
+  font-size: var(--text-h2);
+  line-height: 1.05;
+  color: var(--color-ink);
+}
+
+/* Services: 3x2 ruled grid */
+.services {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--rule-width) solid var(--color-rule);
+  border-left: var(--rule-width) solid var(--color-rule);
+}
+
+.service {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  border-right: var(--rule-width) solid var(--color-rule);
+  border-bottom: var(--rule-width) solid var(--color-rule);
+  transition: background-color var(--dur-base) var(--ease-out);
+}
+
+.service:hover {
+  background: var(--color-surface);
+}
+
+.serviceTitle {
+  font-size: var(--text-h3);
+  line-height: 1.15;
+}
+
+.serviceBody {
+  color: var(--color-ink-muted);
+}
+
+/* How I work: a real 1–4 sequence */
+.process {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  padding-top: var(--space-6);
+  border-top: var(--rule-width) solid var(--color-ink);
+}
+
+.stepNumber {
+  font-size: var(--text-h1);
+  font-weight: var(--weight-display);
+  font-stretch: var(--stretch-display);
+  line-height: 1;
+}
+
+.stepTitle {
+  font-size: var(--text-h3);
+}
+
+.stepBody {
+  color: var(--color-ink-muted);
+}
+
+/* Experience timeline */
+.timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--rule-width) solid var(--color-rule);
+}
+
+.role {
+  display: grid;
+  grid-template-columns: minmax(0, 2.4fr) minmax(0, 4fr) minmax(0, 5fr);
+  gap: var(--space-3) var(--space-10);
+  padding-block: var(--space-6);
+  border-bottom: var(--rule-width) solid var(--color-rule);
+}
+
+.dates {
+  font-size: var(--text-small);
+  font-weight: var(--weight-strong);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-muted);
+  padding-top: 0.2em;
+}
+
+.roleTitle {
+  font-size: var(--text-body);
+  font-stretch: var(--stretch-display);
+  letter-spacing: 0;
+  line-height: 1.35;
+}
+
+.org {
+  margin-top: var(--space-1);
+  font-size: var(--text-small);
+  color: var(--color-ink-muted);
+}
+
+.roleBody {
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--text-small);
+}
+
+.highlights {
+  color: var(--color-ink-muted);
+}
+
+/* Tools */
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  margin: 0;
+  padding: var(--space-6) 0 0;
+  list-style: none;
+  border-top: var(--rule-width) solid var(--color-rule);
+  font-size: var(--text-h3);
+  font-weight: var(--weight-display);
+  font-stretch: var(--stretch-display);
+  letter-spacing: var(--tracking-display);
+}
+
+.toolsNote {
+  margin-top: var(--space-8);
+  max-width: 56ch;
+  color: var(--color-ink-muted);
+}
+
+@media (max-width: 960px) {
+  .services {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .process {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .role {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  }
+
+  .roleBody {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 760px) {
+  .intro {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "title"
+      "portrait"
+      "body";
+  }
+
+  .capabilities,
+  .services,
+  .process {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .capabilities li,
+  .capabilities li + li {
+    padding: var(--space-6) 0;
+    border-left: 0;
+  }
+
+  .capabilities li + li {
+    border-top: var(--rule-width) solid var(--color-rule);
+  }
+
+  .service {
+    padding: var(--space-6) var(--space-5);
+  }
+
+  .role {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .roleBody {
+    grid-column: auto;
+  }
+}

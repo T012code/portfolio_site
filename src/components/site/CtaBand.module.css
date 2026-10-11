@@ -1,0 +1,67 @@
+.band {
+  background: var(--color-inverse-paper);
+  color: var(--color-inverse-ink);
+  padding-block: var(--space-section);
+}
+
+.band :global(.label) {
+  color: color-mix(in oklch, var(--color-inverse-ink) 70%, var(--color-inverse-paper));
+}
+
+.band :focus-visible {
+  outline-color: var(--color-inverse-ink);
+}
+
+.inner {
+  display: grid;
+  gap: var(--space-12);
+}
+
+.heading {
+  font-size: var(--text-poster);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  max-width: 14ch;
+  margin-left: -0.05em;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-10);
+  padding-top: var(--space-8);
+  border-top: var(--rule-width) solid color-mix(in oklch, var(--color-inverse-ink) 30%, transparent);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.ghost {
+  --btn-fg: var(--color-inverse-ink) !important;
+  --btn-hover-bg: color-mix(in oklch, var(--color-inverse-ink) 14%, transparent) !important;
+  --btn-hover-fg: var(--color-inverse-ink) !important;
+}
+
+.contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6) var(--space-12);
+  margin: 0;
+}
+
+.contacts dd {
+  margin: var(--space-1) 0 0;
+}
+
+.contacts a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block: var(--space-1);
+  font-weight: var(--weight-strong);
+}

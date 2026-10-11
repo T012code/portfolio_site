@@ -1,0 +1,248 @@
+/* ── Hero ── */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.5fr);
+  grid-template-areas:
+    "headline headline"
+    "foot visual";
+  gap: var(--space-12) var(--space-16);
+  padding-block: clamp(3rem, 2rem + 6vw, 8rem) var(--space-section);
+}
+
+.headline {
+  grid-area: headline;
+  font-size: var(--text-h1);
+  line-height: var(--leading-tight);
+  margin-left: -0.055em;
+}
+
+.line {
+  display: block;
+}
+
+.visual {
+  grid-area: visual;
+  align-self: end;
+  justify-self: end;
+  display: grid;
+  place-items: center;
+  width: min(100%, 22rem);
+  aspect-ratio: 1;
+}
+
+.mark {
+  width: 100%;
+  height: auto;
+  color: var(--color-ink);
+}
+
+.heroFoot {
+  grid-area: foot;
+  display: grid;
+  gap: var(--space-6);
+  align-content: start;
+  padding-top: var(--space-6);
+  border-top: var(--rule-width) solid var(--color-rule);
+}
+
+.roleLine {
+  font-size: var(--text-lead);
+  color: var(--color-ink-muted);
+  max-width: 44ch;
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* ── Tools ticker ── */
+.ticker {
+  overflow: hidden;
+  border-block: var(--rule-width) solid var(--color-rule);
+  padding-block: var(--space-4);
+}
+
+.tickerTrack {
+  display: flex;
+  width: max-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  animation: ticker 48s linear infinite;
+}
+
+.tickerTrack li {
+  padding-inline: var(--space-8);
+  font-size: var(--text-h3);
+  font-weight: var(--weight-display);
+  font-stretch: var(--stretch-display);
+  letter-spacing: var(--tracking-display);
+  white-space: nowrap;
+}
+
+.tickerTrack li::after {
+  content: "";
+  display: inline-block;
+  width: 0.4em;
+  height: 0.4em;
+  margin-left: var(--space-8);
+  background: currentColor;
+  vertical-align: 0.15em;
+}
+
+.ticker:hover .tickerTrack {
+  animation-play-state: paused;
+}
+
+@keyframes ticker {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ── Sections ── */
+.section {
+  padding-block: var(--space-section) 0;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block: var(--space-2);
+  font-size: var(--text-small);
+  font-weight: var(--weight-strong);
+}
+
+.more svg {
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.more:hover svg {
+  transform: translateX(3px);
+}
+
+/* ── Intro ── */
+.intro {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: var(--space-10) var(--space-16);
+  align-items: end;
+}
+
+.portrait {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.portrait img {
+  object-fit: cover;
+}
+
+.introText {
+  display: grid;
+  gap: var(--space-8);
+  justify-items: start;
+  padding-top: var(--space-6);
+  border-top: var(--rule-width) solid var(--color-rule);
+}
+
+.introLead {
+  font-size: var(--text-h3);
+  font-weight: var(--weight-body);
+  line-height: 1.4;
+  max-width: 36ch;
+}
+
+/* ── What I do ── */
+.cells {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0 0 var(--space-section);
+  padding: 0;
+  list-style: none;
+  border-top: var(--rule-width) solid var(--color-rule);
+}
+
+.cell {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  padding: var(--space-8) var(--space-8) var(--space-10) 0;
+}
+
+.cell + .cell {
+  padding-left: var(--space-8);
+  border-left: var(--rule-width) solid var(--color-rule);
+}
+
+.cellTitle {
+  font-size: var(--text-h2);
+  line-height: 1.05;
+}
+
+.cellBody {
+  color: var(--color-ink-muted);
+  max-width: 30ch;
+}
+
+@media (max-width: 960px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "headline"
+      "foot";
+  }
+
+  .visual {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .line {
+    display: inline;
+  }
+
+  .intro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cells {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cell,
+  .cell + .cell {
+    padding: var(--space-6) 0;
+    border-left: 0;
+  }
+
+  .cell + .cell {
+    border-top: var(--rule-width) solid var(--color-rule);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tickerTrack {
+    animation: none;
+    flex-wrap: wrap;
+    width: auto;
+  }
+
+  .tickerTrack li[aria-hidden] {
+    display: none;
+  }
+}

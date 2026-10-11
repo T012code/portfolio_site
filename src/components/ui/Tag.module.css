@@ -1,0 +1,18 @@
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-rule);
+  font-size: var(--text-label);
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+}

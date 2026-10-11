@@ -1,0 +1,71 @@
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--space-12) var(--space-16);
+  align-items: start;
+}
+
+.book {
+  display: grid;
+  gap: var(--space-6);
+  justify-items: start;
+  padding-top: var(--space-6);
+  border-top: var(--rule-width) solid var(--color-ink);
+}
+
+.bookText {
+  font-size: var(--text-h3);
+  line-height: 1.35;
+  max-width: 30ch;
+}
+
+.note {
+  font-size: var(--text-small);
+  color: var(--color-ink-muted);
+}
+
+.methods {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--rule-width) solid var(--color-rule);
+}
+
+.methods li {
+  border-bottom: var(--rule-width) solid var(--color-rule);
+}
+
+.method {
+  position: relative;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-10) var(--space-5) 0;
+  text-decoration: none;
+  transition: padding var(--dur-base) var(--ease-out);
+}
+
+.value {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--weight-strong);
+  overflow-wrap: anywhere;
+}
+
+.arrow {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  translate: 0 -50%;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.method:hover .arrow {
+  transform: translate(3px, -3px);
+}
+
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

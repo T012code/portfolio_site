@@ -260,3 +260,30 @@ textarea {
 .skip-link:focus-visible {
   transform: none;
 }
+
+/* ── Layout utilities ── */
+.wrap {
+  width: 100%;
+  max-width: calc(var(--wrap) + 2 * var(--edge));
+  margin-inline: auto;
+  padding-inline: var(--edge);
+}
+
+.label {
+  display: block;
+  font-size: var(--text-label);
+  line-height: 1.2;
+  font-weight: var(--weight-strong);
+  font-stretch: var(--stretch-display);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.rule-top {
+  border-top: var(--rule-width) solid var(--color-rule);
+}
+
+html[data-menu-open] {
+  overflow: hidden;
+}

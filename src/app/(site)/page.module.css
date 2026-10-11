@@ -1,0 +1,31 @@
+/* Shared inner-page structure: big ruled title, then sections. */
+.header {
+  display: grid;
+  gap: var(--space-8);
+  padding-block: clamp(3rem, 2rem + 5vw, 7rem) var(--space-12);
+}
+
+.title {
+  font-size: var(--text-poster);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  margin-left: -0.05em;
+}
+
+.lead {
+  max-width: 48ch;
+  font-size: var(--text-lead);
+  color: var(--color-ink-muted);
+}
+
+.section {
+  padding-bottom: var(--space-section);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}

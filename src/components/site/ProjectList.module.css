@@ -1,0 +1,198 @@
+.wrap {
+  position: relative;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--rule-width) solid var(--color-rule);
+}
+
+.item {
+  position: relative;
+  border-bottom: var(--rule-width) solid var(--color-rule);
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+/* Ink bar that grows from the left on hover. */
+.item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(-1 * var(--rule-width));
+  width: 100%;
+  height: var(--rule-width);
+  background: var(--color-ink);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur-hero) var(--ease-out);
+}
+
+.item[data-active]::before {
+  transform: scaleX(1);
+}
+
+.item[data-dimmed] {
+  opacity: 0.45;
+}
+
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr) auto;
+  gap: var(--space-4) var(--space-10);
+  align-items: start;
+  padding-block: var(--space-8);
+}
+
+.thumb {
+  display: none;
+}
+
+.title {
+  font-size: var(--text-h3);
+  line-height: 1.15;
+}
+
+/* Stretch the title link over the whole row so the row is the click target. */
+.titleLink {
+  text-decoration: none;
+}
+
+.titleLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.titleLink:focus-visible {
+  outline: none;
+}
+
+.titleLink:focus-visible::after {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.role {
+  margin-top: var(--space-2);
+  font-size: var(--text-small);
+  color: var(--color-ink-muted);
+}
+
+.body {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.summary {
+  max-width: 52ch;
+  color: var(--color-ink);
+}
+
+.arrow {
+  display: inline-flex;
+  padding-top: var(--space-1);
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.item[data-active] .arrow {
+  transform: translate(4px, -4px);
+}
+
+/* Cursor-following preview (fine pointers only). */
+.preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: clamp(16rem, 22vw, 26rem);
+  aspect-ratio: 16 / 10;
+  margin: calc(clamp(16rem, 22vw, 26rem) * -0.3125) 0 0 calc(clamp(16rem, 22vw, 26rem) * -0.5);
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  will-change: transform;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.preview[data-visible] {
+  opacity: 1;
+}
+
+.previewFrame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: scale(1.08);
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    transform var(--dur-hero) var(--ease-out);
+}
+
+.previewFrame[data-active] {
+  opacity: 1;
+  transform: none;
+}
+
+.previewFrame img {
+  object-fit: cover;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .preview {
+    display: none;
+  }
+  .item[data-dimmed] {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 760px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-block: var(--space-6);
+  }
+
+  .thumb {
+    position: relative;
+    display: block;
+    grid-column: 1 / -1;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+
+  .thumb img {
+    object-fit: cover;
+  }
+
+  .head {
+    grid-column: 1;
+  }
+
+  .arrow {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .body {
+    grid-column: 1 / -1;
+  }
+
+  .preview {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item::before,
+  .arrow,
+  .previewFrame {
+    transition-duration: var(--dur-micro);
+  }
+  .item[data-active] .arrow {
+    transform: none;
+  }
+}
