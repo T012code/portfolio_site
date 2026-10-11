@@ -29,6 +29,17 @@
   transition: clip-path 0.95s var(--ease-in-out) 0.1s;
 }
 
+/* Text fades as the curtain lifts, so it never sits over the page below. */
+.hudTop,
+.hudTopRight,
+.bottom {
+  transition: opacity 0.25s var(--ease-out);
+}
+
+.preloader[data-phase="leaving"] :is(.hudTop, .hudTopRight, .bottom) {
+  opacity: 0;
+}
+
 @keyframes preloader-failsafe {
   to {
     opacity: 0;
@@ -186,6 +197,8 @@
 }
 
 .motto {
+  /* Fixed height: scrambled glyphs change width, and the block must not move as they do. */
+  position: relative;
   font-size: clamp(2.25rem, 1rem + 6vw, 6.5rem);
   font-weight: var(--weight-display);
   font-stretch: var(--stretch-display);
@@ -195,6 +208,17 @@
   overflow: hidden;
   text-overflow: clip;
   font-variant-numeric: tabular-nums;
+}
+
+.mottoSizer {
+  display: block;
+  visibility: hidden;
+}
+
+.mottoLayer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
 }
 
 .progress {

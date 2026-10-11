@@ -153,7 +153,11 @@ export function Preloader({ motto, location }: { motto: string; location: string
 
       <div className={styles.bottom}>
         <p className={styles.motto}>
-          <span ref={mottoRef}>{motto}</span>
+          {/* The real words set the size; the scramble is drawn on a layer above, so nothing reflows. */}
+          <span className={styles.mottoSizer}>{motto}</span>
+          <span ref={mottoRef} className={styles.mottoLayer}>
+            {motto}
+          </span>
         </p>
         <div className={styles.progress}>
           <span className={styles.counter}>
