@@ -36,5 +36,11 @@ export async function uploadMedia(file: File) {
   if (error) throw new Error(error.message);
 
   const size = await dimensions(file);
-  return registerMedia({ path, mime: file.type, size: file.size, ...size });
+  try {
+    return await registerMedia({ path, mime: file.type, size: file.size, ...size });
+  } catch (e) {
+    // Don't leave an orphan in the bucket that the library can't see or delete.
+    await supabase.storage.from(MEDIA_BUCKET).remove([path]);
+    throw e;
+  }
 }

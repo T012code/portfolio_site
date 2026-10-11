@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { whatsappUrl } from "@/lib/format";
 import { updateInboxItem } from "../../actions";
 import styles from "../../admin.module.css";
 
@@ -38,7 +39,7 @@ export function InboxItem({ kind, entry }: { kind: "enquiries" | "messages"; ent
   const [savedNotes, setSavedNotes] = useState(false);
   const [pending, startTransition] = useTransition();
 
-  const wa = entry.whatsapp.replace(/\D/g, "");
+  const wa = whatsappUrl(entry.whatsapp);
   const subject = encodeURIComponent(
     kind === "enquiries" ? `Re: your ${entry.service || "project"} enquiry` : "Re: your message",
   );
@@ -97,7 +98,7 @@ export function InboxItem({ kind, entry }: { kind: "enquiries" | "messages"; ent
           Reply by email
         </a>
         {wa ? (
-          <a href={`https://wa.me/${wa}`} target="_blank" rel="noopener" className={styles.smallButton}>
+          <a href={wa} target="_blank" rel="noopener" className={styles.smallButton}>
             WhatsApp
           </a>
         ) : null}

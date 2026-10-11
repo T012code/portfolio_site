@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { requireAdminPage } from "@/lib/admin/auth";
+import { getNewInboxCounts } from "@/lib/admin/inbox";
 import styles from "../admin.module.css";
 
 export default async function Dashboard() {
   const { supabase } = await requireAdminPage();
   const count = (q: PromiseLike<{ count: number | null }>) => q.then((r) => r.count ?? 0);
 
-  const [newEnquiries, booked, newMessages, projects, drafts] = await Promise.all([
-    count(supabase.from("enquiries").select("id", { count: "exact", head: true }).eq("status", "new")),
+  const [{ enquiries: newEnquiries, messages: newMessages }, booked, projects, drafts] = await Promise.all([
+    getNewInboxCounts(),
     count(supabase.from("enquiries").select("id", { count: "exact", head: true }).eq("status", "booked")),
-    count(supabase.from("messages").select("id", { count: "exact", head: true }).eq("status", "new")),
     count(supabase.from("projects").select("id", { count: "exact", head: true }).eq("published", true)),
     count(supabase.from("projects").select("id", { count: "exact", head: true }).eq("published", false)),
   ]);

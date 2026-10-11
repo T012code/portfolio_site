@@ -4,6 +4,7 @@ import { Mark } from "@/components/brand/Mark";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { requireAdminPage } from "@/lib/admin/auth";
 import { COLLECTIONS } from "@/lib/admin/collections";
+import { getNewInboxCounts } from "@/lib/admin/inbox";
 import { signOut } from "../actions";
 import { AdminNav } from "./AdminNav";
 import styles from "../admin.module.css";
@@ -11,12 +12,9 @@ import styles from "../admin.module.css";
 export const instant = false;
 
 async function Shell({ children }: { children: React.ReactNode }) {
-  const { email, supabase } = await requireAdminPage();
-  const [enquiries, messages] = await Promise.all([
-    supabase.from("enquiries").select("id", { count: "exact", head: true }).eq("status", "new"),
-    supabase.from("messages").select("id", { count: "exact", head: true }).eq("status", "new"),
-  ]);
-  const newCount = (enquiries.count ?? 0) + (messages.count ?? 0);
+  const { email } = await requireAdminPage();
+  const counts = await getNewInboxCounts();
+  const newCount = counts.enquiries + counts.messages;
 
   const groups = [
     {

@@ -39,8 +39,8 @@ business card artwork. Type is Archivo (variable width), self-hosted from `publi
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    - `NEXT_PUBLIC_SITE_URL` (the live URL, no trailing slash)
 2. **Supabase Auth**: add the admin user (Authentication → Users → Add user, auto-confirm),
-   then turn off "Allow new users to sign up". The first sign-in at `/admin` sets up the
-   authenticator app.
+   add the same email to the `public.admins` table, then turn off "Allow new users to sign
+   up". The first sign-in at `/admin` sets up the authenticator app.
 3. **Cal.com webhook**: in Cal.com → Settings → Developer → Webhooks, add
    `https://<project>.supabase.co/functions/v1/cal-webhook` with Booking Created, Rescheduled
    and Cancelled, and a long random secret. Save the same secret in Supabase as the Edge

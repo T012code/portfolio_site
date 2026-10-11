@@ -20,6 +20,7 @@ export function CalBooking({ calLink, enquiryId, prefill, onBooked }: Props) {
 
   useEffect(() => {
     let cancelled = false;
+    let off: (() => void) | undefined;
     getCalApi({ namespace: NAMESPACE }).then((cal) => {
       if (cancelled) return;
       cal("ui", {
@@ -32,9 +33,11 @@ export function CalBooking({ calLink, enquiryId, prefill, onBooked }: Props) {
         },
       });
       cal("on", { action: "bookingSuccessfulV2", callback: onBooked });
+      off = () => cal("off", { action: "bookingSuccessfulV2", callback: onBooked });
     });
     return () => {
       cancelled = true;
+      off?.();
     };
   }, [theme, onBooked]);
 

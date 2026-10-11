@@ -1,6 +1,7 @@
 import { ButtonLink } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import type { Settings } from "@/lib/content";
+import { whatsappUrl } from "@/lib/format";
 import styles from "./CtaBand.module.css";
 
 type Props = {
@@ -12,7 +13,7 @@ type Props = {
 
 // The one place the ink runs as a field: a poster-style close on every page.
 export function CtaBand({ heading, primary, secondary, settings }: Props) {
-  const whatsapp = settings.whatsapp ? `https://wa.me/${settings.whatsapp.replace(/\D/g, "")}` : null;
+  const whatsapp = whatsappUrl(settings.whatsapp);
   return (
     <section className={styles.band} aria-labelledby="cta-heading">
       <div className={`wrap ${styles.inner}`}>

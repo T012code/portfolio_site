@@ -167,6 +167,7 @@ export type Database = {
     Views: { [_ in never]: never };
     Functions: {
       am_i_admin: { Args: never; Returns: boolean };
+      reorder_rows: { Args: { p_table: string; p_ids: string[] }; Returns: undefined };
       submit_enquiry: {
         Args: {
           p_budget: string;

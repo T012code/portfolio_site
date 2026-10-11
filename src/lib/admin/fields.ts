@@ -49,11 +49,11 @@ export function emptyValue(field: Field): FieldValue {
 export function slugify(input: string) {
   return input
     .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 80);
+    .slice(0, 80)
+    .replace(/^-+|-+$/g, "");
 }
 
 /** Parse a submitted FormData into typed values, collecting field errors. */

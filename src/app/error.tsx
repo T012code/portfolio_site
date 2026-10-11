@@ -23,7 +23,7 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
       <Mark style={{ width: "4rem", color: "var(--color-ink)" }} />
       <h1 style={{ fontSize: "var(--text-h1)", lineHeight: 1 }}>Something went wrong.</h1>
       <p style={{ color: "var(--color-ink-muted)", maxWidth: "40ch" }}>
-        Try again in a moment. If it keeps happening, email molayokunmi@gmail.com.
+        Try again in a moment. If it keeps happening, use the contact page.
       </p>
       <p style={{ display: "flex", gap: "var(--space-6)", flexWrap: "wrap" }}>
         <button

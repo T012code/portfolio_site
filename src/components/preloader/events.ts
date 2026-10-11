@@ -1,4 +1,5 @@
 export const PRELOADED_EVENT = "layo:preloaded";
+export const PRELOADED_KEY = "layo-preloaded";
 
 /** Run `callback` once the preloader has finished, or right away if there isn't one. */
 export function whenPreloaded(callback: () => void): () => void {

@@ -4,12 +4,12 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { MARK_PATHS, MARK_VIEWBOX } from "@/components/brand/paths";
 import { Wordmark } from "@/components/brand/Wordmark";
-import { PRELOADED_EVENT } from "./events";
+import { canRender3D } from "@/components/three/gpu";
+import { PRELOADED_EVENT, PRELOADED_KEY } from "./events";
 import styles from "./Preloader.module.css";
 
 const PreloaderScene = dynamic(() => import("./PreloaderScene"), { ssr: false });
 
-export const PRELOADED_KEY = "layo-preloaded";
 const GLYPHS = "01<>/{}[]#$%&*+=?ABCDEFGHJKLMNPQRSTUVWXYZ";
 const MIN_MS = 2400;
 const MAX_MS = 6500;
@@ -18,24 +18,6 @@ const EXIT_MS = 950;
 // The head script marks repeat visits in this session; read it without a hydration mismatch.
 const subscribe = () => () => {};
 const alreadySeen = () => "preloaded" in document.documentElement.dataset;
-
-function hasGpu() {
-  try {
-    const nav = navigator as Navigator & { connection?: { saveData?: boolean } };
-    if (nav.connection?.saveData) return false;
-    if ((nav.hardwareConcurrency ?? 8) < 4) return false;
-    const canvas = document.createElement("canvas");
-    const gl = (canvas.getContext("webgl2") ?? canvas.getContext("webgl")) as WebGLRenderingContext | null;
-    if (!gl) return false;
-    if (new URLSearchParams(window.location.search).get("3d") === "force") return true;
-    const info = gl.getExtension("WEBGL_debug_renderer_info");
-    const renderer = String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
-    gl.getExtension("WEBGL_lose_context")?.loseContext();
-    return !/swiftshader|llvmpipe|softpipe|software|basic render/i.test(renderer);
-  } catch {
-    return false;
-  }
-}
 
 export function Preloader({ motto, location }: { motto: string; location: string }) {
   const skipped = useSyncExternalStore(subscribe, alreadySeen, () => false);
@@ -61,7 +43,7 @@ export function Preloader({ motto, location }: { motto: string; location: string
     // Hydrated: the JavaScript timeline takes over from the CSS failsafe.
     rootRef.current?.setAttribute("data-hydrated", "");
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const gpu = !reduced && hasGpu();
+    const gpu = !reduced && canRender3D();
     if (!gpu) {
       sceneReadyRef.current = true;
       introDoneRef.current = true;

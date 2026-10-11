@@ -6,7 +6,7 @@ import { requireAdminAction } from "@/lib/admin/auth";
 import { getCollection, SETTINGS_FIELDS } from "@/lib/admin/collections";
 import { parseFields, type Field } from "@/lib/admin/fields";
 import { BLOCKS, type PageName } from "@/lib/blocks";
-import { TAGS } from "@/lib/content";
+import { TAGS } from "@/lib/tags";
 import { MEDIA_BUCKET } from "@/lib/media";
 import type { Json } from "@/lib/supabase/database.types";
 
@@ -23,6 +23,7 @@ function fail(message: string, errors?: Record<string, string>): FormState {
 function friendly(error: { message: string; code?: string }) {
   if (error.code === "23505") return "That value is already in use. Slugs and names must be unique.";
   if (error.code === "42501") return "You don't have permission to do that. Sign in again.";
+  if (error.code === "23514") return "One of the values isn't in the allowed format.";
   return error.message;
 }
 
@@ -49,8 +50,9 @@ export async function saveCollectionItem(
   // Dynamic table name: the typed client can't narrow it, but the key comes from our own whitelist.
   const table = session.supabase.from(collection.table as "projects");
   if (id) {
-    const { error } = await table.update(values as never).eq("id", id);
+    const { data, error } = await table.update(values as never).eq("id", id).select("id");
     if (error) return fail(friendly(error));
+    if (!data?.length) return fail("This item no longer exists. It may have been deleted in another tab.");
   } else {
     let sort = 0;
     if (collection.sortable) {
@@ -102,16 +104,9 @@ export async function reorderCollection(collectionKey: string, ids: string[]) {
   if (!collection?.sortable) throw new Error("This list can't be reordered.");
   if (ids.length > 500 || ids.some((id) => !/^[0-9a-f-]{36}$/i.test(id))) throw new Error("Invalid order.");
   const session = await requireAdminAction();
-  const results = await Promise.all(
-    ids.map((id, index) =>
-      session.supabase
-        .from(collection.table as "projects")
-        .update({ sort: index + 1 } as never)
-        .eq("id", id),
-    ),
-  );
-  const failed = results.find((r) => r.error);
-  if (failed?.error) throw new Error(friendly(failed.error));
+  // One statement, so the order is applied completely or not at all.
+  const { error } = await session.supabase.rpc("reorder_rows", { p_table: collection.table, p_ids: ids });
+  if (error) throw new Error(friendly(error));
   updateTag(collection.tag);
 }
 
@@ -161,8 +156,13 @@ export async function saveSettings(_prev: FormState, form: FormData): Promise<Fo
   if (Object.keys(errors).length > 0) return fail("Check the highlighted fields.", errors);
   if (typeof values.whatsapp === "string") values.whatsapp = values.whatsapp.replace(/\D/g, "");
 
-  const { error } = await session.supabase.from("site_settings").update(values as never).eq("id", true);
+  const { data, error } = await session.supabase
+    .from("site_settings")
+    .update(values as never)
+    .eq("id", true)
+    .select("id");
   if (error) return fail(friendly(error));
+  if (!data?.length) return fail("The settings row is missing. Run the database migrations.");
 
   updateTag(TAGS.settings);
   return { status: "success", message: "Settings saved." };
@@ -209,6 +209,9 @@ export async function deleteMedia(id: string) {
       .select("id")
       .or(`portrait_path.eq.${row.path},cv_path.eq.${row.path},og_image_path.eq.${row.path}`),
   ]);
+  if (projects.error || settings.error) {
+    throw new Error("Couldn't check where this file is used, so it wasn't deleted. Try again.");
+  }
   const usedBy = [
     ...(projects.data ?? []).map((p) => `project "${p.title}"`),
     ...((settings.data ?? []).length > 0 ? ["site settings"] : []),

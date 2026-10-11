@@ -3,19 +3,11 @@ import { cacheLife, cacheTag } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { Row } from "@/lib/supabase/database.types";
 import { resolveBlocks, type PageName } from "@/lib/blocks";
+import { TAGS } from "@/lib/tags";
 
 // Every public read is cached until the admin changes the matching table,
 // which calls updateTag(TAGS.x) from a Server Action.
-export const TAGS = {
-  settings: "settings",
-  blocks: "blocks",
-  projects: "projects",
-  capabilities: "capabilities",
-  services: "services",
-  process: "process",
-  experience: "experience",
-  skills: "skills",
-} as const;
+export { TAGS };
 
 export type Settings = Row<"site_settings">;
 export type Project = Row<"projects">;

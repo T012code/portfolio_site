@@ -119,13 +119,12 @@ export function resolveBlocks<P extends PageName>(page: P, stored: Record<string
     for (const field of def.fields) {
       const value = raw[field.name];
       const fallback = def.defaults[field.name] ?? (field.kind === "lines" || field.kind === "paragraphs" ? [] : "");
+      // Fields never saved use the default; a saved empty value is the admin's choice.
       if (field.kind === "lines" || field.kind === "paragraphs") {
         block[field.name] =
-          Array.isArray(value) && value.every((v) => typeof v === "string") && value.length > 0
-            ? (value as string[])
-            : (fallback as string[]);
+          Array.isArray(value) && value.every((v) => typeof v === "string") ? (value as string[]) : (fallback as string[]);
       } else {
-        block[field.name] = typeof value === "string" && value.trim() !== "" ? value : (fallback as string);
+        block[field.name] = typeof value === "string" ? value : (fallback as string);
       }
     }
     out[key] = block;

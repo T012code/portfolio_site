@@ -39,7 +39,9 @@ export default async function AboutPage() {
     getSkills(),
   ]);
   const portrait = mediaUrl(settings.portrait_path);
-  const cv = mediaUrl(settings.cv_path);
+  // Browsers ignore `download` across origins; Supabase serves an attachment with ?download.
+  const cvUrl = mediaUrl(settings.cv_path);
+  const cv = cvUrl && !cvUrl.startsWith("/") ? `${cvUrl}?download=Laniya-Molayoninujesu-CV.pdf` : cvUrl;
 
   return (
     <PageTransition>

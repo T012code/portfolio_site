@@ -1,3 +1,4 @@
+import { TAGS } from "@/lib/tags";
 import type { Field } from "./fields";
 
 // Editable lists. The admin list, form, validation and cache tag all come from here.
@@ -25,7 +26,7 @@ export const COLLECTIONS: Record<CollectionKey, Collection> = {
   projects: {
     key: "projects",
     table: "projects",
-    tag: "projects",
+    tag: TAGS.projects,
     label: "Projects",
     singular: "project",
     description: "Everything on the Work page. Featured projects also appear on the home page (up to three).",
@@ -52,7 +53,7 @@ export const COLLECTIONS: Record<CollectionKey, Collection> = {
   services: {
     key: "services",
     table: "services",
-    tag: "services",
+    tag: TAGS.services,
     label: "Services",
     singular: "service",
     description: "The services grid on the About page.",
@@ -70,7 +71,7 @@ export const COLLECTIONS: Record<CollectionKey, Collection> = {
   capabilities: {
     key: "capabilities",
     table: "capabilities",
-    tag: "capabilities",
+    tag: TAGS.capabilities,
     label: "What I do",
     singular: "role",
     description: "The three roles. The short line shows on the home page, the full text on About.",
@@ -89,7 +90,7 @@ export const COLLECTIONS: Record<CollectionKey, Collection> = {
   process: {
     key: "process",
     table: "process_steps",
-    tag: "process",
+    tag: TAGS.process,
     label: "How I work",
     singular: "step",
     description: "The numbered steps on the About page. Order sets the numbers.",
@@ -105,7 +106,7 @@ export const COLLECTIONS: Record<CollectionKey, Collection> = {
   experience: {
     key: "experience",
     table: "experience",
-    tag: "experience",
+    tag: TAGS.experience,
     label: "Experience",
     singular: "role",
     description: "The timeline on the About page, newest first by start date.",
@@ -131,7 +132,7 @@ export const COLLECTIONS: Record<CollectionKey, Collection> = {
   skills: {
     key: "skills",
     table: "skills",
-    tag: "skills",
+    tag: TAGS.skills,
     label: "Tools",
     singular: "tool",
     description: "The tools ticker on the home page and the list on About.",

@@ -153,7 +153,7 @@ function EnquiryForm({
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
 
   return (
-    <form onSubmit={onSubmit} className={styles.form} noValidate>
+    <form method="post" onSubmit={onSubmit} className={styles.form} noValidate>
       <p className={styles.step}>
         <span className="label">Step 1 of 2</span> Tell me about the project, then pick a call time.
       </p>
@@ -219,7 +219,7 @@ function MessageForm({ responseNote }: { responseNote: string }) {
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
 
   return (
-    <form onSubmit={onSubmit} className={styles.form} noValidate>
+    <form method="post" onSubmit={onSubmit} className={styles.form} noValidate>
       {state.status === "error" ? (
         <p ref={alertRef} tabIndex={-1} role="alert" className={styles.alert}>
           {state.message}

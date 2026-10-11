@@ -27,6 +27,11 @@ export function LoginFlow({ initialError }: { initialError?: string }) {
     const { data: session } = await supabase.auth.getSession();
     if (!session.session) return setStep({ kind: "password" });
     if (aal.currentLevel === "aal2") {
+      // Verified but not on the admin list: sign out instead of bouncing back to /admin.
+      if (initialError) {
+        await supabase.auth.signOut();
+        return setStep({ kind: "password" });
+      }
       router.replace("/admin");
       router.refresh();
       return;
@@ -106,7 +111,13 @@ export function LoginFlow({ initialError }: { initialError?: string }) {
         {step.kind === "loading" ? <p className={styles.muted}>Checking your session…</p> : null}
 
         {step.kind === "password" ? (
-          <form action={onPassword} className={styles.stack}>
+          <form
+            className={styles.stack}
+            onSubmit={(e) => {
+              e.preventDefault();
+              onPassword(new FormData(e.currentTarget));
+            }}
+          >
             <label className={styles.field}>
               <span className={styles.fieldLabel}>Email</span>
               <input className={styles.input} name="email" type="email" autoComplete="username" required />

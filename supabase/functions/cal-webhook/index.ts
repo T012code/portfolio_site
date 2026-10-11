@@ -96,11 +96,14 @@ Deno.serve(async (req) => {
       .eq("id", enquiryId);
     if (error) return new Response(error.message, { status: 500 });
   } else if (trigger === "BOOKING_CANCELLED") {
+    // Only clear the booking we recorded; a stale or duplicate cancellation is ignored.
+    if (!booking.uid) return Response.json({ ok: true, matched: false });
     const { error } = await db
       .from("enquiries")
       .update({ status: "new", booking_uid: null, booking_start: null })
       .eq("id", enquiryId)
-      .eq("status", "booked");
+      .eq("status", "booked")
+      .eq("booking_uid", booking.uid);
     if (error) return new Response(error.message, { status: 500 });
   }
 

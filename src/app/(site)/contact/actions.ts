@@ -38,7 +38,7 @@ function text(form: FormData, key: string, max = 5000) {
 function looksAutomated(form: FormData) {
   if (text(form, "website")) return true;
   const started = Number(text(form, "started"));
-  return !Number.isFinite(started) || Date.now() - started < MIN_FILL_MS;
+  return !Number.isFinite(started) || started <= 0 || Date.now() - started < MIN_FILL_MS;
 }
 
 function failure(code: string, values: Record<string, string>): SubmitState {
@@ -91,11 +91,6 @@ export async function submitEnquiry(_prev: SubmitState, form: FormData): Promise
       replyTo: values.email,
       subject: `New enquiry: ${values.service || "project"} from ${values.name}`,
       rows,
-      ack: {
-        to: values.email,
-        name: values.name.split(" ")[0],
-        body: "Thanks for the details. I'll read through them and reply within 24 hours. If you picked a call time, you'll get a calendar invite separately.",
-      },
     }),
   );
 
@@ -141,11 +136,6 @@ export async function submitMessage(_prev: SubmitState, form: FormData): Promise
         ["WhatsApp", values.whatsapp],
         ["Message", values.message],
       ],
-      ack: {
-        to: values.email,
-        name: values.name.split(" ")[0],
-        body: "Thanks for your message. I'll get back to you within 24 hours.",
-      },
     }),
   );
 

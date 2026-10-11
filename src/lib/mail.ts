@@ -29,33 +29,23 @@ function table(rows: [string, string][]) {
     .join("")}</table>`;
 }
 
-type Mail = { replyTo: string; subject: string; rows: [string, string][]; ack: { to: string; name: string; body: string } };
+type Mail = { replyTo: string; subject: string; rows: [string, string][] };
 
-/** Notify the site owner and send the sender a short acknowledgement. Never throws. */
+// Only the site owner is emailed. No auto-reply goes to the submitted address: that would
+// let anyone send mail from this domain to arbitrary people with text they control.
 export async function sendSubmissionEmails(mail: Mail) {
   const smtp = transport();
   if (!smtp) return { sent: false as const, reason: "not-configured" };
-  const from = `Layò <${process.env.SMTP_USER}>`;
-  const to = process.env.NOTIFY_EMAIL || process.env.SMTP_USER!;
   const plain = mail.rows.filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join("\n");
-
   try {
-    await Promise.all([
-      smtp.sendMail({
-        from,
-        to,
-        replyTo: mail.replyTo,
-        subject: mail.subject,
-        text: plain,
-        html: table(mail.rows),
-      }),
-      smtp.sendMail({
-        from,
-        to: mail.ack.to,
-        subject: "Thanks, I've got your message",
-        text: `Hi ${mail.ack.name},\n\n${mail.ack.body}\n\nLayò\nhttps://www.layothedeveloper.com`,
-      }),
-    ]);
+    await smtp.sendMail({
+      from: `Layò website <${process.env.SMTP_USER}>`,
+      to: process.env.NOTIFY_EMAIL || process.env.SMTP_USER!,
+      replyTo: mail.replyTo,
+      subject: mail.subject,
+      text: plain,
+      html: table(mail.rows),
+    });
     return { sent: true as const };
   } catch (error) {
     console.error("Email failed", error);
