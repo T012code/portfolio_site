@@ -493,3 +493,12 @@ html[data-menu-open] {
     transform: scale(1.06);
   }
 }
+
+/* ── Preloader hand-off: hold the page still until the preloader starts to leave ── */
+html:not([data-preloaded]):not([data-preloader-leaving]):has([data-preloader]) {
+  overflow: hidden;
+}
+
+html:not([data-preloaded]):not([data-preloader-leaving]):has([data-preloader]) :is(.intro-line > span, .intro-fade, .intro-settle > *) {
+  animation-play-state: paused;
+}

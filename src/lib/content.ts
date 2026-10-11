@@ -36,7 +36,8 @@ export async function getSettings(): Promise<Settings> {
   cacheLife("max");
   cacheTag(TAGS.settings);
   const db = createPublicClient();
-  return unwrap(await db.from("site_settings").select("*").eq("id", true).single(), "settings");
+  const settings = unwrap<Settings>(await db.from("site_settings").select("*").eq("id", true).single(), "settings");
+  return { ...settings, motto: settings.motto || "Everything is possible." };
 }
 
 export async function getBlocks<P extends PageName>(page: P) {

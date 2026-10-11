@@ -19,6 +19,8 @@ export function SiteFooter({ settings, year }: { settings: Settings; year: numbe
           </p>
         </div>
 
+        <p className={styles.motto}>{settings.motto}</p>
+
         <div className={styles.bottom}>
           <p className={styles.meta}>
             {settings.display_name} · {year} · {settings.location}

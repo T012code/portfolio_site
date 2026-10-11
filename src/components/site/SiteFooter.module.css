@@ -37,6 +37,15 @@
   text-align: left;
 }
 
+.motto {
+  font-size: var(--text-poster);
+  font-weight: var(--weight-display);
+  font-stretch: var(--stretch-display);
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
 .bottom {
   display: flex;
   flex-wrap: wrap;

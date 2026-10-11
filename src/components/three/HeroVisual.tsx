@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { Mark } from "@/components/brand/Mark";
+import { whenPreloaded } from "@/components/preloader/events";
 import { useTheme } from "@/components/theme/useTheme";
 
 const HeroMark3D = dynamic(() => import("./HeroMark3D"), { ssr: false });
@@ -36,11 +37,16 @@ export function HeroVisual({ className }: { className?: string }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // Defer to idle time so the 3D bundle never competes with first paint.
+    // After the preloader, at idle time, so the 3D bundle never competes with first paint.
+    let idle: number | undefined;
+    let timer: number | undefined;
     const start = () => setEnabled(canUse3D());
-    const idle = window.requestIdleCallback?.(start, { timeout: 1500 });
-    const timer = idle === undefined ? window.setTimeout(start, 400) : undefined;
+    const stopWaiting = whenPreloaded(() => {
+      idle = window.requestIdleCallback?.(start, { timeout: 1500 });
+      if (idle === undefined) timer = window.setTimeout(start, 400);
+    });
     return () => {
+      stopWaiting();
       if (idle !== undefined) window.cancelIdleCallback?.(idle);
       if (timer !== undefined) window.clearTimeout(timer);
     };

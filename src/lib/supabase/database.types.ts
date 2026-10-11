@@ -143,6 +143,7 @@ export type Database = {
           id: boolean;
           linkedin_url: string;
           location: string;
+          motto: string;
           og_image_path: string | null;
           phone: string;
           portrait_alt: string;

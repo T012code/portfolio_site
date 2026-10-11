@@ -156,6 +156,7 @@ export const SETTINGS_FIELDS: { group: string; fields: Field[] }[] = [
     fields: [
       { name: "display_name", label: "Display name", kind: "text", required: true, max: 60, half: true },
       { name: "full_name", label: "Full name", kind: "text", max: 120, half: true },
+      { name: "motto", label: "Motto", kind: "text", max: 80, hint: "Shown in the preloader, above the home headline and in the footer." },
       { name: "taglines", label: "Taglines", kind: "lines", hint: "One per line.", max: 60 },
       { name: "role_line", label: "Role line", kind: "text", max: 200, hint: "Shown under the home headline." },
       { name: "location", label: "Location", kind: "text", max: 80 },

@@ -48,6 +48,9 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
       <section className={`wrap ${styles.hero}`} aria-labelledby="hero-heading">
+        <p className={`label intro-fade ${styles.motto}`} style={{ "--delay": "0.1s" } as React.CSSProperties}>
+          {settings.motto}
+        </p>
         <h1 id="hero-heading" className={styles.headline}>
           {blocks.hero.lines.map((line, i) => (
             <span key={i} className={`intro-line ${styles.line}`} style={{ "--line": i } as React.CSSProperties}>

@@ -3,10 +3,27 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 0.5fr);
   grid-template-areas:
+    "motto motto"
     "headline headline"
     "foot visual";
   gap: var(--space-12) var(--space-16);
   padding-block: clamp(3rem, 2rem + 6vw, 8rem) var(--space-section);
+}
+
+.motto {
+  grid-area: motto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: calc(-1 * var(--space-6));
+  color: var(--color-ink);
+}
+
+.motto::before {
+  content: "";
+  width: 2.5rem;
+  height: var(--rule-width);
+  background: currentColor;
 }
 
 .headline {
@@ -197,6 +214,7 @@
   .hero {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
+      "motto"
       "headline"
       "visual"
       "foot";

@@ -1,6 +1,7 @@
 import { cacheLife } from "next/cache";
 import { Cursor } from "@/components/motion/Cursor";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
+import { Preloader } from "@/components/preloader/Preloader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { getSettings } from "@/lib/content";
@@ -15,6 +16,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   const [settings, year] = await Promise.all([getSettings(), currentYear()]);
   return (
     <>
+      <Preloader motto={settings.motto} location={settings.location} />
       <a href="#main" className="skip-link">
         Skip to content
       </a>
