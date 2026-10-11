@@ -57,11 +57,13 @@ export default async function AboutPage() {
               {p}
             </p>
           ))}
-          <ul className={styles.taglines} aria-label="Roles">
-            {settings.taglines.map((t) => (
-              <li key={t}>{t}</li>
-            ))}
-          </ul>
+          {settings.taglines.length > 0 ? (
+            <ul className={styles.taglines} aria-label="Roles">
+              {settings.taglines.map((t) => (
+                <li key={t}>{t}</li>
+              ))}
+            </ul>
+          ) : null}
         </div>
         {portrait ? (
           <div className={`intro-settle ${styles.portrait}`}>
@@ -70,19 +72,21 @@ export default async function AboutPage() {
         ) : null}
       </header>
 
-      <section className={`wrap ${shared.section}`} aria-labelledby="what-heading">
-        <h2 id="what-heading" className={`label ${styles.sectionLabel}`}>
-          {blocks.what_i_do.label}
-        </h2>
-        <Reveal as="ul" className={styles.capabilities} stagger>
-          {capabilities.map((c) => (
-            <li key={c.id}>
-              <h3 className={styles.capTitle}>{c.title}</h3>
-              <p>{c.body}</p>
-            </li>
-          ))}
-        </Reveal>
-      </section>
+      {capabilities.length > 0 ? (
+        <section className={`wrap ${shared.section}`} aria-labelledby="what-heading">
+          <h2 id="what-heading" className={`label ${styles.sectionLabel}`}>
+            {blocks.what_i_do.label}
+          </h2>
+          <Reveal as="ul" className={styles.capabilities} stagger>
+            {capabilities.map((c) => (
+              <li key={c.id}>
+                <h3 className={styles.capTitle}>{c.title}</h3>
+                <p>{c.body}</p>
+              </li>
+            ))}
+          </Reveal>
+        </section>
+      ) : null}
 
       <section className={`wrap ${shared.section}`} aria-labelledby="services-heading">
         <h2 id="services-heading" className={`label ${styles.sectionLabel}`}>

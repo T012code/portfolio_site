@@ -6,28 +6,21 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { buildPieces, easeOutExpo } from "./markGeometry";
 
-function Mark({ color, reduced }: { color: string; reduced: boolean }) {
+// Fixed three-quarter view. The mark assembles once, then holds still.
+const POSE: [number, number, number] = [-0.16, 0.38, 0];
+const INTRO_END = 2.4;
+
+function Mark({ color, reduced, onSettled }: { color: string; reduced: boolean; onSettled: () => void }) {
   const pieces = useMemo(() => buildPieces(), []);
-  const group = useRef<THREE.Group>(null);
   const meshes = useRef<(THREE.Mesh | null)[]>([]);
-  const pointer = useRef({ x: 0, y: 0 });
   // Own clock, capped per frame, so a slow first few frames can't skip the intro.
   const clock = useRef(0);
-
-  useEffect(() => {
-    const move = (e: PointerEvent) => {
-      pointer.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-      pointer.current.y = (e.clientY / window.innerHeight) * 2 - 1;
-    };
-    window.addEventListener("pointermove", move, { passive: true });
-    return () => window.removeEventListener("pointermove", move);
-  }, []);
+  const settled = useRef(false);
 
   useEffect(() => () => pieces.forEach((p) => p.geometry.dispose()), [pieces]);
 
   useFrame((_, delta) => {
-    const g = group.current;
-    if (!g) return;
+    if (settled.current) return;
     clock.current += Math.min(delta, 1 / 30);
     const t = clock.current;
 
@@ -40,18 +33,18 @@ function Mark({ color, reduced }: { color: string; reduced: boolean }) {
       mesh.rotation.set(piece.spin.x * r, piece.spin.y * r, piece.spin.z * r);
     });
 
-    const scroll = Math.min(window.scrollY / window.innerHeight, 1.5);
-    const float = reduced ? 0 : Math.sin(t * 0.8) * 0.06;
-    const targetX = -0.18 + (reduced ? 0 : pointer.current.y * 0.28) + scroll * 0.35;
-    const targetY = 0.42 + (reduced ? 0 : pointer.current.x * 0.45) + scroll * 1.1;
-    const damp = 1 - Math.exp(-Math.min(delta, 1 / 30) * 4);
-    g.rotation.x += (targetX - g.rotation.x) * damp;
-    g.rotation.y += (targetY - g.rotation.y) * damp;
-    g.position.y = float;
+    if (reduced || t > INTRO_END + Math.max(...pieces.map((p) => p.delay))) {
+      pieces.forEach((_, i) => {
+        meshes.current[i]?.position.set(0, 0, 0);
+        meshes.current[i]?.rotation.set(0, 0, 0);
+      });
+      settled.current = true;
+      onSettled();
+    }
   });
 
   return (
-    <group ref={group} rotation={[-0.18, 0.42, 0]}>
+    <group rotation={POSE}>
       {pieces.map((piece, i) => (
         <mesh
           key={i}
@@ -59,7 +52,6 @@ function Mark({ color, reduced }: { color: string; reduced: boolean }) {
             meshes.current[i] = m;
           }}
           geometry={piece.geometry}
-          castShadow
         >
           <meshPhysicalMaterial color={color} roughness={0.32} metalness={0.12} clearcoat={0.7} clearcoatRoughness={0.25} />
         </mesh>
@@ -68,10 +60,12 @@ function Mark({ color, reduced }: { color: string; reduced: boolean }) {
   );
 }
 
-/** The 3D mark. Renders only while on screen. */
+/** The 3D mark. Animates only while on screen and only until it has assembled. */
 export default function HeroMark3D({ color, onReady }: { color: string; onReady?: () => void }) {
   const wrap = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
+  // Once assembled the scene is static: render on demand only, so the GPU idles.
+  const [settled, setSettled] = useState(false);
   const [reduced] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
@@ -87,7 +81,7 @@ export default function HeroMark3D({ color, onReady }: { color: string; onReady?
   return (
     <div ref={wrap} style={{ position: "absolute", inset: 0 }}>
       <Canvas
-        frameloop={visible ? "always" : "never"}
+        frameloop={settled ? "demand" : visible ? "always" : "never"}
         dpr={[1, 1.75]}
         camera={{ position: [0, 0, 8.5], fov: 30 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
@@ -102,7 +96,7 @@ export default function HeroMark3D({ color, onReady }: { color: string; onReady?
           <Lightformer form="rect" intensity={1} position={[5, -2, 1]} rotation-y={-Math.PI / 2} scale={[8, 3, 1]} />
           <Lightformer form="ring" intensity={2} position={[2, 2, -6]} scale={3} />
         </Environment>
-        <Mark color={color} reduced={reduced} />
+        <Mark color={color} reduced={reduced} onSettled={() => setSettled(true)} />
       </Canvas>
     </div>
   );

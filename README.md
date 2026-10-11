@@ -38,6 +38,10 @@ business card artwork. Type is Archivo (variable width), self-hosted from `publi
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    - `NEXT_PUBLIC_SITE_URL` (the live URL, no trailing slash)
+   - `MAIL_SECRET` (server only, sensitive): a random 32+ character key, generated with
+     `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`.
+     It encrypts the SMTP password saved in the dashboard. Use the same value locally and in
+     Vercel; changing it means re-entering the SMTP password.
 2. **Supabase Auth**: add the admin user (Authentication → Users → Add user, auto-confirm),
    add the same email to the `public.admins` table, then turn off "Allow new users to sign
    up". The first sign-in at `/admin` sets up the authenticator app.
@@ -45,9 +49,11 @@ business card artwork. Type is Archivo (variable width), self-hosted from `publi
    `https://<project>.supabase.co/functions/v1/cal-webhook` with Booking Created, Rescheduled
    and Cancelled, and a long random secret. Save the same secret in Supabase as the Edge
    Function secret `CAL_WEBHOOK_SECRET`.
-4. **Email (Zoho)**: once `hello@` exists, add `SMTP_HOST` (smtp.zoho.com, or smtp.zoho.eu for
-   EU accounts), `SMTP_PORT=465`, `SMTP_USER`, `SMTP_PASSWORD` (a Zoho app password) and
-   `NOTIFY_EMAIL` in Vercel. Until then, submissions still arrive in the admin inbox.
+4. **Email (Zoho)**: everything is managed in Admin → Email. Pick "Zoho, own domain", enter
+   hello@layothedeveloper.com and a Zoho app password, save, test, then switch sending on.
+   The same page checks the domain's MX, SPF, DKIM and DMARC records and shows the exact
+   values to add. Autoresponders and the delivery log live there too. Until sending is on,
+   submissions still arrive in the admin inbox.
 5. **Domain**: add `www.layothedeveloper.com` in Vercel, update `NEXT_PUBLIC_SITE_URL`, redeploy.
 
 ## Testing the 3D hero without a GPU

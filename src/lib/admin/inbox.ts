@@ -11,3 +11,8 @@ export const getNewInboxCounts = cache(async () => {
   ]);
   return { enquiries: enquiries.count ?? 0, messages: messages.count ?? 0 };
 });
+
+/** ISO timestamp `days` ago, for "last 7 days" style queries. */
+export function daysAgo(days: number) {
+  return new Date(Date.now() - days * 864e5).toISOString();
+}

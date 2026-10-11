@@ -6,17 +6,19 @@ import styles from "./SiteFooter.module.css";
 
 export function SiteFooter({ settings, year }: { settings: Settings; year: number }) {
   return (
-    <footer className={styles.footer}>
+    <footer className={styles.footer} style={{ viewTransitionName: "site-footer" }}>
       <div className={`wrap ${styles.inner}`}>
         <div className={styles.top}>
           <Link href="/" className={styles.mark} aria-label={`${settings.display_name}, home`}>
             <Mark />
           </Link>
-          <p className={styles.taglines}>
-            {settings.taglines.map((t) => (
-              <span key={t}>{t}</span>
-            ))}
-          </p>
+          {settings.taglines.length > 0 ? (
+            <p className={styles.taglines}>
+              {settings.taglines.map((t) => (
+                <span key={t}>{t}</span>
+              ))}
+            </p>
+          ) : null}
         </div>
 
         <p className={styles.motto}>{settings.motto}</p>

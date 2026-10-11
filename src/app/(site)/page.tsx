@@ -31,7 +31,7 @@ export default async function HomePage() {
     "@type": "Person",
     name: settings.full_name,
     alternateName: settings.display_name,
-    jobTitle: settings.taglines[0] ?? "Web developer",
+    jobTitle: settings.taglines[0] ?? "Software engineer",
     url: SITE_URL,
     email: `mailto:${settings.email}`,
     image: portrait ? new URL(portrait, SITE_URL).toString() : undefined,
@@ -119,24 +119,26 @@ export default async function HomePage() {
         </Reveal>
       </section>
 
-      <section className={`wrap ${styles.section}`} aria-labelledby="what-heading">
-        <div className={styles.sectionHead}>
-          <h2 id="what-heading" className="label">
-            {blocks.what_i_do.label}
-          </h2>
-          <Link href="/about#process" className={styles.more}>
-            {blocks.what_i_do.link} <Icon name="arrow-right" size={16} />
-          </Link>
-        </div>
-        <Reveal as="ul" className={styles.cells} stagger>
-          {capabilities.map((c) => (
-            <li key={c.id} className={styles.cell}>
-              <h3 className={styles.cellTitle}>{c.title}</h3>
-              <p className={styles.cellBody}>{c.short_body}</p>
-            </li>
-          ))}
-        </Reveal>
-      </section>
+      {capabilities.length > 0 ? (
+        <section className={`wrap ${styles.section}`} aria-labelledby="what-heading">
+          <div className={styles.sectionHead}>
+            <h2 id="what-heading" className="label">
+              {blocks.what_i_do.label}
+            </h2>
+            <Link href="/about#process" className={styles.more}>
+              {blocks.what_i_do.link} <Icon name="arrow-right" size={16} />
+            </Link>
+          </div>
+          <Reveal as="ul" className={styles.cells} stagger>
+            {capabilities.map((c) => (
+              <li key={c.id} className={styles.cell}>
+                <h3 className={styles.cellTitle}>{c.title}</h3>
+                <p className={styles.cellBody}>{c.short_body}</p>
+              </li>
+            ))}
+          </Reveal>
+        </section>
+      ) : null}
 
       <CtaBand
         heading={blocks.cta.heading}

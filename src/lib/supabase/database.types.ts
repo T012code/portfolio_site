@@ -15,7 +15,7 @@ export type Database = {
   };
   public: {
     Tables: {
-      admins: Table<{ created_at: string; email: string }, "email">;
+      admins: Table<{ created_at: string; disabled_at: string | null; email: string }, "email">;
       capabilities: Table<
         {
           body: string;
@@ -159,6 +159,43 @@ export type Database = {
         },
         never
       >;
+      mail_log: Table<
+        {
+          created_at: string;
+          detail: string;
+          id: string;
+          kind: string;
+          message_id: string | null;
+          ref_id: string | null;
+          ref_type: string | null;
+          status: string;
+          subject: string;
+          to_email: string;
+        },
+        "kind" | "to_email"
+      >;
+      mail_settings: Table<
+        {
+          dkim_selector: string;
+          enabled: boolean;
+          from_email: string;
+          from_name: string;
+          host: string;
+          id: boolean;
+          notify_email: string;
+          notify_enquiries: boolean;
+          notify_messages: boolean;
+          port: number;
+          security: string;
+          updated_at: string;
+          username: string;
+        },
+        never
+      >;
+      mail_templates: Table<
+        { body: string; enabled: boolean; key: string; label: string; subject: string; updated_at: string },
+        "key" | "label"
+      >;
       skills: Table<
         { id: string; name: string; published: boolean; sort: number; updated_at: string },
         "name"
@@ -166,7 +203,28 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      admin_add: { Args: { p_email: string }; Returns: undefined };
+      admin_list: { Args: never; Returns: { created_at: string; email: string }[] };
+      admin_remove: { Args: { p_email: string }; Returns: undefined };
       am_i_admin: { Args: never; Returns: boolean };
+      mail_log_begin: {
+        Args: {
+          p_gate: string;
+          p_kind: string;
+          p_ref_id: string | null;
+          p_ref_type: string | null;
+          p_subject: string;
+          p_to: string;
+        };
+        Returns: Json;
+      };
+      mail_log_finish: {
+        Args: { p_detail: string; p_gate: string; p_id: string; p_message_id: string | null; p_status: string };
+        Returns: undefined;
+      };
+      mail_runtime: { Args: { p_gate: string }; Returns: Json };
+      mail_secret_status: { Args: never; Returns: Json };
+      mail_set_secret: { Args: { p_gate_hash: string; p_password_enc: string | null }; Returns: undefined };
       reorder_rows: { Args: { p_table: string; p_ids: string[] }; Returns: undefined };
       submit_enquiry: {
         Args: {

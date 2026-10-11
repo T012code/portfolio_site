@@ -1,7 +1,7 @@
 "use server";
 
 import { after } from "next/server";
-import { sendSubmissionEmails } from "@/lib/mail";
+import { handleSubmissionEmails } from "@/lib/mail/send";
 import { createPublicClient } from "@/lib/supabase/public";
 
 export type SubmitState =
@@ -87,9 +87,12 @@ export async function submitEnquiry(_prev: SubmitState, form: FormData): Promise
     ["Project", values.message],
   ];
   after(() =>
-    sendSubmissionEmails({
-      replyTo: values.email,
-      subject: `New enquiry: ${values.service || "project"} from ${values.name}`,
+    handleSubmissionEmails({
+      type: "enquiry",
+      id,
+      name: values.name,
+      email: values.email,
+      service: values.service,
       rows,
     }),
   );
@@ -127,9 +130,11 @@ export async function submitMessage(_prev: SubmitState, form: FormData): Promise
   if (error || !id) return failure(error?.message ?? "unknown", values);
 
   after(() =>
-    sendSubmissionEmails({
-      replyTo: values.email,
-      subject: `New message from ${values.name}`,
+    handleSubmissionEmails({
+      type: "message",
+      id,
+      name: values.name,
+      email: values.email,
       rows: [
         ["Name", values.name],
         ["Email", values.email],

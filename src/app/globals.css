@@ -36,6 +36,7 @@
   --color-focus: oklch(25.6% 0.0061 17.6);
   --color-danger: oklch(50% 0.16 28);
   --color-success: oklch(48% 0.1 150);
+  --color-warning: oklch(52% 0.12 70);
   --color-selection: oklch(25.6% 0.0061 17.6 / 0.16);
 
   /* ── Type ── */
@@ -111,6 +112,7 @@
     --color-focus: oklch(86.5% 0.0093 78.3);
     --color-danger: oklch(70% 0.15 28);
     --color-success: oklch(72% 0.12 150);
+    --color-warning: oklch(78% 0.12 80);
     --color-selection: oklch(86.5% 0.0093 78.3 / 0.2);
     color-scheme: dark;
   }
@@ -129,6 +131,7 @@
   --color-focus: oklch(86.5% 0.0093 78.3);
   --color-danger: oklch(70% 0.15 28);
   --color-success: oklch(72% 0.12 150);
+  --color-warning: oklch(78% 0.12 80);
   --color-selection: oklch(86.5% 0.0093 78.3 / 0.2);
   color-scheme: dark;
 }
@@ -383,31 +386,75 @@ html[data-menu-open] {
   transform: scale(0.45);
 }
 
-/* ── Motion: page transitions (React ViewTransition) ── */
+/* ── Motion: page transitions (React ViewTransition) ──
+   Strictly sequential: the old page is gone before the new one starts, so the two never
+   overlap. The header stays put; the footer leaves with the old page and follows the new one. */
+::view-transition {
+  pointer-events: none;
+}
+
 ::view-transition-group(site-header) {
   animation: none;
   z-index: 10;
 }
 
+::view-transition-old(site-header) {
+  display: none;
+}
+
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+/* Everything outside the named parts (background, footer) swaps without a crossfade. */
+::view-transition-old(root) {
+  animation: none;
+  opacity: 0;
+}
+
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-group(site-footer) {
+  animation: none;
+}
+
+::view-transition-old(site-footer) {
+  display: none;
+}
+
+::view-transition-new(site-footer) {
+  animation: footer-in 0.4s var(--ease-out) var(--page-out) both;
+}
+
 ::view-transition-old(.page) {
-  animation: page-out 0.35s var(--ease-in-out) both;
+  animation: page-out var(--page-out) cubic-bezier(0.55, 0, 1, 0.45) both;
 }
 
 ::view-transition-new(.page) {
-  animation: page-in 0.7s var(--ease-out) 0.1s both;
+  animation: page-in 0.65s var(--ease-out) var(--page-out) both;
+}
+
+:root {
+  --page-out: 0.24s;
 }
 
 @keyframes page-out {
   to {
     opacity: 0;
-    transform: translateY(-24px);
+    transform: translateY(-16px);
   }
 }
 
 @keyframes page-in {
   from {
-    clip-path: inset(100% 0 0 0);
-    transform: translateY(48px);
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(32px);
+  }
+  40% {
+    opacity: 1;
   }
   to {
     clip-path: inset(0 0 0 0);
@@ -415,10 +462,18 @@ html[data-menu-open] {
   }
 }
 
+@keyframes footer-in {
+  from {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(.page),
-  ::view-transition-new(.page) {
-    animation: none;
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 }
 
