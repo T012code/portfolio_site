@@ -4,8 +4,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { Mark } from "@/components/brand/Mark";
 import { Button } from "@/components/ui/Button";
+import { TURNSTILE_SITE_KEY } from "@/lib/env";
 import { getBrowserClient } from "@/lib/supabase/browser";
 import styles from "../admin.module.css";
+import { Turnstile } from "./Turnstile";
 
 type Step =
   | { kind: "loading" }
@@ -19,6 +21,9 @@ export function LoginFlow({ initialError }: { initialError?: string }) {
   const [step, setStep] = useState<Step>({ kind: "loading" });
   const [error, setError] = useState<string | null>(initialError ?? null);
   const [pending, startTransition] = useTransition();
+  const [captcha, setCaptcha] = useState<string | null>(null);
+  const [captchaRound, setCaptchaRound] = useState(0);
+  const [captchaFailed, setCaptchaFailed] = useState(false);
 
   // Work out where an existing session stands: no session, needs MFA setup, needs a code, or done.
   async function resolveStep() {
@@ -63,13 +68,25 @@ export function LoginFlow({ initialError }: { initialError?: string }) {
 
   function onPassword(form: FormData) {
     setError(null);
+    if (!captcha) {
+      setError("The security check hasn't finished yet. Give it a moment, then try again.");
+      return;
+    }
     startTransition(async () => {
       const { error } = await supabase.auth.signInWithPassword({
         email: String(form.get("email") ?? "").trim(),
         password: String(form.get("password") ?? ""),
+        options: { captchaToken: captcha },
       });
+      // Each Turnstile token works once: fetch a fresh one for any further attempt.
+      setCaptcha(null);
+      setCaptchaRound((n) => n + 1);
       if (error) {
-        setError("That email and password don't match.");
+        setError(
+          /captcha/i.test(error.message)
+            ? "The security check failed. Wait for it to finish again, then retry."
+            : "That email and password don't match.",
+        );
         return;
       }
       await resolveStep();
@@ -132,8 +149,27 @@ export function LoginFlow({ initialError }: { initialError?: string }) {
                 required
               />
             </label>
-            <Button type="submit" block loading={pending}>
-              Continue
+            <Turnstile
+              key={captchaRound}
+              siteKey={TURNSTILE_SITE_KEY}
+              action="login"
+              onToken={(token) => {
+                setCaptcha(token);
+                if (token) setCaptchaFailed(false);
+              }}
+              onError={() => setCaptchaFailed(true)}
+            />
+            {captchaFailed ? (
+              <p className={styles.muted}>
+                The security check couldn&apos;t load. Check your connection or turn off content blockers, then{" "}
+                <button type="button" className={styles.linkButton} onClick={() => setCaptchaRound((n) => n + 1)}>
+                  try again
+                </button>
+                .
+              </p>
+            ) : null}
+            <Button type="submit" block loading={pending} disabled={!captcha}>
+              {captcha ? "Continue" : "Checking you're human…"}
             </Button>
           </form>
         ) : null}

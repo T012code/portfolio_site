@@ -8,12 +8,12 @@ const isDev = process.env.NODE_ENV !== "production";
 // statically prerendered pages (nonces would force every page to render per request).
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' https://app.cal.com https://www.google.com https://www.gstatic.com${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://app.cal.com https://www.google.com https://www.gstatic.com https://challenges.cloudflare.com${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: blob: https://${supabaseHost}`,
   "font-src 'self'",
-  `connect-src 'self' https://${supabaseHost} wss://${supabaseHost} https://app.cal.com https://api.cal.com https://www.google.com`,
-  "frame-src https://app.cal.com https://cal.com https://www.google.com https://recaptcha.google.com",
+  `connect-src 'self' https://${supabaseHost} wss://${supabaseHost} https://app.cal.com https://api.cal.com https://www.google.com https://challenges.cloudflare.com`,
+  "frame-src https://app.cal.com https://cal.com https://www.google.com https://recaptcha.google.com https://challenges.cloudflare.com",
   "worker-src 'self' blob:",
   "media-src 'self'",
   "object-src 'none'",
