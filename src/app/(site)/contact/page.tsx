@@ -9,7 +9,7 @@ import styles from "./contact.module.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const blocks = await getBlocks("contact");
-  return { title: blocks.header.label, description: blocks.header.intro || undefined };
+  return { title: blocks.header.label, description: blocks.header.intro || undefined, alternates: { canonical: "/contact" } };
 }
 
 export default async function ContactPage() {

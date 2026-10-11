@@ -9,7 +9,7 @@ import styles from "../page.module.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const blocks = await getBlocks("work");
-  return { title: blocks.header.label, description: blocks.header.intro || undefined };
+  return { title: blocks.header.label, description: blocks.header.intro || undefined, alternates: { canonical: "/work" } };
 }
 
 export default async function WorkPage() {

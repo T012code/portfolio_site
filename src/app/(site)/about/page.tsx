@@ -21,7 +21,11 @@ import styles from "./about.module.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const [blocks, settings] = await Promise.all([getBlocks("about"), getSettings()]);
-  return { title: blocks.intro.label, description: blocks.intro.paragraphs[0] ?? settings.seo_description };
+  return {
+    title: blocks.intro.label,
+    description: blocks.intro.paragraphs[0] ?? settings.seo_description,
+    alternates: { canonical: "/about" },
+  };
 }
 
 export default async function AboutPage() {
@@ -58,7 +62,7 @@ export default async function AboutPage() {
           </ul>
         </div>
         {portrait ? (
-          <div className={`intro-fade ${styles.portrait}`} style={{ "--delay": "0.35s" } as React.CSSProperties}>
+          <div className={`intro-settle ${styles.portrait}`}>
             <Image src={portrait} alt={settings.portrait_alt} fill priority sizes="(max-width: 760px) 100vw, 34vw" />
           </div>
         ) : null}

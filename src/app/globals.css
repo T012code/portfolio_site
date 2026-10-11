@@ -476,3 +476,20 @@ html[data-menu-open] {
     opacity: 0;
   }
 }
+
+/* Transform-only intro for likely LCP elements: painted from the first frame. */
+.intro-settle > * {
+  transform-origin: 50% 60%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .intro-settle > * {
+    animation: settle 1.4s var(--ease-out) both;
+  }
+}
+
+@keyframes settle {
+  from {
+    transform: scale(1.06);
+  }
+}

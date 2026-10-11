@@ -11,6 +11,7 @@ import { HeroVisual } from "@/components/three/HeroVisual";
 import { getBlocks, getCapabilities, getProjects, getSettings, getSkills } from "@/lib/content";
 import { toProjectItem } from "@/lib/format";
 import { mediaUrl } from "@/lib/media";
+import { SITE_URL } from "@/lib/env";
 import styles from "./home.module.css";
 
 export default async function HomePage() {
@@ -25,9 +26,27 @@ export default async function HomePage() {
   const featured = projects.filter((p) => p.featured).slice(0, 3);
   const shown = (featured.length > 0 ? featured : projects.slice(0, 3)).map(toProjectItem);
   const portrait = mediaUrl(settings.portrait_path);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: settings.full_name,
+    alternateName: settings.display_name,
+    jobTitle: settings.taglines[0] ?? "Web developer",
+    url: SITE_URL,
+    email: `mailto:${settings.email}`,
+    image: portrait ? new URL(portrait, SITE_URL).toString() : undefined,
+    address: { "@type": "PostalAddress", addressLocality: "Lagos", addressCountry: "NG" },
+    sameAs: [settings.linkedin_url, settings.github_url].filter(Boolean),
+    knowsAbout: skills.map((s) => s.name),
+  };
 
   return (
     <PageTransition>
+      <script
+        type="application/ld+json"
+        // JSON-LD must be inline; "<" is escaped so content can't close the tag.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+      />
       <section className={`wrap ${styles.hero}`} aria-labelledby="hero-heading">
         <h1 id="hero-heading" className={styles.headline}>
           {blocks.hero.lines.map((line, i) => (
