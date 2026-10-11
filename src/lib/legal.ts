@@ -18,7 +18,7 @@ The website is run by Laniya Molayoninujesu, trading as Layò the developer, bas
 Bookings are handled by Cal.com. It collects your name, email address, the time you pick and any notes you add, and shares the booking details with me.
 
 ### When you browse
-The site does not use advertising or analytics cookies and does not track you across other websites. Your browser stores two small preferences on your device: your light or dark theme choice, and whether you've already seen the intro animation in this visit. Hosting providers keep short-lived technical logs (such as IP address and browser type) to keep the site running and secure.
+The site does not use advertising or analytics cookies and does not track you across other websites. On the contact page, Google reCAPTCHA may set its own cookies to tell people from bots. Your browser stores two small preferences on your device: your light or dark theme choice, and whether you've already seen the intro animation in this visit. Hosting providers keep short-lived technical logs (such as IP address and browser type) to keep the site running and secure.
 
 ## Why I use it
 - To reply to your enquiry or message and arrange a call
@@ -34,6 +34,7 @@ I don't sell or rent personal information. It is shared only with the services t
 - Supabase: stores form submissions and site files
 - Vercel: hosts the website
 - Cal.com: handles call bookings
+- Google reCAPTCHA: checks contact form submissions for spam. It looks at browser and interaction signals, under Google's own privacy policy (policies.google.com/privacy)
 - My email provider: sends and receives email from hello@layothedeveloper.com
 
 Some of these providers store data outside Nigeria, including in the European Union and the United States. Where that happens, it is protected by the providers' contractual and security safeguards.

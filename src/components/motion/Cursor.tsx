@@ -30,13 +30,10 @@ export function Cursor() {
       }
     };
 
-    const move = (e: PointerEvent) => {
-      target.x = e.clientX;
-      target.y = e.clientY;
-      el.dataset.visible = "";
-      const interactive = (e.target as Element | null)?.closest?.(
-        "a, button, [role='tab'], label, select, summary, [data-cursor]",
-      );
+    // Work out hover state from whatever sits under the pointer. Also run on scroll: the
+    // page moves under a still pointer without any pointermove, which left the label stale.
+    const sync = (under: Element | null) => {
+      const interactive = under?.closest?.("a, button, [role='tab'], label, select, summary, [data-cursor]");
       const label = interactive?.closest("[data-cursor]")?.getAttribute("data-cursor");
       if (interactive) el.dataset.hover = "";
       else delete el.dataset.hover;
@@ -44,22 +41,38 @@ export function Cursor() {
         el.dataset.label = label ?? "";
         if (labelRef.current) labelRef.current.textContent = label ?? "";
       }
+    };
+
+    const move = (e: PointerEvent) => {
+      target.x = e.clientX;
+      target.y = e.clientY;
+      el.dataset.visible = "";
+      sync(e.target as Element | null);
       if (!running) {
         running = true;
         frame = requestAnimationFrame(tick);
       }
+    };
+    let scrollFrame = 0;
+    const scroll = () => {
+      if (!("visible" in el.dataset)) return;
+      cancelAnimationFrame(scrollFrame);
+      scrollFrame = requestAnimationFrame(() => sync(document.elementFromPoint(target.x, target.y)));
     };
     const leave = () => delete el.dataset.visible;
     const down = () => (el.dataset.down = "");
     const up = () => delete el.dataset.down;
 
     window.addEventListener("pointermove", move, { passive: true });
+    window.addEventListener("scroll", scroll, { passive: true });
     document.documentElement.addEventListener("pointerleave", leave);
     window.addEventListener("pointerdown", down);
     window.addEventListener("pointerup", up);
     return () => {
       cancelAnimationFrame(frame);
+      cancelAnimationFrame(scrollFrame);
       window.removeEventListener("pointermove", move);
+      window.removeEventListener("scroll", scroll);
       document.documentElement.removeEventListener("pointerleave", leave);
       window.removeEventListener("pointerdown", down);
       window.removeEventListener("pointerup", up);

@@ -98,7 +98,8 @@ export function ProjectList({ projects, headingLevel = 3 }: { projects: ProjectI
             data-active={active === p.id || undefined}
             data-dimmed={(active !== null && active !== p.id) || undefined}
             onPointerEnter={() => setActive(p.id)}
-            data-cursor={p.url ? "Visit" : undefined}
+            // Every row gets a label so the cursor reads the same down the list.
+            data-cursor={p.url ? "Visit" : "Private"}
           >
             <article className={styles.row}>
               {p.image ? (
@@ -124,7 +125,7 @@ export function ProjectList({ projects, headingLevel = 3 }: { projects: ProjectI
                 <TagList tags={p.tags} label={`${p.title} stack`} />
               </div>
               <span className={styles.arrow} aria-hidden="true">
-                <Icon name={p.url ? "arrow-up-right" : "arrow-right"} size={22} />
+                {p.url ? <Icon name="arrow-up-right" size={22} /> : null}
               </span>
             </article>
           </li>

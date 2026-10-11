@@ -135,7 +135,7 @@ async function Autoresponders({
   templates,
   adminEmail,
 }: {
-  templates: { key: string; label: string; enabled: boolean; subject: string; body: string }[];
+  templates: { key: string; label: string; enabled: boolean; format: string; subject: string; body: string }[];
   adminEmail: string;
 }) {
   const site = await getSettings();

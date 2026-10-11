@@ -321,3 +321,18 @@ textarea.input {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Google allows hiding the floating badge when this notice sits next to the form. */
+.recaptchaNote {
+  margin-top: var(--space-4);
+  font-size: var(--text-label);
+  color: var(--color-ink-muted);
+}
+
+.recaptchaNote a {
+  color: inherit;
+}
+
+:global(.grecaptcha-badge) {
+  visibility: hidden;
+}

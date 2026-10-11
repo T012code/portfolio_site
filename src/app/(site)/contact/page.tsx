@@ -52,6 +52,7 @@ export default async function ContactPage() {
           }}
           calLink={settings.cal_link}
           email={settings.email}
+          recaptchaKey={settings.recaptcha_enabled && settings.recaptcha_site_key ? settings.recaptcha_site_key : null}
         />
 
         <aside aria-label="Other ways to reach me">

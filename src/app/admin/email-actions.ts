@@ -6,7 +6,15 @@ import { getSettings } from "@/lib/content";
 import { checkDomain, providerFromHost, type DnsCheck, type MailProvider } from "@/lib/mail/dns";
 import { encryptSecret, gateHash, mailGate } from "@/lib/mail/secret";
 import { createTransport, deliver, describeError, loadMailRuntime, smtpProblem, type MailResult } from "@/lib/mail/send";
-import { renderTemplate, SAMPLE_VARS, TEMPLATE_KEYS, TEMPLATE_VARS, textEmailHtml, type TemplateKey } from "@/lib/mail/templates";
+import {
+  buildTemplateEmail,
+  SAMPLE_VARS,
+  TEMPLATE_KEYS,
+  TEMPLATE_VARS,
+  textEmailHtml,
+  unsafeHtml,
+  type TemplateKey,
+} from "@/lib/mail/templates";
 import type { FormState } from "./actions";
 
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -151,12 +159,17 @@ export async function saveMailTemplate(key: string, _prev: FormState, form: Form
   }
   const values = {
     enabled: form.get("enabled") === "on",
+    format: form.get("format") === "text" ? "text" : "html",
     subject: str(form, "subject", 400),
     body: (typeof form.get("body") === "string" ? String(form.get("body")) : "").replace(/\r\n/g, "\n").trim(),
   };
   const errors: Record<string, string> = {};
   if (values.subject.length > 200) errors.subject = "Keep the subject under 200 characters.";
   if (values.body.length > 5000) errors.body = "Keep the message under 5,000 characters.";
+  if (values.format === "html") {
+    const problem = unsafeHtml(values.body);
+    if (problem) errors.body = problem;
+  }
   if (values.enabled && !values.subject) errors.subject = "Add a subject, or switch this autoresponder off.";
   if (values.enabled && !values.body) errors.body = "Add a message, or switch this autoresponder off.";
   const known = new Set<string>(TEMPLATE_VARS.map((v) => v.key));
@@ -183,13 +196,13 @@ export async function sendTemplatePreview(key: string, to: string): Promise<Mail
   const template = loaded.runtime.templates[key as TemplateKey];
   if (!template) return { status: "failed", detail: "Template not found." };
   const site = await getSettings();
-  const text = renderTemplate(template.body, SAMPLE_VARS);
+  const email = buildTemplateEmail(template, SAMPLE_VARS, loaded.runtime.settings.from_name || site.display_name, site.motto);
   const result = await deliver(loaded.runtime, {
     kind: "test",
     to: address,
-    subject: `[Preview] ${renderTemplate(template.subject, SAMPLE_VARS)}`,
-    text,
-    html: textEmailHtml(text, loaded.runtime.settings.from_name || site.display_name, site.motto),
+    subject: `[Preview] ${email.subject}`,
+    text: email.text,
+    html: email.html,
   });
   refresh();
   return result;

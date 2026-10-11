@@ -1,5 +1,6 @@
 import "server-only";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { cache } from "react";
 import { createSessionClient } from "@/lib/supabase/server";
 
@@ -29,6 +30,8 @@ const checkAdmin = cache(async function checkAdmin(): Promise<
   | { status: "ok"; session: AdminSession }
   | { status: "signed-out" | "needs-mfa" | "forbidden" }
 > {
+  // Always per request: the session check reads the clock, which can't run during prerendering.
+  await connection();
   const supabase = await createSessionClient();
   const { data, error } = await supabase.auth.getClaims();
   const claims = data?.claims;

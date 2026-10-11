@@ -5,7 +5,7 @@ import { SITE_URL } from "@/lib/env";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { Row } from "@/lib/supabase/database.types";
 import { decryptSecret, mailGate } from "./secret";
-import { firstName, renderTemplate, safeName, tableEmailHtml, textEmailHtml, type TemplateKey } from "./templates";
+import { buildTemplateEmail, firstName, safeName, tableEmailHtml, type TemplateKey } from "./templates";
 
 export type MailSettings = Row<"mail_settings">;
 export type MailTemplate = Row<"mail_templates">;
@@ -68,7 +68,8 @@ type Outgoing = {
   to: string;
   subject: string;
   text: string;
-  html: string;
+  /** Omitted for plain-text-only emails. */
+  html?: string;
   replyTo?: string;
   headers?: Record<string, string>;
   ref?: { type: "enquiry" | "message"; id: string };
@@ -190,14 +191,14 @@ export async function handleSubmissionEmails(sub: Submission) {
       site_name: site.display_name,
       site_url: SITE_URL.replace(/^https?:\/\//, ""),
     };
-    const text = renderTemplate(template.body, vars);
+    const email = buildTemplateEmail(template, vars, brand, site.motto);
     jobs.push(
       deliver(runtime, {
         kind: "autoreply",
         to: sub.email,
-        subject: renderTemplate(template.subject, vars).slice(0, 200),
-        text,
-        html: textEmailHtml(text, brand, site.motto),
+        subject: email.subject.slice(0, 200),
+        text: email.text,
+        html: email.html,
         replyTo: settings.from_email,
         // RFC 3834: marks this as automatic so other autoresponders don't answer it.
         headers: { "Auto-Submitted": "auto-replied", "X-Auto-Response-Suppress": "All" },

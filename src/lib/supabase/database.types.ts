@@ -144,6 +144,9 @@ export type Database = {
           linkedin_url: string;
           location: string;
           motto: string;
+          recaptcha_enabled: boolean;
+          recaptcha_min_score: number;
+          recaptcha_site_key: string;
           og_image_path: string | null;
           phone: string;
           portrait_alt: string;
@@ -197,7 +200,7 @@ export type Database = {
         never
       >;
       mail_templates: Table<
-        { body: string; enabled: boolean; key: string; label: string; subject: string; updated_at: string },
+        { body: string; enabled: boolean; format: string; key: string; label: string; subject: string; updated_at: string },
         "key" | "label"
       >;
       skills: Table<
@@ -229,6 +232,9 @@ export type Database = {
       mail_runtime: { Args: { p_gate: string }; Returns: Json };
       mail_secret_status: { Args: never; Returns: Json };
       mail_set_secret: { Args: { p_gate_hash: string; p_password_enc: string | null }; Returns: undefined };
+      recaptcha_runtime: { Args: { p_gate: string }; Returns: string | null };
+      recaptcha_secret_set: { Args: never; Returns: boolean };
+      recaptcha_set_secret: { Args: { p_gate_hash: string; p_secret_enc: string | null }; Returns: undefined };
       reorder_rows: { Args: { p_table: string; p_ids: string[] }; Returns: undefined };
       submit_enquiry: {
         Args: {

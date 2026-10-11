@@ -17,13 +17,50 @@ type Props = {
   options: { services: string[]; budgets: string[]; timelines: string[] };
   calLink: string;
   email: string;
+  /** reCAPTCHA v3 site key when spam protection is on. */
+  recaptchaKey: string | null;
 };
+
+type Grecaptcha = { ready: (cb: () => void) => void; execute: (key: string, opts: { action: string }) => Promise<string> };
+
+let recaptchaScript: Promise<Grecaptcha | null> | null = null;
+
+// Loads Google's script once, on the contact page only.
+function loadRecaptcha(key: string) {
+  recaptchaScript ??= new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(key)}`;
+    script.async = true;
+    script.onload = () => {
+      const g = (window as unknown as { grecaptcha?: Grecaptcha }).grecaptcha;
+      if (g) g.ready(() => resolve(g));
+      else resolve(null);
+    };
+    script.onerror = () => resolve(null);
+    document.head.appendChild(script);
+  });
+  return recaptchaScript;
+}
+
+async function recaptchaToken(key: string | null, action: string) {
+  if (!key) return "";
+  try {
+    const g = await loadRecaptcha(key);
+    return g ? await g.execute(key, { action }) : "";
+  } catch {
+    return "";
+  }
+}
 
 const IDLE: SubmitState = { status: "idle" };
 
-export function ContactForms({ labels, options, calLink, email }: Props) {
+export function ContactForms({ labels, options, calLink, email, recaptchaKey }: Props) {
   const [tab, setTab] = useState<"enquiry" | "message">("enquiry");
   const tabsId = useId();
+
+  useEffect(() => {
+    if (recaptchaKey) void loadRecaptcha(recaptchaKey);
+  }, [recaptchaKey]);
 
   return (
     <div className={styles.forms}>
@@ -58,7 +95,13 @@ export function ContactForms({ labels, options, calLink, email }: Props) {
         aria-labelledby={`${tabsId}-enquiry-tab`}
         hidden={tab !== "enquiry"}
       >
-        <EnquiryForm options={options} calLink={calLink} email={email} responseNote={labels.responseNote} />
+        <EnquiryForm
+          options={options}
+          calLink={calLink}
+          email={email}
+          responseNote={labels.responseNote}
+          recaptchaKey={recaptchaKey}
+        />
       </div>
       <div
         role="tabpanel"
@@ -66,14 +109,32 @@ export function ContactForms({ labels, options, calLink, email }: Props) {
         aria-labelledby={`${tabsId}-message-tab`}
         hidden={tab !== "message"}
       >
-        <MessageForm responseNote={labels.responseNote} />
+        <MessageForm responseNote={labels.responseNote} recaptchaKey={recaptchaKey} />
       </div>
+      {recaptchaKey ? (
+        <p className={styles.recaptchaNote}>
+          Protected by reCAPTCHA. Google&apos;s{" "}
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">
+            Privacy Policy
+          </a>{" "}
+          and{" "}
+          <a href="https://policies.google.com/terms" target="_blank" rel="noopener">
+            Terms of Service
+          </a>{" "}
+          apply.
+        </p>
+      ) : null}
     </div>
   );
 }
 
-function useSubmit(action: (prev: SubmitState, form: FormData) => Promise<SubmitState>) {
-  const [state, formAction, pending] = useActionState(action, IDLE);
+function useSubmit(
+  action: (prev: SubmitState, form: FormData) => Promise<SubmitState>,
+  recaptcha: { key: string | null; action: "enquiry" | "message" },
+) {
+  const [state, formAction, submitting] = useActionState(action, IDLE);
+  const [checking, setChecking] = useState(false);
+  const pending = submitting || checking;
   const startedAt = useRef(0);
   const alertRef = useRef<HTMLParagraphElement>(null);
 
@@ -85,10 +146,16 @@ function useSubmit(action: (prev: SubmitState, form: FormData) => Promise<Submit
     if (state.status === "error") alertRef.current?.focus();
   }, [state]);
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (pending) return;
     const data = new FormData(e.currentTarget);
     data.set("started", String(startedAt.current));
+    if (recaptcha.key) {
+      setChecking(true);
+      data.set("recaptcha_token", await recaptchaToken(recaptcha.key, recaptcha.action));
+      setChecking(false);
+    }
     startTransition(() => formAction(data));
   };
 
@@ -100,13 +167,15 @@ function EnquiryForm({
   calLink,
   email,
   responseNote,
+  recaptchaKey,
 }: {
   options: Props["options"];
   calLink: string;
   email: string;
   responseNote: string;
+  recaptchaKey: string | null;
 }) {
-  const { state, pending, onSubmit, alertRef } = useSubmit(submitEnquiry);
+  const { state, pending, onSubmit, alertRef } = useSubmit(submitEnquiry, { key: recaptchaKey, action: "enquiry" });
   const [booked, setBooked] = useState(false);
   const [skipped, setSkipped] = useState(false);
   const onBooked = useCallback(() => setBooked(true), []);
@@ -195,8 +264,8 @@ function EnquiryForm({
   );
 }
 
-function MessageForm({ responseNote }: { responseNote: string }) {
-  const { state, pending, onSubmit, alertRef } = useSubmit(submitMessage);
+function MessageForm({ responseNote, recaptchaKey }: { responseNote: string; recaptchaKey: string | null }) {
+  const { state, pending, onSubmit, alertRef } = useSubmit(submitMessage, { key: recaptchaKey, action: "message" });
   const doneRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {

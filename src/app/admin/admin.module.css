@@ -538,7 +538,8 @@ textarea.input {
     color var(--dur-micro) var(--ease-out);
 }
 
-.pill[aria-pressed="true"] {
+.pill[aria-pressed="true"],
+.pill[aria-checked="true"] {
   background: var(--color-ink);
   color: var(--color-paper);
   border-color: var(--color-ink);
@@ -1306,4 +1307,17 @@ a.kpi:hover {
 .formActionsStatic {
   position: static;
   padding-bottom: 0;
+}
+
+.previewText {
+  min-height: 20rem;
+  margin: 0;
+  padding: var(--space-5);
+  border: var(--rule-width) solid var(--color-rule);
+  background: var(--color-paper);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--text-small);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }

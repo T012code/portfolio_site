@@ -1,7 +1,9 @@
 "use server";
 
 import { after } from "next/server";
+import { getSettings } from "@/lib/content";
 import { handleSubmissionEmails } from "@/lib/mail/send";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 import { createPublicClient } from "@/lib/supabase/public";
 
 export type SubmitState =
@@ -21,7 +23,14 @@ const MESSAGES: Record<string, string> = {
   invalid_message: "Tell me a little more about the project (at least a sentence).",
   field_too_long: "One of the fields is too long.",
   rate_limited: "You've sent a few already. Give it an hour, or email me directly.",
+  recaptcha_failed: "This didn't pass the spam check. Try again in a moment, or email me directly.",
 };
+
+async function passesSpamCheck(form: FormData, action: "enquiry" | "message") {
+  const result = await verifyRecaptcha(await getSettings(), text(form, "recaptcha_token", 4000), action);
+  if (!result.ok) console.info(`reCAPTCHA rejected a ${action}: ${result.reason}`);
+  return result.ok;
+}
 
 const FIELD_FOR: Record<string, string> = {
   invalid_name: "name",
@@ -63,6 +72,7 @@ export async function submitEnquiry(_prev: SubmitState, form: FormData): Promise
     message: text(form, "message", 5000),
   };
   if (looksAutomated(form)) return failure("rate_limited", values);
+  if (!(await passesSpamCheck(form, "enquiry"))) return failure("recaptcha_failed", values);
 
   const { data: id, error } = await createPublicClient().rpc("submit_enquiry", {
     p_name: values.name,
@@ -120,6 +130,7 @@ export async function submitMessage(_prev: SubmitState, form: FormData): Promise
     message: text(form, "message", 5000),
   };
   if (looksAutomated(form)) return failure("rate_limited", values);
+  if (!(await passesSpamCheck(form, "message"))) return failure("recaptcha_failed", values);
 
   const { data: id, error } = await createPublicClient().rpc("submit_message", {
     p_name: values.name,
