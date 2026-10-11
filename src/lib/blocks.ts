@@ -1,7 +1,9 @@
 // Editable page copy. Each block declares its fields once: the public pages read
 // typed content with these defaults, and the admin renders its form from the same list.
 
-export type FieldKind = "text" | "textarea" | "lines" | "paragraphs";
+import { PRIVACY_DEFAULT, TERMS_DEFAULT } from "./legal";
+
+export type FieldKind = "text" | "textarea" | "lines" | "paragraphs" | "document";
 
 export type FieldDef = { name: string; label: string; kind: FieldKind; hint?: string };
 
@@ -9,6 +11,12 @@ type BlockDef = { label: string; fields: readonly FieldDef[]; defaults: Record<s
 
 const text = (name: string, label: string, hint?: string): FieldDef => ({ name, label, kind: "text", hint });
 const area = (name: string, label: string, hint?: string): FieldDef => ({ name, label, kind: "textarea", hint });
+const doc = (name: string, label: string): FieldDef => ({
+  name,
+  label,
+  kind: "document",
+  hint: "Start a line with ## for a heading, ### for a subheading and - for a bullet. Leave a blank line between paragraphs.",
+});
 
 export const BLOCKS = {
   home: {
@@ -95,6 +103,35 @@ export const BLOCKS = {
         message_tab: "Quick message",
         response_note: "I'll respond within 24 hours.",
       },
+    },
+  },
+  faq: {
+    header: {
+      label: "Header",
+      fields: [text("label", "Heading"), area("intro", "Intro")],
+      defaults: {
+        label: "Questions, answered",
+        intro: "How projects run, what they cost and what happens after launch. If your question isn't here, ask it on a call.",
+      },
+    },
+    cta: {
+      label: "Closing call to action",
+      fields: [text("heading", "Heading"), text("primary_cta", "Button")],
+      defaults: { heading: "Still have a question?", primary_cta: "Book a discovery call" },
+    },
+  },
+  privacy: {
+    page: {
+      label: "Privacy policy",
+      fields: [text("title", "Title"), text("updated", "Last updated"), doc("body", "Policy text")],
+      defaults: { title: "Privacy policy", updated: "11 October 2026", body: PRIVACY_DEFAULT },
+    },
+  },
+  terms: {
+    page: {
+      label: "Terms of use",
+      fields: [text("title", "Title"), text("updated", "Last updated"), doc("body", "Terms text")],
+      defaults: { title: "Terms of use", updated: "11 October 2026", body: TERMS_DEFAULT },
     },
   },
 } as const satisfies Record<string, Record<string, BlockDef>>;

@@ -127,8 +127,8 @@ export async function savePageBlock(page: string, key: string, _prev: FormState,
   const fields: Field[] = blocks[key].fields.map((f) => ({
     name: f.name,
     label: f.label,
-    kind: f.kind === "paragraphs" ? "lines" : (f.kind as Field["kind"]),
-    max: f.kind === "paragraphs" ? 2000 : f.kind === "textarea" ? 1000 : 200,
+    kind: f.kind === "paragraphs" ? "lines" : f.kind === "document" ? "textarea" : (f.kind as Field["kind"]),
+    max: f.kind === "paragraphs" ? 2000 : f.kind === "document" ? 40000 : f.kind === "textarea" ? 1000 : 200,
   }));
   const { values, errors } = parseFields(fields, form);
   if (Object.keys(errors).length > 0) return fail("Check the highlighted fields.", errors);

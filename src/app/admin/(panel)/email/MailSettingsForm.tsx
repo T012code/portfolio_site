@@ -8,10 +8,37 @@ import { saveMailSettings, sendTestEmail, testSmtpConnection } from "../../email
 import styles from "../../admin.module.css";
 
 const PRESETS = [
-  { label: "Zoho, own domain", host: "smtppro.zoho.com", port: 465, security: "ssl" },
-  { label: "Zoho EU, own domain", host: "smtppro.zoho.eu", port: 465, security: "ssl" },
-  { label: "Zoho, personal", host: "smtp.zoho.com", port: 465, security: "ssl" },
+  { label: "Zoho, own domain", host: "smtppro.zoho.com", port: 465, security: "ssl", dkim: "zmail" },
+  { label: "Zoho EU, own domain", host: "smtppro.zoho.eu", port: 465, security: "ssl", dkim: "zmail" },
+  { label: "Zoho, personal", host: "smtp.zoho.com", port: 465, security: "ssl", dkim: "zmail" },
+  { label: "Gmail / Google Workspace", host: "smtp.gmail.com", port: 465, security: "ssl", dkim: "google" },
 ] as const;
+
+const PROVIDER_HELP = {
+  zoho: {
+    username: "The full mailbox address, e.g. hello@layothedeveloper.com.",
+    password: "Use a Zoho app password: Zoho Accounts → Security → App passwords → Generate.",
+    from: "Must be the Zoho mailbox (or one of its aliases).",
+    dkim: "Shown in Zoho next to your DKIM key (usually zmail). Used by the DNS check below.",
+  },
+  google: {
+    username: "Your full Gmail or Google Workspace address.",
+    password:
+      "Use a Google app password: myaccount.google.com → Security → 2-Step Verification (must be on) → App passwords. Your normal Gmail password won't work.",
+    from: "Workspace: any address on your domain. Personal Gmail: your Gmail address, or one added under Gmail → Settings → Accounts → Send mail as.",
+    dkim: "Set in Google Admin when you turn on DKIM (usually google). Used by the DNS check below.",
+  },
+  other: {
+    username: "Usually the full email address.",
+    password: "Use an app password if your provider offers them.",
+    from: "Must be an address your SMTP account is allowed to send as.",
+    dkim: "Shown by your provider next to your DKIM key. Used by the DNS check below.",
+  },
+} as const;
+
+function providerOf(host: string) {
+  return /zoho/i.test(host) ? "zoho" : /gmail|google/i.test(host) ? "google" : "other";
+}
 
 const INITIAL: FormState = { status: "idle" };
 type ToolResult = { status: "sent" | "failed" | "skipped"; detail: string } | null;
@@ -64,6 +91,8 @@ export function MailSettingsForm({
   const statusRef = useRef<HTMLParagraphElement>(null);
   const [server, setServer] = useState({ host: settings.host, port: String(settings.port), security: settings.security });
   const [showPassword, setShowPassword] = useState(false);
+  const [dkim, setDkim] = useState(settings.dkim_selector);
+  const help = PROVIDER_HELP[providerOf(server.host)];
   const [testTo, setTestTo] = useState(settings.notify_email || adminEmail);
   const [toolResult, setToolResult] = useState<ToolResult>(null);
   const [toolPending, startTool] = useTransition();
@@ -84,7 +113,7 @@ export function MailSettingsForm({
         <h2 id="smtp-heading" className={styles.cardTitle}>
           SMTP connection
         </h2>
-        <span className={styles.muted}>Mail is sent through your Zoho mailbox, so it carries your domain&apos;s signatures.</span>
+        <span className={styles.muted}>Mail goes out through your own mailbox (Zoho or Gmail), so it carries your domain&apos;s signatures.</span>
       </div>
 
       <form
@@ -129,15 +158,19 @@ export function MailSettingsForm({
                   type="button"
                   className={styles.pill}
                   aria-pressed={server.host === p.host && server.port === String(p.port)}
-                  onClick={() => setServer({ host: p.host, port: String(p.port), security: p.security })}
+                  onClick={() => {
+                    setServer({ host: p.host, port: String(p.port), security: p.security });
+                    setDkim(p.dkim);
+                  }}
                 >
                   {p.label}
                 </button>
               ))}
             </div>
             <p className={styles.hint}>
-              hello@layothedeveloper.com is a Zoho mailbox on your own domain, so use &ldquo;Zoho, own domain&rdquo; (or the EU
-              option if your Zoho account lives at zoho.eu).
+              If hello@layothedeveloper.com is a Zoho mailbox, use &ldquo;Zoho, own domain&rdquo; (or the EU option if your Zoho
+              account lives at zoho.eu). Pick Gmail if you send through a Gmail or Google Workspace account instead. Gmail allows
+              about 500 messages a day on a personal account and 2,000 on Workspace.
             </p>
           </div>
           <Field label="SMTP server" error={errors.host} half>
@@ -179,7 +212,7 @@ export function MailSettingsForm({
               </select>
             )}
           </Field>
-          <Field label="Username" error={errors.username} half hint="The full mailbox address, e.g. hello@layothedeveloper.com.">
+          <Field label="Username" error={errors.username} half hint={help.username}>
             {(p) => (
               <input
                 {...p}
@@ -198,7 +231,7 @@ export function MailSettingsForm({
             hint={
               passwordSet
                 ? "Saved and encrypted. Leave blank to keep it."
-                : "Use a Zoho app password: Zoho Accounts → Security → App passwords → Generate."
+                : help.password
             }
           >
             {(p) => (
@@ -231,7 +264,7 @@ export function MailSettingsForm({
           <Field label="Sender name" half hint="Shown as the sender in the inbox.">
             {(p) => <input {...p} name="from_name" className={styles.input} defaultValue={settings.from_name} maxLength={80} />}
           </Field>
-          <Field label="Sender address" error={errors.from_email} half hint="Must be the Zoho mailbox (or one of its aliases).">
+          <Field label="Sender address" error={errors.from_email} half hint={help.from}>
             {(p) => (
               <input {...p} name="from_email" type="email" className={styles.input} defaultValue={settings.from_email} spellCheck={false} />
             )}
@@ -269,9 +302,18 @@ export function MailSettingsForm({
             label="DKIM selector"
             error={errors.dkim_selector}
             half
-            hint="Shown in Zoho next to your DKIM key. Used by the DNS check below."
+            hint={help.dkim}
           >
-            {(p) => <input {...p} name="dkim_selector" className={styles.input} defaultValue={settings.dkim_selector} spellCheck={false} />}
+            {(p) => (
+              <input
+                {...p}
+                name="dkim_selector"
+                className={styles.input}
+                value={dkim}
+                onChange={(e) => setDkim(e.target.value)}
+                spellCheck={false}
+              />
+            )}
           </Field>
         </fieldset>
 

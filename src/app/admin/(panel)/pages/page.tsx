@@ -11,6 +11,9 @@ const PAGE_LABELS: Record<PageName, { label: string; href: string }> = {
   about: { label: "About", href: "/about" },
   work: { label: "Work", href: "/work" },
   contact: { label: "Contact", href: "/contact" },
+  faq: { label: "FAQ", href: "/faq" },
+  privacy: { label: "Privacy", href: "/privacy" },
+  terms: { label: "Terms", href: "/terms" },
 };
 
 export default async function PageCopyPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
@@ -51,7 +54,8 @@ export default async function PageCopyPage({ searchParams }: { searchParams: Pro
             name: f.name,
             label: f.label,
             hint: f.hint ?? (f.kind === "paragraphs" ? "One paragraph per line." : undefined),
-            kind: f.kind === "paragraphs" ? "lines" : (f.kind as Field["kind"]),
+            kind: f.kind === "paragraphs" ? "lines" : f.kind === "document" ? "textarea" : (f.kind as Field["kind"]),
+            rows: f.kind === "document" ? 28 : undefined,
           }));
           return (
             <section key={key} aria-label={def.label}>

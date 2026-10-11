@@ -28,7 +28,7 @@ export async function loadMailRuntime(): Promise<{ ok: true; runtime: Runtime } 
 
 export function smtpProblem(settings: MailSettings, password: string | null) {
   if (!settings.host || !settings.username) return "Add the SMTP server and username.";
-  if (!password) return "Add the SMTP password (a Zoho app password).";
+  if (!password) return "Add the SMTP password (an app password from Zoho or Google).";
   if (!settings.from_email) return "Add the address emails are sent from.";
   return null;
 }
@@ -48,9 +48,11 @@ export function createTransport(settings: MailSettings, password: string) {
 
 export function describeError(error: unknown) {
   const e = error as { code?: string; responseCode?: number; response?: string; message?: string };
-  if (e.code === "EAUTH") return "The SMTP server rejected the username or password. In Zoho, use an app password.";
+  if (e.code === "EAUTH") {
+    return "The SMTP server rejected the username or password. Zoho and Gmail both need an app password here, not your normal sign-in password.";
+  }
   if (e.code === "ENOTFOUND" || e.code === "EDNS") {
-    return "Couldn't find that SMTP server. Check the server name (for Zoho on your own domain: smtppro.zoho.com).";
+    return "Couldn't find that SMTP server. Check the server name (Zoho on your own domain: smtppro.zoho.com; Gmail: smtp.gmail.com).";
   }
   if (e.code === "ETIMEDOUT" || e.code === "ECONNECTION" || e.code === "ESOCKET") {
     return `Couldn't connect to the SMTP server (${e.code}). Check the host, port and security setting.`;

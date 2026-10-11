@@ -1,24 +1,31 @@
+/* Slim footer: the motto stays big in the preloader and home hero only. */
 .footer {
   border-top: var(--rule-width) solid var(--color-rule);
-  padding-block: var(--space-16) var(--space-8);
+  padding-block: var(--space-10) var(--space-8);
 }
 
 .inner {
   display: grid;
-  gap: var(--space-16);
+  gap: var(--space-8);
 }
 
 .top {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-8);
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
 }
 
 .mark {
   display: block;
-  width: clamp(5rem, 3rem + 8vw, 9rem);
+  width: 2.25rem;
   color: var(--color-ink);
   transition: transform var(--dur-base) var(--ease-out);
 }
@@ -27,23 +34,10 @@
   transform: rotate(-6deg);
 }
 
-.taglines {
-  display: grid;
-  font-size: var(--text-h3);
+.motto {
   font-weight: var(--weight-display);
   font-stretch: var(--stretch-display);
   letter-spacing: var(--tracking-display);
-  line-height: 1.15;
-  text-align: left;
-}
-
-.motto {
-  font-size: var(--text-poster);
-  font-weight: var(--weight-display);
-  font-stretch: var(--stretch-display);
-  letter-spacing: -0.035em;
-  line-height: 0.95;
-  text-wrap: balance;
 }
 
 .bottom {
@@ -61,6 +55,10 @@
   color: var(--color-ink-muted);
 }
 
+.metaLink {
+  color: inherit;
+}
+
 .links {
   display: flex;
   flex-wrap: wrap;
@@ -68,6 +66,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
+  font-size: var(--text-small);
 }
 
 .links a {
@@ -77,7 +76,7 @@
   padding-block: var(--space-2);
 }
 
-.top_link {
+.topLink {
   font-weight: var(--weight-strong);
 }
 

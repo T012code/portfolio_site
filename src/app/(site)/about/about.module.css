@@ -54,10 +54,9 @@
   margin-bottom: var(--space-6);
 }
 
-/* What I do: three equal ruled cells */
+/* What I do: ruled rows, title left and description right */
 .capabilities {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 0;
   padding: 0;
   list-style: none;
@@ -66,19 +65,16 @@
 
 .capabilities li {
   display: grid;
-  gap: var(--space-4);
-  align-content: start;
-  padding: var(--space-8) var(--space-8) 0 0;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: var(--space-8);
+  align-items: baseline;
+  padding: var(--space-6) 0;
+  border-bottom: var(--rule-width) solid var(--color-rule);
   color: var(--color-ink-muted);
 }
 
-.capabilities li + li {
-  padding-left: var(--space-8);
-  border-left: var(--rule-width) solid var(--color-rule);
-}
-
 .capTitle {
-  font-size: var(--text-h2);
+  font-size: clamp(1.5rem, 1.05rem + 1.7vw, 2.5rem);
   line-height: 1.05;
   color: var(--color-ink);
 }
@@ -245,20 +241,14 @@
       "body";
   }
 
-  .capabilities,
   .services,
   .process {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .capabilities li,
-  .capabilities li + li {
-    padding: var(--space-6) 0;
-    border-left: 0;
-  }
-
-  .capabilities li + li {
-    border-top: var(--rule-width) solid var(--color-rule);
+  .capabilities li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
   }
 
   .service {

@@ -1,0 +1,65 @@
+/* FAQ: ruled accordion, native <details> so it works without JavaScript. */
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--rule-width) solid var(--color-rule);
+}
+
+.item {
+  border-bottom: var(--rule-width) solid var(--color-rule);
+}
+
+.question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding-block: var(--space-6);
+  cursor: pointer;
+  list-style: none;
+}
+
+.question::-webkit-details-marker {
+  display: none;
+}
+
+.questionText {
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  line-height: 1.2;
+}
+
+.toggle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: var(--rule-width) solid var(--color-rule-strong);
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    background-color var(--dur-micro) var(--ease-out);
+}
+
+.question:hover .toggle {
+  background: var(--color-surface);
+}
+
+.item[open] .toggle {
+  transform: rotate(45deg);
+}
+
+.answer {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 64ch;
+  padding-bottom: var(--space-8);
+  color: var(--color-ink-muted);
+  line-height: 1.65;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle {
+    transition: none;
+  }
+}

@@ -119,6 +119,11 @@
   padding-block: var(--space-section) 0;
 }
 
+/* The last section before the call-to-action band keeps breathing room, whichever it is. */
+.section:not(:has(~ .section)) {
+  padding-bottom: var(--space-section);
+}
+
 .sectionHead {
   display: flex;
   align-items: baseline;
@@ -149,7 +154,7 @@
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   gap: var(--space-10) var(--space-16);
-  align-items: end;
+  align-items: center;
 }
 
 .portrait {
@@ -178,11 +183,10 @@
   max-width: 36ch;
 }
 
-/* ── What I do ── */
+/* ── What I do: ruled index rows (any number of roles) ── */
 .cells {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 0 0 var(--space-section);
+  margin: 0;
   padding: 0;
   list-style: none;
   border-top: var(--rule-width) solid var(--color-rule);
@@ -190,24 +194,21 @@
 
 .cell {
   display: grid;
-  gap: var(--space-4);
-  align-content: start;
-  padding: var(--space-8) var(--space-8) var(--space-10) 0;
-}
-
-.cell + .cell {
-  padding-left: var(--space-8);
-  border-left: var(--rule-width) solid var(--color-rule);
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--space-8);
+  align-items: baseline;
+  padding: var(--space-6) 0;
+  border-bottom: var(--rule-width) solid var(--color-rule);
 }
 
 .cellTitle {
-  font-size: var(--text-h2);
+  font-size: clamp(1.5rem, 1.05rem + 1.7vw, 2.5rem);
   line-height: 1.05;
 }
 
 .cellBody {
   color: var(--color-ink-muted);
-  max-width: 30ch;
+  max-width: 36ch;
 }
 
 @media (max-width: 960px) {
@@ -236,18 +237,9 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .cells {
+  .cell {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .cell,
-  .cell + .cell {
-    padding: var(--space-6) 0;
-    border-left: 0;
-  }
-
-  .cell + .cell {
-    border-top: var(--rule-width) solid var(--color-rule);
+    gap: var(--space-3);
   }
 }
 

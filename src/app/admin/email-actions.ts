@@ -3,7 +3,7 @@
 import { refresh } from "next/cache";
 import { requireAdminAction } from "@/lib/admin/auth";
 import { getSettings } from "@/lib/content";
-import { checkDomain, type DnsCheck } from "@/lib/mail/dns";
+import { checkDomain, providerFromHost, type DnsCheck, type MailProvider } from "@/lib/mail/dns";
 import { encryptSecret, gateHash, mailGate } from "@/lib/mail/secret";
 import { createTransport, deliver, describeError, loadMailRuntime, smtpProblem, type MailResult } from "@/lib/mail/send";
 import { renderTemplate, SAMPLE_VARS, TEMPLATE_KEYS, TEMPLATE_VARS, textEmailHtml, type TemplateKey } from "@/lib/mail/templates";
@@ -118,14 +118,22 @@ export async function sendTestEmail(to: string): Promise<MailResult> {
   return result;
 }
 
-export async function checkDeliverability(): Promise<{ domain: string; checks: DnsCheck[] } | { error: string }> {
+export async function checkDeliverability(): Promise<
+  { domain: string; provider: MailProvider; checks: DnsCheck[] } | { error: string } | { info: string }
+> {
   const { supabase } = await admin();
-  const { data } = await supabase.from("mail_settings").select("from_email, dkim_selector").eq("id", true).single();
+  const { data } = await supabase.from("mail_settings").select("from_email, dkim_selector, host").eq("id", true).single();
   const from = data?.from_email ?? "";
   const domain = from.split("@")[1];
   if (!domain) return { error: "Save a sender address first." };
+  if (/^(gmail|googlemail)\.com$/i.test(domain)) {
+    return {
+      info: "You're sending from a gmail.com address. Google already publishes SPF, DKIM and DMARC for it, so there's nothing to add. For a professional sender on your own domain, use Zoho or Google Workspace with hello@layothedeveloper.com.",
+    };
+  }
+  const provider = providerFromHost(data?.host ?? "");
   try {
-    return { domain, checks: await checkDomain(domain, data?.dkim_selector || "zmail", from) };
+    return { domain, provider, checks: await checkDomain(domain, data?.dkim_selector || "zmail", from, provider) };
   } catch (e) {
     return { error: (e as Error).message };
   }

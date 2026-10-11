@@ -62,7 +62,7 @@ export default async function EmailPage({
         <div>
           <h1 className={styles.pageTitle}>Email</h1>
           <p className={styles.pageIntro}>
-            How the site sends mail through your Zoho mailbox: new-enquiry notifications, automatic replies to visitors, and
+            How the site sends mail through your own mailbox (Zoho or Gmail): new-enquiry notifications, automatic replies to visitors, and
             replies you write from the inbox.
           </p>
         </div>

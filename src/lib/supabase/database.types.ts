@@ -159,6 +159,10 @@ export type Database = {
         },
         never
       >;
+      faqs: Table<
+        { answer: string; id: string; published: boolean; question: string; sort: number; updated_at: string },
+        "question"
+      >;
       mail_log: Table<
         {
           created_at: string;

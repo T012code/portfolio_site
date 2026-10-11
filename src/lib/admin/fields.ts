@@ -26,6 +26,8 @@ export type Field = {
   accept?: string;
   /** Lay out at half width on wide screens. */
   half?: boolean;
+  /** Visible rows for long text. */
+  rows?: number;
 };
 
 export type FieldValue = string | string[] | boolean | null;

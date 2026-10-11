@@ -4,28 +4,51 @@ import { Icon } from "@/components/ui/Icon";
 import type { Settings } from "@/lib/content";
 import styles from "./SiteFooter.module.css";
 
+const PAGES = [
+  { href: "/work", label: "Work" },
+  { href: "/about", label: "About" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/contact", label: "Contact" },
+];
+
+const LEGAL = [
+  { href: "/privacy", label: "Privacy" },
+  { href: "/terms", label: "Terms" },
+];
+
 export function SiteFooter({ settings, year }: { settings: Settings; year: number }) {
   return (
     <footer className={styles.footer} style={{ viewTransitionName: "site-footer" }}>
       <div className={`wrap ${styles.inner}`}>
         <div className={styles.top}>
-          <Link href="/" className={styles.mark} aria-label={`${settings.display_name}, home`}>
-            <Mark />
-          </Link>
-          {settings.taglines.length > 0 ? (
-            <p className={styles.taglines}>
-              {settings.taglines.map((t) => (
-                <span key={t}>{t}</span>
+          <div className={styles.brand}>
+            <Link href="/" className={styles.mark} aria-label={`${settings.display_name}, home`}>
+              <Mark />
+            </Link>
+            <p className={styles.motto}>{settings.motto}</p>
+          </div>
+          <nav aria-label="Footer">
+            <ul className={styles.links}>
+              {PAGES.map((p) => (
+                <li key={p.href}>
+                  <Link href={p.href}>{p.label}</Link>
+                </li>
               ))}
-            </p>
-          ) : null}
+            </ul>
+          </nav>
         </div>
-
-        <p className={styles.motto}>{settings.motto}</p>
 
         <div className={styles.bottom}>
           <p className={styles.meta}>
-            {settings.display_name} · {year} · {settings.location}
+            © {year} {settings.display_name} · {settings.location}
+            {LEGAL.map((l) => (
+              <span key={l.href}>
+                {" · "}
+                <Link href={l.href} className={styles.metaLink}>
+                  {l.label}
+                </Link>
+              </span>
+            ))}
           </p>
           <ul className={styles.links}>
             <li>
@@ -46,7 +69,7 @@ export function SiteFooter({ settings, year }: { settings: Settings; year: numbe
               </li>
             ) : null}
             <li>
-              <a href="#top" className={styles.top_link}>
+              <a href="#top" className={styles.topLink}>
                 Back to top <Icon name="arrow-up" size={14} />
               </a>
             </li>

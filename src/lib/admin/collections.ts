@@ -3,11 +3,11 @@ import type { Field } from "./fields";
 
 // Editable lists. The admin list, form, validation and cache tag all come from here.
 
-export type CollectionKey = "projects" | "services" | "capabilities" | "process" | "experience" | "skills";
+export type CollectionKey = "projects" | "services" | "capabilities" | "process" | "experience" | "skills" | "faqs";
 
 export type Collection = {
   key: CollectionKey;
-  table: "projects" | "services" | "capabilities" | "process_steps" | "experience" | "skills";
+  table: "projects" | "services" | "capabilities" | "process_steps" | "experience" | "skills" | "faqs";
   tag: string;
   label: string;
   singular: string;
@@ -74,7 +74,7 @@ export const COLLECTIONS: Record<CollectionKey, Collection> = {
     tag: TAGS.capabilities,
     label: "What I do",
     singular: "role",
-    description: "The three roles. The short line shows on the home page, the full text on About.",
+    description: "Your roles. The short line shows on the home page, the full text on About. Unpublish one to hide it.",
     titleField: "title",
     subtitleField: "short_body",
     hasPublished: true,
@@ -142,6 +142,23 @@ export const COLLECTIONS: Record<CollectionKey, Collection> = {
     orderBy: [{ column: "sort", ascending: true }],
     fields: [
       { name: "name", label: "Name", kind: "text", required: true, max: 60 },
+      { name: "published", label: "Published", kind: "boolean" },
+    ],
+  },
+  faqs: {
+    key: "faqs",
+    table: "faqs",
+    tag: TAGS.faqs,
+    label: "FAQs",
+    singular: "question",
+    description: "Questions and answers on the FAQ page. Drag to reorder.",
+    titleField: "question",
+    hasPublished: true,
+    sortable: true,
+    orderBy: [{ column: "sort", ascending: true }],
+    fields: [
+      { name: "question", label: "Question", kind: "text", required: true, max: 300 },
+      { name: "answer", label: "Answer", kind: "textarea", required: true, max: 3000, hint: "Plain text. A blank line starts a new paragraph." },
       { name: "published", label: "Published", kind: "boolean" },
     ],
   },

@@ -9,4 +9,5 @@ export const TAGS = {
   process: "process",
   experience: "experience",
   skills: "skills",
+  faqs: "faqs",
 } as const;

@@ -32,7 +32,9 @@ export function FieldInput({ field, value, error }: { field: Field; value: Field
   let control: React.ReactNode;
   switch (field.kind) {
     case "textarea":
-      control = <textarea {...common} defaultValue={String(value ?? "")} maxLength={field.max} required={field.required} />;
+      control = (
+        <textarea {...common} defaultValue={String(value ?? "")} maxLength={field.max} required={field.required} rows={field.rows} />
+      );
       break;
     case "lines":
     case "tags":

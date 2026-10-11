@@ -19,6 +19,7 @@ const COLLECTION_ICONS: Record<CollectionKey, IconName> = {
   process: "layers",
   experience: "file-text",
   skills: "layers",
+  faqs: "message-circle",
 };
 
 async function Shell({ children }: { children: React.ReactNode }) {

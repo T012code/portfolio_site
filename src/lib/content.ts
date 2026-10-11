@@ -16,6 +16,7 @@ export type Service = Row<"services">;
 export type ProcessStep = Row<"process_steps">;
 export type Experience = Row<"experience">;
 export type Skill = Row<"skills">;
+export type Faq = Row<"faqs">;
 
 function unwrap<T>(result: { data: T | null; error: { message: string } | null }, what: string): T {
   if (result.error) throw new Error(`Failed to load ${what}: ${result.error.message}`);
@@ -99,4 +100,12 @@ export async function getSkills(): Promise<Skill[]> {
   cacheTag(TAGS.skills);
   const db = createPublicClient();
   return unwrap(await db.from("skills").select("*").eq("published", true).order("sort"), "skills");
+}
+
+export async function getFaqs(): Promise<Faq[]> {
+  "use cache";
+  cacheLife("max");
+  cacheTag(TAGS.faqs);
+  const db = createPublicClient();
+  return unwrap(await db.from("faqs").select("*").eq("published", true).order("sort"), "FAQs");
 }

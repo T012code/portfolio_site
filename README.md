@@ -49,8 +49,9 @@ business card artwork. Type is Archivo (variable width), self-hosted from `publi
    `https://<project>.supabase.co/functions/v1/cal-webhook` with Booking Created, Rescheduled
    and Cancelled, and a long random secret. Save the same secret in Supabase as the Edge
    Function secret `CAL_WEBHOOK_SECRET`.
-4. **Email (Zoho)**: everything is managed in Admin → Email. Pick "Zoho, own domain", enter
-   hello@layothedeveloper.com and a Zoho app password, save, test, then switch sending on.
+4. **Email (Zoho or Gmail)**: everything is managed in Admin → Email. Pick "Zoho, own domain"
+   (or "Gmail / Google Workspace"), enter the mailbox address and an app password, save, test,
+   then switch sending on.
    The same page checks the domain's MX, SPF, DKIM and DMARC records and shows the exact
    values to add. Autoresponders and the delivery log live there too. Until sending is on,
    submissions still arrive in the admin inbox.
