@@ -41,7 +41,16 @@ const nextConfig: NextConfig = {
     remotePatterns: [{ protocol: "https", hostname: supabaseHost, pathname: "/storage/v1/object/public/**" }],
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // The *.vercel.app addresses are for testing only: keep them out of search results so
+      // www.layothedeveloper.com is the only address search engines list.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "(?<host>.+)\\.vercel\\.app" }],
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+    ];
   },
 };
 
