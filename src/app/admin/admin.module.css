@@ -1311,3 +1311,169 @@ a.kpi:hover {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+/* Row actions as text: View | Resend | Delete */
+.textActions {
+  display: inline-flex;
+  align-items: baseline;
+  font-size: var(--text-small);
+}
+
+.textActions button {
+  padding: var(--space-1) 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: var(--weight-strong);
+  cursor: pointer;
+  text-underline-offset: 0.2em;
+}
+
+.textActions button + button::before {
+  content: "|";
+  display: inline-block;
+  margin-inline: var(--space-2);
+  color: var(--color-rule-strong);
+  font-weight: var(--weight-body);
+  text-decoration: none;
+}
+
+.textActions button:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.textActions button[data-danger] {
+  color: var(--color-danger);
+}
+
+.textActions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Long subjects stay inside their column. */
+.subjectCell {
+  width: 32%;
+  max-width: 0;
+}
+
+.subjectButton {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: var(--weight-strong);
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.subjectButton:hover {
+  color: var(--color-ink-muted);
+}
+
+/* ── WhatsApp ── */
+.waLayout {
+  display: grid;
+  grid-template-columns: minmax(14rem, 20rem) minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.waList {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--rule-width) solid var(--color-rule);
+}
+
+.waListItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-1) var(--space-3);
+  padding: var(--space-3) var(--space-3);
+  border-bottom: var(--rule-width) solid var(--color-rule);
+  text-decoration: none;
+}
+
+.waListItem:hover,
+.waListItem[aria-current="true"] {
+  background: var(--color-surface);
+}
+
+.waListItem[aria-current="true"] {
+  box-shadow: inset 3px 0 0 var(--color-ink);
+}
+
+.waListName {
+  font-weight: var(--weight-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.waListPreview {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  color: var(--color-ink-muted);
+  font-size: var(--text-small);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.waThread {
+  display: grid;
+  gap: var(--space-3);
+  max-height: 60dvh;
+  margin: 0;
+  padding: var(--space-4);
+  overflow-y: auto;
+  list-style: none;
+  background: var(--color-surface);
+}
+
+.waThread li {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: start;
+}
+
+.waThread li[data-dir="out"] {
+  justify-items: end;
+  text-align: right;
+}
+
+.waPhone {
+  padding: var(--space-4);
+  background: var(--color-surface);
+}
+
+.waBubble {
+  max-width: 34rem;
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: var(--rule-width) solid var(--color-rule);
+  background: var(--color-paper);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-align: left;
+  font-size: var(--text-small);
+  line-height: 1.5;
+}
+
+.waBubble[data-dir="out"] {
+  border-color: var(--color-ink);
+}
+
+@media (max-width: 860px) {
+  .waLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

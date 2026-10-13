@@ -47,6 +47,7 @@ async function Shell({ children }: { children: React.ReactNode }) {
       heading: "System",
       items: [
         { href: "/admin/email", label: "Email", icon: "mail" as const },
+        { href: "/admin/whatsapp", label: "WhatsApp", icon: "message-circle" as const },
         { href: "/admin/spam", label: "Spam protection", icon: "shield" as const },
         { href: "/admin/settings", label: "Site settings", icon: "settings" as const },
         { href: "/admin/account", label: "Account & access", icon: "user" as const },

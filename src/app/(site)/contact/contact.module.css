@@ -336,3 +336,83 @@ textarea.input {
 :global(.grecaptcha-badge) {
   visibility: hidden;
 }
+
+/* Budget: amount with a Naira / US dollar switch. */
+.budgetHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.currency {
+  display: inline-flex;
+  border: var(--rule-width) solid var(--color-rule);
+}
+
+.currencyOption {
+  position: relative;
+  cursor: pointer;
+}
+
+.currencyOption input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.currencyOption span {
+  display: block;
+  padding: 0.125rem var(--space-2);
+  font-size: var(--text-label);
+  font-weight: var(--weight-strong);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-muted);
+  transition:
+    background-color var(--dur-micro) var(--ease-out),
+    color var(--dur-micro) var(--ease-out);
+}
+
+.currencyOption input:checked + span {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.currencyOption input:focus-visible + span {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+.money {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  border-bottom: var(--rule-width) solid var(--color-rule);
+  transition: border-color var(--dur-micro) var(--ease-out);
+}
+
+.money:hover {
+  border-bottom-color: var(--color-ink-muted);
+}
+
+.money:focus-within {
+  border-bottom-color: var(--color-ink);
+  box-shadow: 0 var(--rule-width) 0 0 var(--color-ink);
+}
+
+.money:has([aria-invalid="true"]) {
+  border-bottom-color: var(--color-danger);
+}
+
+.money .input,
+.money .input:focus-visible {
+  border-bottom: 0;
+  box-shadow: none;
+}
+
+.moneySymbol {
+  font-size: var(--text-body);
+  font-weight: var(--weight-strong);
+}

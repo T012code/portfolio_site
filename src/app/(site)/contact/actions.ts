@@ -4,6 +4,7 @@ import { after } from "next/server";
 import { getSettings } from "@/lib/content";
 import { handleSubmissionEmails } from "@/lib/mail/send";
 import { verifyRecaptcha } from "@/lib/recaptcha";
+import { handleEnquiryWhatsApp } from "@/lib/whatsapp/send";
 import { createPublicClient } from "@/lib/supabase/public";
 
 export type SubmitState =
@@ -60,6 +61,16 @@ function failure(code: string, values: Record<string, string>): SubmitState {
   };
 }
 
+const SYMBOLS: Record<string, string> = { NGN: "₦", USD: "$" };
+
+/** "1,500,000" + NGN → "₦1,500,000". A symbol or code the visitor typed themselves is dropped first. */
+function formatBudget(amount: string, currency: string) {
+  const symbol = SYMBOLS[currency] ?? SYMBOLS.NGN;
+  const clean = amount.replace(/^\s*(₦|\$|ngn|usd|naira|dollars?)\s*/i, "").trim();
+  if (!clean) return "";
+  return `${symbol}${clean}`.slice(0, 120);
+}
+
 export async function submitEnquiry(_prev: SubmitState, form: FormData): Promise<SubmitState> {
   const values = {
     name: text(form, "name", 120),
@@ -67,12 +78,14 @@ export async function submitEnquiry(_prev: SubmitState, form: FormData): Promise
     whatsapp: text(form, "whatsapp", 40),
     company: text(form, "company", 160),
     service: text(form, "service", 120),
-    budget: text(form, "budget", 120),
+    budget_amount: text(form, "budget_amount", 60),
+    budget_currency: text(form, "budget_currency", 3),
     timeline: text(form, "timeline", 120),
     message: text(form, "message", 5000),
   };
   if (looksAutomated(form)) return failure("rate_limited", values);
   if (!(await passesSpamCheck(form, "enquiry"))) return failure("recaptcha_failed", values);
+  const budget = formatBudget(values.budget_amount, values.budget_currency);
 
   const { data: id, error } = await createPublicClient().rpc("submit_enquiry", {
     p_name: values.name,
@@ -80,7 +93,7 @@ export async function submitEnquiry(_prev: SubmitState, form: FormData): Promise
     p_whatsapp: values.whatsapp,
     p_company: values.company,
     p_service: values.service,
-    p_budget: values.budget,
+    p_budget: budget,
     p_timeline: values.timeline,
     p_message: values.message,
   });
@@ -92,10 +105,15 @@ export async function submitEnquiry(_prev: SubmitState, form: FormData): Promise
     ["WhatsApp", values.whatsapp],
     ["Company", values.company],
     ["Service", values.service],
-    ["Budget", values.budget],
+    ["Budget", budget],
     ["Timeline", values.timeline],
     ["Project", values.message],
   ];
+  after(() =>
+    handleEnquiryWhatsApp({ id, name: values.name, whatsapp: values.whatsapp }).catch((e) =>
+      console.error("WhatsApp confirmation failed", e),
+    ),
+  );
   after(() =>
     handleSubmissionEmails({
       type: "enquiry",
@@ -109,7 +127,7 @@ export async function submitEnquiry(_prev: SubmitState, form: FormData): Promise
 
   const details = [
     values.service && `Service: ${values.service}`,
-    values.budget && `Budget: ${values.budget}`,
+    budget && `Budget: ${budget}`,
     values.timeline && `Timeline: ${values.timeline}`,
     values.company && `Company: ${values.company}`,
   ].filter(Boolean);

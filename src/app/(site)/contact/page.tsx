@@ -47,7 +47,6 @@ export default async function ContactPage() {
           }}
           options={{
             services: settings.service_options,
-            budgets: settings.budget_options,
             timelines: settings.timeline_options,
           }}
           calLink={settings.cal_link}

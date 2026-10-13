@@ -14,7 +14,7 @@ const CalBooking = dynamic(() => import("./CalBooking").then((m) => m.CalBooking
 
 type Props = {
   labels: { enquiry: string; message: string; responseNote: string };
-  options: { services: string[]; budgets: string[]; timelines: string[] };
+  options: { services: string[]; timelines: string[] };
   calLink: string;
   email: string;
   /** reCAPTCHA v3 site key when spam protection is on. */
@@ -242,7 +242,7 @@ function EnquiryForm({
       </div>
       <ChoiceGroup name="service" legend="What do you need?" options={options.services} value={values.service} />
       <div className={styles.row2}>
-        <SelectField name="budget" label="Budget range" options={options.budgets} value={values.budget} />
+        <BudgetField amount={values.budget_amount} currency={values.budget_currency} error={errors.budget_amount} />
         <SelectField name="timeline" label="Timeline" options={options.timelines} value={values.timeline} />
       </div>
       <TextField
@@ -371,6 +371,89 @@ function TextField({
           {error}
         </span>
       ) : null}
+    </div>
+  );
+}
+
+const CURRENCIES = [
+  { code: "NGN", symbol: "₦", label: "Naira" },
+  { code: "USD", symbol: "$", label: "US dollars" },
+] as const;
+
+// Visitors in Nigeria start on Naira, everyone else on US dollars. They can switch either way.
+function defaultCurrency() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone === "Africa/Lagos" ? "NGN" : "USD";
+  } catch {
+    return "NGN";
+  }
+}
+
+// "1500000" → "1,500,000"; anything that isn't a plain number (a range, "flexible") is left as typed.
+function groupDigits(value: string) {
+  const plain = value.replace(/[,\s]/g, "");
+  if (!/^\d+(\.\d{1,2})?$/.test(plain)) return value;
+  const [whole, cents] = plain.split(".");
+  return Number(whole).toLocaleString("en-GB") + (cents ? `.${cents}` : "");
+}
+
+function BudgetField({ amount, currency, error }: { amount?: string; currency?: string; error?: string }) {
+  const id = useId();
+  const [code, setCode] = useState<string>(() => (currency === "NGN" || currency === "USD" ? currency : "NGN"));
+  const [value, setValue] = useState(amount ?? "");
+  const symbol = CURRENCIES.find((c) => c.code === code)?.symbol ?? "";
+
+  useEffect(() => {
+    // Picked after hydration so server and client render the same first frame.
+    if (!currency) queueMicrotask(() => setCode(defaultCurrency()));
+  }, [currency]);
+
+  return (
+    <div className={styles.field}>
+      <div className={styles.budgetHead}>
+        <label htmlFor={id} className={styles.label}>
+          Budget
+        </label>
+        <div className={styles.currency} role="radiogroup" aria-label="Currency">
+          {CURRENCIES.map((c) => (
+            <label key={c.code} className={styles.currencyOption}>
+              <input
+                type="radio"
+                name="budget_currency"
+                value={c.code}
+                checked={code === c.code}
+                onChange={() => setCode(c.code)}
+                aria-label={c.label}
+              />
+              <span>
+                {c.symbol} {c.code}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+      <div className={styles.money}>
+        <span className={styles.moneySymbol} aria-hidden="true">
+          {symbol}
+        </span>
+        <input
+          id={id}
+          name="budget_amount"
+          className={styles.input}
+          inputMode="decimal"
+          autoComplete="off"
+          maxLength={60}
+          placeholder={code === "NGN" ? "e.g. 1,500,000" : "e.g. 3,000"}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={() => setValue((v) => groupDigits(v.trim()))}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={`${id}-hint`}
+        />
+      </div>
+      <p id={`${id}-hint`} className={styles.hint}>
+        {error ?? "A rough figure or a range is fine."}
+      </p>
     </div>
   );
 }

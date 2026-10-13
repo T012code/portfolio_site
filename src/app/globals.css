@@ -421,19 +421,30 @@ html[data-menu-open] {
 }
 
 ::view-transition-old(site-footer) {
-  display: none;
+  animation: page-out var(--page-out) cubic-bezier(0.55, 0, 1, 0.45) both;
 }
 
 ::view-transition-new(site-footer) {
   animation: footer-in 0.4s var(--ease-out) var(--page-out) both;
 }
 
-::view-transition-old(.page) {
-  animation: page-out var(--page-out) cubic-bezier(0.55, 0, 1, 0.45) both;
+/* The page is one named group: no morph between old and new, just out then in. */
+::view-transition-group(page) {
+  animation: none;
 }
 
-::view-transition-new(.page) {
+::view-transition-image-pair(page) {
+  isolation: auto;
+}
+
+::view-transition-old(page) {
+  animation: page-out var(--page-out) cubic-bezier(0.55, 0, 1, 0.45) both;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(page) {
   animation: page-in 0.65s var(--ease-out) var(--page-out) both;
+  mix-blend-mode: normal;
 }
 
 :root {

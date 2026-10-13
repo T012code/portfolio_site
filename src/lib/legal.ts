@@ -14,6 +14,9 @@ The website is run by Laniya Molayoninujesu, trading as Layò the developer, bas
 - Your WhatsApp number and company name, if you give them
 - The service, budget and timeline you choose, and what you write about your project
 
+### When you use WhatsApp
+If you message my WhatsApp Business number, or leave your WhatsApp number on the enquiry form, your number, WhatsApp profile name and messages are processed through WhatsApp (Meta) so I can reply. If you leave your number on the form, you may get one WhatsApp message confirming your enquiry; reply STOP and I won't message you there again.
+
 ### When you book a call
 Bookings are handled by Cal.com. It collects your name, email address, the time you pick and any notes you add, and shares the booking details with me.
 
@@ -34,6 +37,7 @@ I don't sell or rent personal information. It is shared only with the services t
 - Supabase: stores form submissions and site files
 - Vercel: hosts the website
 - Cal.com: handles call bookings
+- WhatsApp (Meta): carries WhatsApp messages to and from my business number
 - Google reCAPTCHA: checks contact form submissions for spam. It looks at browser and interaction signals, under Google's own privacy policy (policies.google.com/privacy)
 - My email provider: sends and receives email from hello@layothedeveloper.com
 

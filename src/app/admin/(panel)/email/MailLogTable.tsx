@@ -120,7 +120,9 @@ export function MailLogTable({ rows }: { rows: LogRow[] }) {
               <th scope="col">When</th>
               <th scope="col">Type</th>
               <th scope="col">To</th>
-              <th scope="col">Subject</th>
+              <th scope="col" className={styles.subjectCell}>
+                Subject
+              </th>
               <th scope="col">Result</th>
               <th scope="col">
                 <span className="visually-hidden">Actions</span>
@@ -157,8 +159,8 @@ export function MailLogTable({ rows }: { rows: LogRow[] }) {
                 <td className={styles.clip} title={row.to_email}>
                   {row.to_email}
                 </td>
-                <td className={styles.clip} title={row.subject}>
-                  <button type="button" className={styles.linkButton} onClick={() => setOpenId(row.id)}>
+                <td className={styles.subjectCell}>
+                  <button type="button" className={styles.subjectButton} title={row.subject} onClick={() => setOpenId(row.id)}>
                     {row.subject || "(no subject)"}
                   </button>
                 </td>
@@ -173,22 +175,22 @@ export function MailLogTable({ rows }: { rows: LogRow[] }) {
                   ) : null}
                 </td>
                 <td className={styles.nowrap}>
-                  <div className={styles.rowActions}>
-                    <button type="button" className={styles.smallButton} onClick={() => setOpenId(row.id)}>
+                  <div className={styles.textActions}>
+                    <button type="button" onClick={() => setOpenId(row.id)} aria-label={`View email to ${row.to_email}`}>
                       View
                     </button>
                     <button
                       type="button"
-                      className={styles.smallButton}
                       disabled={pending}
                       aria-busy={busyId === row.id || undefined}
                       onClick={() => resend(row)}
+                      aria-label={`Resend email to ${row.to_email}`}
                     >
                       Resend
                     </button>
                     <button
                       type="button"
-                      className={`${styles.smallButton} ${styles.dangerButton}`}
+                      data-danger
                       disabled={pending}
                       onClick={() => remove([row.id])}
                       aria-label={`Delete email to ${row.to_email}`}

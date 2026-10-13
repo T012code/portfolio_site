@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { Reveal } from "@/components/motion/Reveal";
 import { CtaBand } from "@/components/site/CtaBand";
-import { Icon } from "@/components/ui/Icon";
 import { getBlocks, getFaqs, getSettings } from "@/lib/content";
 import shared from "../page.module.css";
 import styles from "./faq.module.css";
@@ -42,14 +41,16 @@ export default async function FaqPage() {
 
       <section className={`wrap ${shared.section}`} aria-label="Questions">
         <Reveal as="ul" className={styles.list} stagger>
-          {faqs.map((f) => (
+          {faqs.map((f, i) => (
             <li key={f.id}>
               <details className={styles.item}>
                 <summary className={styles.question}>
-                  <h2 className={styles.questionText}>{f.question}</h2>
-                  <span className={styles.toggle} aria-hidden="true">
-                    <Icon name="plus" size={20} />
+                  <span className={styles.index} aria-hidden="true">
+                    {String(i + 1).padStart(2, "0")}
                   </span>
+                  <h2 className={styles.questionText}>{f.question}</h2>
+                  {/* The square from the logo: outlined when closed, filled when open. */}
+                  <span className={styles.toggle} aria-hidden="true" />
                 </summary>
                 <div className={styles.answer}>
                   {f.answer.split(/\n{2,}/).map((p, i) => (

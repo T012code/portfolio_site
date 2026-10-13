@@ -209,6 +209,44 @@ export type Database = {
         { body: string; enabled: boolean; format: string; key: string; label: string; subject: string; updated_at: string },
         "key" | "label"
       >;
+      whatsapp_messages: Table<
+        {
+          body: string;
+          contact_name: string;
+          created_at: string;
+          detail: string;
+          direction: string;
+          id: string;
+          kind: string;
+          msg_type: string;
+          ref_id: string | null;
+          ref_type: string | null;
+          status: string;
+          wa_id: string;
+          wa_message_id: string | null;
+        },
+        "direction" | "kind" | "wa_id"
+      >;
+      whatsapp_settings: Table<
+        {
+          autoreply_body: string;
+          autoreply_cooldown_hours: number;
+          autoreply_enabled: boolean;
+          business_account_id: string;
+          display_number: string;
+          enabled: boolean;
+          form_template_enabled: boolean;
+          form_template_lang: string;
+          form_template_name: string;
+          graph_version: string;
+          id: boolean;
+          notify_email: boolean;
+          phone_number_id: string;
+          updated_at: string;
+          verify_token: string;
+        },
+        never
+      >;
       skills: Table<
         { id: string; name: string; published: boolean; sort: number; updated_at: string },
         "name"
@@ -257,6 +295,33 @@ export type Database = {
       recaptcha_runtime: { Args: { p_gate: string }; Returns: string | null };
       recaptcha_secret_set: { Args: never; Returns: boolean };
       recaptcha_set_secret: { Args: { p_gate_hash: string; p_secret_enc: string | null }; Returns: undefined };
+      whatsapp_log_finish: {
+        Args: { p_detail: string; p_gate: string; p_id: string; p_status: string; p_wamid: string | null };
+        Returns: undefined;
+      };
+      whatsapp_log_inbound: {
+        Args: { p_body: string; p_gate: string; p_name: string; p_type: string; p_wa_id: string; p_wamid: string };
+        Returns: Json;
+      };
+      whatsapp_log_outbound: {
+        Args: {
+          p_body: string;
+          p_gate: string;
+          p_kind: string;
+          p_name: string;
+          p_ref_id: string | null;
+          p_ref_type: string | null;
+          p_wa_id: string;
+        };
+        Returns: string;
+      };
+      whatsapp_runtime: { Args: { p_gate: string }; Returns: Json };
+      whatsapp_secret_status: { Args: never; Returns: Json };
+      whatsapp_set_secret: {
+        Args: { p_app_secret_enc: string | null; p_gate_hash: string; p_token_enc: string | null };
+        Returns: undefined;
+      };
+      whatsapp_status_update: { Args: { p_detail: string; p_gate: string; p_status: string; p_wamid: string }; Returns: undefined };
       reorder_rows: { Args: { p_table: string; p_ids: string[] }; Returns: undefined };
       submit_enquiry: {
         Args: {

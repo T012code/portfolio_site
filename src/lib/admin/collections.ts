@@ -211,7 +211,6 @@ export const SETTINGS_FIELDS: { group: string; fields: Field[] }[] = [
     group: "Enquiry form options",
     fields: [
       { name: "service_options", label: "Services", kind: "lines", max: 120 },
-      { name: "budget_options", label: "Budget ranges", kind: "lines", max: 120 },
       { name: "timeline_options", label: "Timelines", kind: "lines", max: 120 },
     ],
   },
