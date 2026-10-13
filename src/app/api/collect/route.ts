@@ -3,26 +3,12 @@ import { browser, device, isBot, os } from "@/lib/analytics/agent";
 import { mailGate, visitorId } from "@/lib/mail/secret";
 import { createPublicClient } from "@/lib/supabase/public";
 import { SITE_URL } from "@/lib/env";
+import { visitorCountry, visitorIp, visitorPlace } from "@/lib/visitor";
 
-// Page-view beacon from the site. Location comes from Vercel's edge headers; the visitor id is
+// Page-view beacon from the site. Location comes from the edge headers (lib/visitor); the visitor id is
 // an HMAC of IP and user agent, so no cookie is set. Bots and the signed-in admin are skipped.
 
 const noContent = () => new Response(null, { status: 204 });
-
-function clientIp(request: NextRequest) {
-  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return forwarded || request.headers.get("x-real-ip") || "";
-}
-
-function header(request: NextRequest, name: string) {
-  const value = request.headers.get(name);
-  if (!value) return "";
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return value;
-  }
-}
 
 function hostOf(url: unknown) {
   if (typeof url !== "string" || url === "") return "";
@@ -56,12 +42,14 @@ export async function POST(request: NextRequest) {
   const path = typeof body.path === "string" ? body.path : "";
   if (!path.startsWith("/") || path.startsWith("/admin") || path.startsWith("/api")) return noContent();
 
-  const ip = clientIp(request);
+  const ip = visitorIp(request.headers);
   const gate = mailGate();
   const visitor = visitorId(ip, ua);
   if (!gate || !visitor) return noContent();
 
   const session = typeof body.session === "string" && /^[A-Za-z0-9_-]{8,64}$/.test(body.session) ? body.session : null;
+
+  const place = visitorPlace(request.headers);
 
   // Record after responding, so the beacon never waits on the database.
   after(async () => {
@@ -74,9 +62,9 @@ export async function POST(request: NextRequest) {
       p_visitor_id: visitor,
       p_session_id: session,
       p_ip: ip,
-      p_country: (request.headers.get("x-vercel-ip-country") ?? "").toUpperCase(),
-      p_region: header(request, "x-vercel-ip-country-region"),
-      p_city: header(request, "x-vercel-ip-city"),
+      p_country: visitorCountry(request.headers),
+      p_region: place.region,
+      p_city: place.city,
       p_device: device(ua),
       p_browser: browser(ua),
       p_os: os(ua),
