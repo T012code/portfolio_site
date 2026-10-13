@@ -3,6 +3,7 @@
 import {
   motion,
   useAnimationFrame,
+  useInView,
   useMotionValue,
   useReducedMotion,
   useScroll,
@@ -24,18 +25,21 @@ type Props = {
 
 // An endless band that drifts on its own and surges with scroll speed (and flips with direction).
 // Four copies so the seam never shows; only the first is exposed to assistive tech.
-export function Ribbon({ children, speed = -2.4, className, trackClassName, label }: Props) {
+export function Ribbon({ children, speed = -0.8, className, trackClassName, label }: Props) {
   const reduce = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  // Off screen, the band stops: no work on frames nobody sees.
+  const inView = useInView(ref, { margin: "100px 0px" });
   const base = useMotionValue(0);
   const { scrollY } = useScroll();
   const velocity = useVelocity(scrollY);
   const smooth = useSpring(velocity, { damping: 50, stiffness: 400 });
-  const boost = useTransform(smooth, [-1000, 0, 1000], [-4, 0, 4], { clamp: false });
+  const boost = useTransform(smooth, [-2000, 0, 2000], [-1.5, 0, 1.5]);
   const direction = useRef(1);
   const x = useTransform(base, (v) => `${wrap(-25, 0, v)}%`);
 
   useAnimationFrame((_, delta) => {
-    if (reduce) return;
+    if (reduce || !inView) return;
     const b = boost.get();
     if (b < 0) direction.current = -1;
     else if (b > 0) direction.current = 1;
@@ -44,7 +48,7 @@ export function Ribbon({ children, speed = -2.4, className, trackClassName, labe
   });
 
   return (
-    <div className={className} aria-label={label} role={label ? "region" : undefined}>
+    <div ref={ref} className={className} aria-label={label} role={label ? "region" : undefined}>
       <motion.div className={trackClassName} style={{ x, display: "flex", width: "max-content" }}>
         {[0, 1, 2, 3].map((i) => (
           <div key={i} aria-hidden={i > 0 || undefined} style={{ display: "flex", flex: "none" }}>

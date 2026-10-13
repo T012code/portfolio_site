@@ -1,6 +1,6 @@
 /* A cobalt stage with lime accents, the same in both site themes. */
 .preloader {
-  --pl-bg: oklch(30% 0.17 266);
+  --pl-bg: oklch(17% 0.07 266);
   --pl-ink: oklch(98% 0.01 250);
   --pl-dim: oklch(98% 0.01 250 / 0.7);
   --pl-line: oklch(98% 0.01 250 / 0.1);
@@ -12,9 +12,10 @@
   z-index: calc(var(--z-cursor) + 10);
   overflow: hidden;
   background:
-    radial-gradient(60% 50% at 88% 6%, oklch(72% 0.14 235 / 0.55), transparent 70%),
-    radial-gradient(55% 45% at 6% 100%, oklch(89% 0.19 125 / 0.28), transparent 70%),
-    radial-gradient(120% 90% at 50% 40%, oklch(52% 0.22 263), var(--pl-bg) 75%);
+    radial-gradient(45% 40% at 50% 42%, oklch(52% 0.22 263 / 0.75), transparent 70%),
+    radial-gradient(50% 45% at 92% 0%, oklch(72% 0.14 235 / 0.35), transparent 70%),
+    radial-gradient(45% 40% at 0% 100%, oklch(89% 0.19 125 / 0.16), transparent 70%),
+    var(--pl-bg);
   color: var(--pl-ink);
   clip-path: inset(0 0 0 0);
   /* Without JavaScript, never trap the page behind the overlay. */
@@ -111,6 +112,11 @@
 
 .outline[data-hidden] {
   opacity: 0;
+}
+
+/* Until JavaScript decides between 3D and the flat outline, the outline waits undrawn. */
+.preloader:not([data-hydrated]) .outline path {
+  animation-play-state: paused;
 }
 
 .outline path {

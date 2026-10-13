@@ -3,7 +3,8 @@
 import { ArrowsClockwiseIcon, MapPinIcon } from "@phosphor-icons/react";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
 import Image from "next/image";
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { whenPreloaded } from "@/components/preloader/events";
 import { Mark } from "@/components/brand/Mark";
 import styles from "./HangingBadge.module.css";
 
@@ -17,13 +18,15 @@ type Props = {
   email: string;
   /** Extra content for the back of the card (stack icons, facts). */
   back: ReactNode;
+  /** On arrival: swing on the lanyard, flip to the back, then flip home. */
+  intro?: boolean;
 };
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
 // An ID badge on a lanyard. It swings from the clip like a pendulum: brush past it and it sways,
 // drag it and it follows, let go and it settles. Click (or Enter) flips it to the back.
-export function HangingBadge({ portrait, portraitAlt, name, fullName, role, location, email, back }: Props) {
+export function HangingBadge({ portrait, portraitAlt, name, fullName, role, location, email, back, intro }: Props) {
   const reduce = useReducedMotion();
   const pivotRef = useRef<HTMLDivElement>(null);
   const target = useMotionValue(0);
@@ -53,6 +56,40 @@ export function HangingBadge({ portrait, portraitAlt, name, fullName, role, loca
     }
   };
 
+  // The arrival: a push that sets it swinging, a flip to show the back, and a flip home.
+  // Any touch from the visitor cancels the rest of the sequence.
+  const introTimers = useRef<number[]>([]);
+  const cancelIntro = () => {
+    introTimers.current.forEach((t) => window.clearTimeout(t));
+    introTimers.current = [];
+  };
+  useEffect(() => {
+    if (!intro || reduce) return;
+    const at = (ms: number, fn: () => void) => introTimers.current.push(window.setTimeout(fn, ms));
+    const stop = whenPreloaded(() => {
+      at(700, () => {
+        target.set(28);
+        at(220, () => target.set(0));
+      });
+      at(2100, () => {
+        setFlipped(true);
+        flip.set(1);
+        target.set(9);
+        at(90, () => target.set(0));
+      });
+      at(4300, () => {
+        setFlipped(false);
+        flip.set(0);
+        target.set(-9);
+        at(90, () => target.set(0));
+      });
+    });
+    return () => {
+      stop();
+      cancelIntro();
+    };
+  }, [intro, reduce, flip, target]);
+
   const angleFromPivot = (clientX: number, clientY: number) => {
     const pivot = pivotRef.current?.getBoundingClientRect();
     if (!pivot) return 0;
@@ -76,6 +113,7 @@ export function HangingBadge({ portrait, portraitAlt, name, fullName, role, loca
           aria-label={flipped ? "Show the front of the ID card" : "Flip the ID card"}
           aria-pressed={flipped}
           onPointerDown={(e) => {
+            cancelIntro();
             if (reduce) return;
             drag.current = { x: e.clientX, y: e.clientY, moved: false };
             e.currentTarget.setPointerCapture(e.pointerId);
@@ -100,6 +138,7 @@ export function HangingBadge({ portrait, portraitAlt, name, fullName, role, loca
             target.set(0);
           }}
           onClick={() => {
+            cancelIntro();
             // The click that ends a drag is not a flip; keyboard activation always is.
             if (wasDrag.current) {
               wasDrag.current = false;
@@ -114,7 +153,7 @@ export function HangingBadge({ portrait, portraitAlt, name, fullName, role, loca
               <span className={styles.cardId}>Developer ID</span>
             </span>
             <span className={styles.photo}>
-              {portrait ? <Image src={portrait} alt={portraitAlt} fill sizes="260px" draggable={false} /> : null}
+              {portrait ? <Image src={portrait} alt={portraitAlt} fill sizes="320px" preload={intro} draggable={false} /> : null}
             </span>
             <span className={styles.name}>{name}</span>
             <span className={styles.fullName}>{fullName}</span>

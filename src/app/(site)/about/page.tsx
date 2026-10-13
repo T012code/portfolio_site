@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { Reveal } from "@/components/motion/Reveal";
-import { Tilt } from "@/components/motion/Tilt";
 import { CtaBand } from "@/components/site/CtaBand";
 import { ButtonLink } from "@/components/ui/Button";
 import { TopicIcon } from "@/components/ui/TopicIcon";
@@ -89,16 +88,15 @@ export default async function AboutPage() {
         </div>
         {portrait ? (
           <div className={styles.portraitWrap}>
-            <Tilt className={styles.portrait} max={5}>
-              <Image src={portrait} alt={settings.portrait_alt} fill priority sizes="(max-width: 900px) 90vw, 36vw" />
-            </Tilt>
+            <div className={styles.portrait}>
+              <Image src={portrait} alt={settings.portrait_alt} fill preload sizes="(max-width: 900px) 90vw, 36vw" />
+            </div>
             {current.length > 0 ? (
               <div className={styles.now}>
                 <span className="label">Now</span>
                 <ul>
                   {current.map((e) => (
                     <li key={e.id}>
-                      <span className={styles.nowDot} aria-hidden="true" />
                       {e.org}
                     </li>
                   ))}

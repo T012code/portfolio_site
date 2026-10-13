@@ -111,7 +111,6 @@ export default async function HomePage() {
                 </li>
               ) : null}
               <li className={styles.location}>
-                <span className={styles.dot} aria-hidden="true" />
                 {settings.location}
               </li>
             </ul>
@@ -126,6 +125,7 @@ export default async function HomePage() {
             role={settings.taglines[0] ?? "Software engineer"}
             location={settings.location}
             email={settings.email}
+            intro
             back={
               <>
                 <span className={styles.backTitle}>Stack I reach for</span>
@@ -150,7 +150,7 @@ export default async function HomePage() {
 
       {skills.length > 0 ? (
         <div className={styles.ribbons}>
-          <Ribbon className={`${styles.ribbon} ${styles.ribbonBack}`} speed={1.6}>
+          <Ribbon className={`${styles.ribbon} ${styles.ribbonBack}`} speed={0.55}>
             {skills.map((s) => (
               <span key={s.id} className={styles.ribbonItem}>
                 {s.name}
@@ -190,7 +190,6 @@ export default async function HomePage() {
           <div className={styles.aboutFoot}>
             {current ? (
               <p className={styles.now}>
-                <span className={styles.dot} aria-hidden="true" />
                 Currently {current.title} at {current.org}
               </p>
             ) : null}
@@ -218,9 +217,7 @@ export default async function HomePage() {
             </span>
           </Link>
         </div>
-        <Reveal>
-          <ProjectGrid projects={shown} />
-        </Reveal>
+        <ProjectGrid projects={shown} />
       </section>
 
       {capabilities.length > 0 ? (

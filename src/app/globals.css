@@ -190,6 +190,8 @@ body {
 }
 
 html {
+  /* In-page links land below the floating header. */
+  scroll-padding-top: 6rem;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   font-synthesis: none;
@@ -395,71 +397,6 @@ html[data-menu-open] {
   transition: transform 0.5s var(--ease-out);
 }
 
-/* ── Motion: cursor dot ──
-   The outer box follows the pointer (translate); the inner dot changes size by scale only. */
-.cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: var(--z-cursor);
-  width: 4.5rem;
-  height: 4.5rem;
-  margin: -2.25rem 0 0 -2.25rem;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--dur-base) var(--ease-out);
-}
-
-.cursor[data-visible] {
-  opacity: 1;
-}
-
-.cursorDot {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
-  font-size: var(--text-label);
-  font-weight: var(--weight-strong);
-  font-stretch: var(--stretch-display);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  transform: scale(0.14);
-  transition:
-    transform var(--dur-base) var(--ease-out),
-    background-color var(--dur-base) var(--ease-out);
-}
-
-.cursorDot > span {
-  opacity: 0;
-  transition: opacity var(--dur-micro) var(--ease-out);
-}
-
-.cursor[data-hover] .cursorDot {
-  transform: scale(0.55);
-  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
-}
-
-.cursor[data-hover][data-label]:not([data-label=""]) .cursorDot {
-  transform: scale(1);
-  background: var(--color-accent);
-}
-
-.cursor[data-hover][data-label]:not([data-label=""]) .cursorDot > span {
-  opacity: 1;
-}
-
-.cursor[data-down] .cursorDot {
-  transform: scale(0.1);
-}
-
-.cursor[data-hover][data-down] .cursorDot {
-  transform: scale(0.45);
-}
-
 /* ── Motion: page transitions (React ViewTransition) ──
    Strictly sequential: the old page is gone before the new one starts, so the two never
    overlap. The header stays put; the footer leaves with the old page and follows the new one. */
@@ -499,7 +436,7 @@ html[data-menu-open] {
 }
 
 ::view-transition-new(site-footer) {
-  animation: footer-in 0.4s var(--ease-out) var(--page-out) both;
+  animation: footer-in 0.3s var(--ease-out) var(--page-out) both;
 }
 
 /* The page is one named group: no morph between old and new, just out then in. */
@@ -517,12 +454,12 @@ html[data-menu-open] {
 }
 
 ::view-transition-new(page) {
-  animation: page-in 0.65s var(--ease-out) var(--page-out) both;
+  animation: page-in 0.4s var(--ease-out) var(--page-out) both;
   mix-blend-mode: normal;
 }
 
 :root {
-  --page-out: 0.24s;
+  --page-out: 0.16s;
 }
 
 @keyframes page-out {
@@ -535,15 +472,7 @@ html[data-menu-open] {
 @keyframes page-in {
   from {
     opacity: 0;
-    clip-path: inset(0 0 100% 0);
-    transform: translateY(32px);
-  }
-  40% {
-    opacity: 1;
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-    transform: none;
+    transform: translateY(20px);
   }
 }
 
@@ -578,8 +507,8 @@ html[data-menu-open] {
 
 @media (prefers-reduced-motion: no-preference) {
   .intro-line > span {
-    animation: line-up 1.1s var(--ease-out) both;
-    animation-delay: calc(var(--line, 0) * 90ms + 120ms);
+    animation: line-up 0.8s var(--ease-out) both;
+    animation-delay: calc(var(--line, 0) * 70ms + 60ms);
   }
 
   .intro-fade {
@@ -662,7 +591,6 @@ html:not([data-preloaded]):not([data-preloader-leaving]):has([data-preloader]) :
 
   header[style*="site-header"],
   footer[style*="site-footer"],
-  .cursor,
   .skip-link,
   [data-preloader] {
     display: none !important;

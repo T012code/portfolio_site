@@ -8,7 +8,8 @@ import { canRender3D } from "@/components/three/gpu";
 import { PRELOADED_EVENT, PRELOADED_KEY } from "./events";
 import styles from "./Preloader.module.css";
 
-const PreloaderScene = dynamic(() => import("./PreloaderScene"), { ssr: false });
+const loadScene = () => import("./PreloaderScene");
+const PreloaderScene = dynamic(loadScene, { ssr: false });
 
 const GLYPHS = "01<>/{}[]#$%&*+=?ABCDEFGHJKLMNPQRSTUVWXYZ";
 const MIN_MS = 2400;
@@ -24,6 +25,8 @@ export function Preloader({ motto, location }: { motto: string; location: string
   const [phase, setPhase] = useState<"loading" | "leaving" | "done">("loading");
   const [use3D, setUse3D] = useState(false);
   const [sceneReady, setSceneReady] = useState(false);
+  // The flat outline only stands in when the 3D scene is slow to arrive.
+  const [fallback, setFallback] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
   const barRef = useRef<HTMLSpanElement>(null);
@@ -48,8 +51,14 @@ export function Preloader({ motto, location }: { motto: string; location: string
       sceneReadyRef.current = true;
       introDoneRef.current = true;
     }
-    // Deferred so the 3D bundle request starts after this effect, not during it.
+    // Fetch the 3D bundle straight away; the canvas mounts on the next tick.
+    if (gpu) void loadScene();
     queueMicrotask(() => setUse3D(gpu));
+    const fallbackTimer = gpu
+      ? window.setTimeout(() => {
+          if (!sceneReadyRef.current) setFallback(true);
+        }, 2000)
+      : undefined;
 
     const start = performance.now();
     const minMs = reduced ? 700 : MIN_MS;
@@ -113,7 +122,10 @@ export function Preloader({ motto, location }: { motto: string; location: string
     };
     frame = requestAnimationFrame(tick);
 
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(fallbackTimer);
+    };
   }, [skipped, motto]);
 
   if (skipped || phase === "done") return null;
@@ -132,7 +144,7 @@ export function Preloader({ motto, location }: { motto: string; location: string
         <svg
           className={styles.outline}
           viewBox={MARK_VIEWBOX}
-          data-hidden={(use3D && sceneReady) || undefined}
+          data-hidden={(use3D && (sceneReady || !fallback)) || undefined}
         >
           {MARK_PATHS.map((d) => (
             <path key={d.slice(0, 16)} d={d} pathLength={1} />

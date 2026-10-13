@@ -58,7 +58,7 @@ function BlueprintMark({ leaving, onIntroDone }: { leaving: boolean; onIntroDone
       const line = lines.current[i];
       if (line) line.opacity = 1 - fill * 0.8;
       const wire = wires.current[i];
-      if (wire) wire.opacity = 0.22 * (1 - fill);
+      if (wire) wire.opacity = 0.35 * (1 - fill);
     });
 
     const g = group.current;
@@ -102,10 +102,10 @@ function BlueprintMark({ leaving, onIntroDone }: { leaving: boolean; onIntroDone
               ref={(m) => {
                 wires.current[i] = m;
               }}
-              color={pieceColor(i)}
+              color={SKY}
               wireframe
               transparent
-              opacity={0.22}
+              opacity={0.35}
               depthWrite={false}
             />
           </mesh>
@@ -114,7 +114,7 @@ function BlueprintMark({ leaving, onIntroDone }: { leaving: boolean; onIntroDone
               ref={(m) => {
                 lines.current[i] = m;
               }}
-              color={pieceColor(i)}
+              color={i === 0 ? LIME : SKY}
               transparent
               opacity={1}
               depthWrite={false}
@@ -181,7 +181,7 @@ export default function PreloaderScene({
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       onCreated={() => onReady()}
     >
-      <fog attach="fog" args={["#1b2f95", 9, 26]} />
+      <fog attach="fog" args={["#0a1233", 9, 26]} />
       <ambientLight intensity={0.4} />
       <directionalLight position={[4, 6, 6]} intensity={1.4} />
       <Environment resolution={128} frames={1}>
@@ -194,7 +194,7 @@ export default function PreloaderScene({
         args={[40, 40]}
         cellSize={0.5}
         cellThickness={0.6}
-        cellColor="#4a68f0"
+        cellColor="#24379a"
         sectionSize={2.5}
         sectionThickness={1}
         sectionColor="#c7f25a"

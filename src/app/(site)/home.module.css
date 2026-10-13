@@ -75,26 +75,6 @@
   color: var(--color-ink-muted);
 }
 
-.dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: var(--color-success);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-success) 22%, transparent);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .dot {
-    animation: ping 2.4s var(--ease-out) infinite;
-  }
-}
-
-@keyframes ping {
-  50% {
-    box-shadow: 0 0 0 7px color-mix(in srgb, var(--color-success) 0%, transparent);
-  }
-}
-
 .heroVisual {
   position: relative;
   align-self: start;
@@ -108,6 +88,11 @@
   .heroVisual {
     animation: drop-in 1.3s var(--ease-spring) 0.2s both;
   }
+}
+
+/* Behind the preloader, the card waits at the top until the curtain lifts. */
+:global(html:not([data-preloaded]):not([data-preloader-leaving]):has([data-preloader])) .heroVisual {
+  animation-play-state: paused;
 }
 
 @keyframes drop-in {

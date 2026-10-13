@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { PageTransition } from "@/components/motion/PageTransition";
-import { Reveal } from "@/components/motion/Reveal";
 import { CtaBand } from "@/components/site/CtaBand";
 import { ProjectGrid } from "@/components/site/ProjectGrid";
 import { TwoTone } from "@/components/ui/TwoTone";
@@ -70,9 +69,7 @@ export default async function WorkPage() {
       </header>
 
       <section className={`wrap ${styles.section}`} aria-label="Projects">
-        <Reveal>
-          <ProjectGrid projects={projects.map(toProjectItem)} headingLevel={2} filters />
-        </Reveal>
+        <ProjectGrid projects={projects.map(toProjectItem)} headingLevel={2} />
       </section>
 
       <CtaBand

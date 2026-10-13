@@ -1,4 +1,5 @@
 import {
+  BrainIcon,
   BrowsersIcon,
   CodeIcon,
   CpuIcon,
@@ -6,6 +7,7 @@ import {
   FileTextIcon,
   GaugeIcon,
   HandshakeIcon,
+  LayoutIcon,
   LightbulbIcon,
   MagnifyingGlassIcon,
   PaintBrushIcon,
@@ -21,6 +23,8 @@ import { createElement } from "react";
 // Picks a Phosphor icon from the words in a capability, service or process step title,
 // so admin-edited titles still get a fitting icon.
 const RULES: [RegExp, Icon][] = [
+  [/\bai\b|automation|llm|chatbot/i, BrainIcon],
+  [/landing|page/i, LayoutIcon],
   [/mobile|app developer|flutter|ios|android/i, DeviceMobileIcon],
   [/integrat|api|payment|crm/i, PlugsConnectedIcon],
   [/full.?stack|web app/i, StackIcon],
