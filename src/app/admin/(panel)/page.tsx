@@ -19,7 +19,7 @@ export default async function Dashboard() {
   const count = (q: PromiseLike<{ count: number | null }>) => q.then((r) => r.count ?? 0);
   const weekAgo = daysAgo(7);
 
-  const [inbox, booked, projects, drafts, health, settings, templates, recentEnquiries, recentMessages, mail, failed] =
+  const [inbox, booked, projects, drafts, health, settings, templates, recentEnquiries, recentMessages, mail, failed, traffic] =
     await Promise.all([
       getNewInboxCounts(),
       count(supabase.from("enquiries").select("id", { count: "exact", head: true }).eq("status", "booked")),
@@ -32,7 +32,9 @@ export default async function Dashboard() {
       supabase.from("messages").select("id, name, status, created_at").neq("status", "archived").order("created_at", { ascending: false }).limit(5),
       supabase.from("mail_log").select("id, kind, to_email, status, created_at, subject").order("created_at", { ascending: false }).limit(6),
       count(supabase.from("mail_log").select("id", { count: "exact", head: true }).eq("status", "failed").gte("created_at", weekAgo)),
+      supabase.rpc("analytics_summary", { p_days: 30 }),
     ]);
+  const reach = (traffic.data as { reach?: { month: number; live: number } } | null)?.reach;
 
   const recent = [
     ...(recentEnquiries.data ?? []).map((e) => ({ ...e, kind: "Enquiry", detail: e.service, tab: "enquiries" })),
@@ -69,6 +71,13 @@ export default async function Dashboard() {
   const done = checklist.filter((c) => c.done).length;
 
   const stats: { label: string; value: number; href: string; icon: IconName; note?: string; alert?: boolean }[] = [
+    {
+      label: "Visitors, 30 days",
+      value: reach?.month ?? 0,
+      href: "/admin/analytics",
+      icon: "chart",
+      note: reach?.live ? `${reach.live} on the site now` : undefined,
+    },
     { label: "New enquiries", value: inbox.enquiries, href: "/admin/inbox", icon: "inbox" },
     { label: "New messages", value: inbox.messages, href: "/admin/inbox?tab=messages", icon: "message-circle" },
     { label: "Calls booked", value: booked, href: "/admin/inbox?status=booked", icon: "calendar" },

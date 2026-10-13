@@ -32,6 +32,7 @@ async function Shell({ children }: { children: React.ReactNode }) {
       heading: "Overview",
       items: [
         { href: "/admin", label: "Dashboard", icon: "dashboard" as const },
+        { href: "/admin/analytics", label: "Analytics", icon: "chart" as const },
         { href: "/admin/inbox", label: "Inbox", icon: "inbox" as const, badge: newCount },
       ],
     },

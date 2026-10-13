@@ -154,7 +154,7 @@ export const BLOCKS = {
     page: {
       label: "Privacy policy",
       fields: [text("title", "Title"), text("updated", "Last updated"), doc("body", "Policy text")],
-      defaults: { title: "Privacy policy", updated: "11 October 2026", body: PRIVACY_DEFAULT },
+      defaults: { title: "Privacy policy", updated: "13 October 2026", body: PRIVACY_DEFAULT },
     },
   },
   terms: {
