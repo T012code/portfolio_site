@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { TwoTone } from "@/components/ui/TwoTone";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { getBlocks, getSettings } from "@/lib/content";
@@ -32,7 +33,9 @@ export default async function ContactPage() {
       <header className={`wrap ${shared.header}`}>
         <h1 className={shared.title}>
           <span className="intro-line">
-            <span>{blocks.header.label}</span>
+            <span>
+              <TwoTone text={blocks.header.label} />
+            </span>
           </span>
         </h1>
         {blocks.header.intro ? <p className={`intro-fade ${shared.lead}`}>{blocks.header.intro}</p> : null}

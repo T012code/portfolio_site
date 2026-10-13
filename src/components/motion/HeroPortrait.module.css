@@ -1,0 +1,78 @@
+.stage {
+  position: relative;
+  width: min(100%, 26rem);
+  aspect-ratio: 4 / 5;
+  margin-inline: auto;
+}
+
+/* Soft daylight behind the arch: sky into cobalt, blurred so it reads as light, not a shape. */
+.halo {
+  position: absolute;
+  inset: 8% -6% -4%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--color-sky) 70%, transparent), transparent);
+  filter: blur(24px);
+  opacity: 0.9;
+}
+
+.arch {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px 999px var(--radius-lg) var(--radius-lg);
+  background: linear-gradient(170deg, var(--color-sky), var(--color-accent) 75%);
+  overflow: hidden;
+  box-shadow: var(--shadow-float);
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+}
+
+.photo img {
+  object-fit: cover;
+  object-position: 50% 18%;
+}
+
+.chipSpot {
+  position: absolute;
+  z-index: 2;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-card) 88%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-card);
+  font-size: var(--text-small);
+  font-weight: var(--weight-strong);
+  white-space: nowrap;
+}
+
+.chip svg {
+  color: var(--brand);
+}
+
+.sticker {
+  position: absolute;
+  z-index: 3;
+  left: -6%;
+  bottom: -6%;
+}
+
+@media (max-width: 520px) {
+  .stage {
+    width: 78%;
+  }
+
+  .chip {
+    font-size: var(--text-label);
+    padding: 0.375rem var(--space-3) 0.375rem 0.375rem;
+  }
+}

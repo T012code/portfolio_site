@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { Reveal } from "@/components/motion/Reveal";
 import { CtaBand } from "@/components/site/CtaBand";
-import { ProjectList } from "@/components/site/ProjectList";
+import { ProjectGrid } from "@/components/site/ProjectGrid";
+import { TwoTone } from "@/components/ui/TwoTone";
 import { getBlocks, getProjects, getSettings } from "@/lib/content";
 import { toProjectItem } from "@/lib/format";
 import styles from "../page.module.css";
@@ -20,7 +21,9 @@ export default async function WorkPage() {
       <header className={`wrap ${styles.header}`}>
         <h1 className={styles.title}>
           <span className="intro-line">
-            <span>{blocks.header.label}</span>
+            <span>
+              <TwoTone text={blocks.header.label} />
+            </span>
           </span>
         </h1>
         {blocks.header.intro ? <p className={`intro-fade ${styles.lead}`}>{blocks.header.intro}</p> : null}
@@ -28,7 +31,7 @@ export default async function WorkPage() {
 
       <section className={`wrap ${styles.section}`} aria-label="Projects">
         <Reveal>
-          <ProjectList projects={projects.map(toProjectItem)} headingLevel={2} />
+          <ProjectGrid projects={projects.map(toProjectItem)} headingLevel={2} filters />
         </Reveal>
       </section>
 

@@ -117,8 +117,8 @@ export function Icon({ name, size = 18, ...props }: { name: IconName; size?: num
       fill="none"
       stroke="currentColor"
       strokeWidth={2}
-      strokeLinecap="square"
-      strokeLinejoin="miter"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       aria-hidden="true"
       focusable="false"
       {...props}

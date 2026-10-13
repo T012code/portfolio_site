@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { buildPieces, easeOutExpo } from "@/components/three/markGeometry";
 
-const INK = "#D6D2CC";
+const INK = "#DCE6FF";
 const PARTICLES = 700;
 
 // Blueprint to product: wireframe pieces fly in and lock, then the solid fills in.
@@ -177,7 +177,7 @@ export default function PreloaderScene({
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       onCreated={() => onReady()}
     >
-      <fog attach="fog" args={["#1c1919", 9, 26]} />
+      <fog attach="fog" args={["#0b1022", 9, 26]} />
       <ambientLight intensity={0.4} />
       <directionalLight position={[4, 6, 6]} intensity={1.4} />
       <Environment resolution={128} frames={1}>
@@ -190,10 +190,10 @@ export default function PreloaderScene({
         args={[40, 40]}
         cellSize={0.5}
         cellThickness={0.6}
-        cellColor="#4a4442"
+        cellColor="#1f2d5c"
         sectionSize={2.5}
         sectionThickness={1}
-        sectionColor="#8a837e"
+        sectionColor="#4d6bff"
         fadeDistance={24}
         fadeStrength={1.5}
         infiniteGrid

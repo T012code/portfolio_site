@@ -1,15 +1,15 @@
 /* Always the dark card palette: the preloader is a stage, independent of the site theme. */
 .preloader {
-  --pl-bg: oklch(20.5% 0.005 17.5);
-  --pl-ink: oklch(86.5% 0.0093 78.3);
-  --pl-dim: oklch(86.5% 0.0093 78.3 / 0.55);
-  --pl-line: oklch(86.5% 0.0093 78.3 / 0.08);
+  --pl-bg: oklch(15% 0.035 266);
+  --pl-ink: oklch(95% 0.02 250);
+  --pl-dim: oklch(95% 0.02 250 / 0.55);
+  --pl-line: oklch(95% 0.02 250 / 0.08);
 
   position: fixed;
   inset: 0;
   z-index: calc(var(--z-cursor) + 10);
   overflow: hidden;
-  background: radial-gradient(120% 90% at 50% 40%, oklch(25.6% 0.0061 17.6), var(--pl-bg) 70%);
+  background: radial-gradient(120% 90% at 50% 40%, oklch(25% 0.08 264), var(--pl-bg) 70%);
   color: var(--pl-ink);
   clip-path: inset(0 0 0 0);
   /* Without JavaScript, never trap the page behind the overlay. */
@@ -64,7 +64,7 @@
   right: 0;
   top: 0;
   height: 30%;
-  background: linear-gradient(to bottom, transparent, oklch(86.5% 0.0093 78.3 / 0.05), transparent);
+  background: linear-gradient(to bottom, transparent, oklch(95% 0.02 250 / 0.05), transparent);
   animation: scan 3.2s var(--ease-in-out) infinite;
   pointer-events: none;
 }
@@ -240,7 +240,7 @@
 .track {
   position: relative;
   height: 2px;
-  background: oklch(86.5% 0.0093 78.3 / 0.15);
+  background: oklch(95% 0.02 250 / 0.15);
   overflow: hidden;
 }
 

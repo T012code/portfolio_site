@@ -242,12 +242,12 @@
 
 .alertError {
   color: var(--color-danger);
-  background: color-mix(in oklch, var(--color-danger) 10%, transparent);
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
 }
 
 .alertSuccess {
   color: var(--color-success);
-  background: color-mix(in oklch, var(--color-success) 10%, transparent);
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
 }
 
 /* ── Forms ── */
@@ -1061,12 +1061,12 @@ a.kpi:hover {
 
 .result[data-tone="ok"] {
   color: var(--color-success);
-  background: color-mix(in oklch, var(--color-success) 10%, transparent);
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
 }
 
 .result[data-tone="error"] {
   color: var(--color-danger);
-  background: color-mix(in oklch, var(--color-danger) 10%, transparent);
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
 }
 
 .result[data-tone="neutral"] {

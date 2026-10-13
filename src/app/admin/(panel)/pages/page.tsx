@@ -9,6 +9,7 @@ import styles from "../../admin.module.css";
 const PAGE_LABELS: Record<PageName, { label: string; href: string }> = {
   home: { label: "Home", href: "/" },
   about: { label: "About", href: "/about" },
+  resume: { label: "Resume", href: "/resume" },
   work: { label: "Work", href: "/work" },
   contact: { label: "Contact", href: "/contact" },
   faq: { label: "FAQ", href: "/faq" },

@@ -1,6 +1,6 @@
 import { mediaUrl } from "@/lib/media";
 import type { Experience, Project } from "@/lib/content";
-import type { ProjectItem } from "@/components/site/ProjectList";
+import type { ProjectItem } from "@/components/site/ProjectGrid";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -30,4 +30,13 @@ export function toProjectItem(p: Project): ProjectItem {
 export function whatsappUrl(number: string) {
   const digits = number.replace(/\D/g, "");
   return digits ? `https://wa.me/${digits}` : null;
+}
+
+// Whole years since the earliest role started, from stored data (never a hard-coded claim).
+export function yearsSince(experience: Pick<Experience, "start_date">[], today: string) {
+  if (experience.length === 0) return 0;
+  const [ty, tm] = today.split("-").map(Number);
+  const first = experience.reduce((min, e) => (e.start_date < min ? e.start_date : min), experience[0].start_date);
+  const [y, m] = first.split("-").map(Number);
+  return Math.max(0, Math.floor((ty * 12 + tm - (y * 12 + m)) / 12));
 }

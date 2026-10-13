@@ -31,6 +31,7 @@ through `submit_enquiry` / `submit_message`, which validate input and rate-limit
 
 `src/components/brand` holds the mark and wordmark as vector paths taken from the
 business card artwork. Type is Archivo (variable width), self-hosted from `public/fonts`.
+Colour and motion tokens live at the top of `src/app/globals.css`.
 
 ## Going live
 
@@ -57,7 +58,15 @@ business card artwork. Type is Archivo (variable width), self-hosted from `publi
    submissions still arrive in the admin inbox.
 5. **Domain**: add `www.layothedeveloper.com` in Vercel, update `NEXT_PUBLIC_SITE_URL`, redeploy.
 
-## Testing the 3D hero without a GPU
+## Testing the 3D preloader without a GPU
 
-The hero falls back to the static mark on software-rendered WebGL. Append `?3d=force` to
-the URL to render the 3D scene anyway.
+The preloader skips its 3D scene on software-rendered WebGL. Append `?3d=force` to
+the URL to render it anyway.
+
+## Versions
+
+- **V2** (current): daylight-blue design with motion, icon packs and the Resume page.
+- **V1**: the original monochrome design, kept on the `v1` branch (also tagged `v1.0.0` locally).
+
+Icons: [Phosphor](https://phosphoricons.com) (MIT) for interface icons and
+[Simple Icons](https://simpleicons.org) (CC0, via `react-icons`) for tech brand marks.

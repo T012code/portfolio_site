@@ -62,7 +62,7 @@ export default async function Dashboard() {
       href: "/admin/settings",
       action: "Settings",
     },
-    { done: Boolean(s?.cv_path), label: "CV uploaded for the About page", href: "/admin/settings", action: "Settings" },
+    { done: Boolean(s?.cv_path), label: "CV uploaded for the Resume page", href: "/admin/settings", action: "Settings" },
     { done: Boolean(s?.portrait_path), label: "Portrait photo set", href: "/admin/settings", action: "Settings" },
     { done: Boolean(s?.cal_link), label: "Cal.com booking link set", href: "/admin/settings", action: "Settings" },
   ];

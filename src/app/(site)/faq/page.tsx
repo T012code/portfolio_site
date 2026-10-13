@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { TwoTone } from "@/components/ui/TwoTone";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { Reveal } from "@/components/motion/Reveal";
 import { CtaBand } from "@/components/site/CtaBand";
@@ -33,7 +34,9 @@ export default async function FaqPage() {
       <header className={`wrap ${shared.header}`}>
         <h1 className={shared.title}>
           <span className="intro-line">
-            <span>{blocks.header.label}</span>
+            <span>
+              <TwoTone text={blocks.header.label} />
+            </span>
           </span>
         </h1>
         {blocks.header.intro ? <p className={`intro-fade ${shared.lead}`}>{blocks.header.intro}</p> : null}
@@ -41,15 +44,12 @@ export default async function FaqPage() {
 
       <section className={`wrap ${shared.section}`} aria-label="Questions">
         <Reveal as="ul" className={styles.list} stagger>
-          {faqs.map((f, i) => (
+          {faqs.map((f) => (
             <li key={f.id}>
               <details className={styles.item}>
                 <summary className={styles.question}>
-                  <span className={styles.index} aria-hidden="true">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
                   <h2 className={styles.questionText}>{f.question}</h2>
-                  {/* The square from the logo: outlined when closed, filled when open. */}
+                  {/* A plus that turns into a minus as the answer opens. */}
                   <span className={styles.toggle} aria-hidden="true" />
                 </summary>
                 <div className={styles.answer}>

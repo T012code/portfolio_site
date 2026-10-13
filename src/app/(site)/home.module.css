@@ -1,256 +1,439 @@
-/* ── Hero ── */
+/* ── Hero: words left, lit portrait right ── */
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.5fr);
-  grid-template-areas:
-    "motto motto"
-    "headline headline"
-    "foot visual";
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  align-items: center;
   gap: var(--space-12) var(--space-16);
-  padding-block: clamp(3rem, 2rem + 6vw, 8rem) var(--space-section);
+  padding-block: clamp(2.5rem, 1.5rem + 5vw, 6rem) clamp(4rem, 3rem + 5vw, 8rem);
+}
+
+.heroText {
+  display: grid;
+  gap: var(--space-8);
+  align-content: center;
 }
 
 .motto {
-  grid-area: motto;
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-bottom: calc(-1 * var(--space-6));
-  color: var(--color-ink);
-}
-
-.motto::before {
-  content: "";
-  width: 2.5rem;
-  height: var(--rule-width);
-  background: currentColor;
+  margin-bottom: calc(-1 * var(--space-2));
 }
 
 .headline {
-  grid-area: headline;
-  font-size: var(--text-h1);
+  font-size: clamp(2.5rem, 1.2rem + 3.6vw, 4.5rem);
+  font-stretch: 102%;
   line-height: var(--leading-tight);
-  margin-left: -0.055em;
-}
-
-.line {
-  display: block;
-}
-
-.visual {
-  grid-area: visual;
-  align-self: end;
-  justify-self: end;
-  display: grid;
-  place-items: center;
-  width: min(100%, 24rem);
-  aspect-ratio: 1;
-  color: var(--color-ink);
+  margin-left: -0.05em;
 }
 
 .heroFoot {
-  grid-area: foot;
   display: grid;
   gap: var(--space-6);
-  align-content: start;
-  padding-top: var(--space-6);
-  border-top: var(--rule-width) solid var(--color-rule);
 }
 
 .roleLine {
   font-size: var(--text-lead);
   color: var(--color-ink-muted);
-  max-width: 44ch;
+  max-width: 40ch;
 }
 
 .ctas {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-3);
 }
 
-/* ── Tools ticker ── */
-.ticker {
-  overflow: hidden;
-  border-block: var(--rule-width) solid var(--color-rule);
-  padding-block: var(--space-4);
-}
-
-.tickerTrack {
+.socials {
   display: flex;
-  width: max-content;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
-  animation: ticker 48s linear infinite;
 }
 
-.tickerTrack li {
-  padding-inline: var(--space-8);
-  font-size: var(--text-h3);
+.socials a {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-rule);
+  border-radius: 50%;
+  background: var(--color-card);
+  transition:
+    transform var(--dur-base) var(--ease-spring),
+    color var(--dur-micro) var(--ease-out);
+}
+
+.socials a:hover {
+  transform: translateY(-3px);
+  color: var(--color-accent);
+}
+
+.location {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: var(--space-2);
+  font-size: var(--text-small);
+  color: var(--color-ink-muted);
+}
+
+.dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-success) 22%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dot {
+    animation: ping 2.4s var(--ease-out) infinite;
+  }
+}
+
+@keyframes ping {
+  50% {
+    box-shadow: 0 0 0 7px color-mix(in srgb, var(--color-success) 0%, transparent);
+  }
+}
+
+.heroVisual {
+  position: relative;
+}
+
+.sticker {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  width: 6.5rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--color-pop);
+  color: var(--color-pop-ink);
+  box-shadow: var(--shadow-float);
+  text-align: center;
+  line-height: 1;
+}
+
+.sticker strong {
+  font-size: 2rem;
   font-weight: var(--weight-display);
   font-stretch: var(--stretch-display);
-  letter-spacing: var(--tracking-display);
+  letter-spacing: -0.04em;
+}
+
+.sticker span {
+  max-width: 5rem;
+  margin-top: var(--space-1);
+  font-size: 0.6875rem;
+  font-weight: var(--weight-strong);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+}
+
+/* ── Crossing ribbons of tools ── */
+.ribbons {
+  position: relative;
+  display: grid;
+  margin-block: 0 var(--space-section);
+  padding-block: var(--space-12);
+  overflow: clip;
+}
+
+.ribbon {
+  grid-area: 1 / 1;
+  width: 110vw;
+  margin-left: -5vw;
+  overflow: hidden;
+  padding-block: var(--space-4);
+}
+
+.ribbonFront {
+  z-index: 1;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  transform: rotate(-2.5deg);
+  box-shadow: var(--shadow-float);
+}
+
+.ribbonBack {
+  background: var(--color-pop);
+  color: var(--color-pop-ink);
+  transform: rotate(3deg) translateY(10px);
+}
+
+.ribbonItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-inline: var(--space-6);
+  font-size: clamp(1.125rem, 1rem + 0.8vw, 1.625rem);
+  font-weight: var(--weight-display);
+  font-stretch: var(--stretch-display);
+  letter-spacing: -0.02em;
   white-space: nowrap;
-}
-
-.tickerTrack li::after {
-  content: "";
-  display: inline-block;
-  width: 0.4em;
-  height: 0.4em;
-  margin-left: var(--space-8);
-  background: currentColor;
-  vertical-align: 0.15em;
-}
-
-.ticker:hover .tickerTrack {
-  animation-play-state: paused;
-}
-
-@keyframes ticker {
-  to {
-    transform: translateX(-50%);
-  }
 }
 
 /* ── Sections ── */
 .section {
-  padding-block: var(--space-section) 0;
-}
-
-/* The last section before the call-to-action band keeps breathing room, whichever it is. */
-.section:not(:has(~ .section)) {
   padding-bottom: var(--space-section);
 }
 
 .sectionHead {
   display: flex;
-  align-items: baseline;
+  flex-wrap: wrap;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
+  gap: var(--space-6);
+  margin-bottom: var(--space-10);
 }
 
 .more {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  padding-block: var(--space-2);
+  gap: var(--space-3);
   font-size: var(--text-small);
   font-weight: var(--weight-strong);
+  text-decoration: none;
 }
 
-.more svg {
-  transition: transform var(--dur-base) var(--ease-out);
-}
-
-.more:hover svg {
-  transform: translateX(3px);
-}
-
-/* ── Intro ── */
-.intro {
+.moreIcon {
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: var(--space-10) var(--space-16);
-  align-items: center;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  transition:
+    transform var(--dur-base) var(--ease-spring),
+    background-color var(--dur-micro) var(--ease-out),
+    color var(--dur-micro) var(--ease-out);
 }
 
-.portrait {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  background: var(--color-surface);
+.more:hover .moreIcon {
+  transform: translateX(4px);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
 }
 
-.portrait img {
-  object-fit: cover;
-}
-
-.introText {
+/* ── Bento: intro card and stat tiles ── */
+.bento {
   display: grid;
-  gap: var(--space-8);
-  justify-items: start;
-  padding-top: var(--space-6);
-  border-top: var(--rule-width) solid var(--color-rule);
-}
-
-.introLead {
-  font-size: var(--text-h3);
-  font-weight: var(--weight-body);
-  line-height: 1.4;
-  max-width: 36ch;
-}
-
-/* ── What I do: ruled index rows (any number of roles) ── */
-.cells {
-  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
   margin: 0;
   padding: 0;
   list-style: none;
-  border-top: var(--rule-width) solid var(--color-rule);
 }
 
-.cell {
+.introCard {
+  grid-column: span 4;
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: var(--space-8);
-  align-items: baseline;
-  padding: var(--space-6) 0;
-  border-bottom: var(--rule-width) solid var(--color-rule);
+  gap: var(--space-6);
+  align-content: start;
+  padding: clamp(1.5rem, 1rem + 2.5vw, 3rem);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(80% 120% at 100% 0%, color-mix(in srgb, var(--color-sky) 40%, transparent), transparent 60%),
+    var(--color-accent-soft);
 }
 
-.cellTitle {
-  font-size: clamp(1.5rem, 1.05rem + 1.7vw, 2.5rem);
-  line-height: 1.05;
+.introLead {
+  max-width: 34ch;
+  font-size: clamp(1.375rem, 1.1rem + 1.2vw, 2.125rem);
+  font-weight: 500;
+  font-stretch: 104%;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
 }
 
-.cellBody {
+.stat {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding: var(--space-6);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  background: var(--color-card);
+  box-shadow: var(--shadow-card);
+}
+
+.statIcon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.statValue {
+  font-size: clamp(2.5rem, 2rem + 2vw, 3.75rem);
+  font-weight: var(--weight-display);
+  font-stretch: var(--stretch-display);
+  letter-spacing: -0.05em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.statLabel {
+  font-size: var(--text-small);
   color: var(--color-ink-muted);
-  max-width: 36ch;
 }
 
-@media (max-width: 960px) {
+/* ── What I do: icon cards ── */
+.services {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.service {
+  position: relative;
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding: var(--space-6);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  background: var(--color-card);
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+
+/* A cobalt wash rises from the bottom on hover. */
+.service::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to top, var(--color-accent-soft), transparent 70%);
+  opacity: 0;
+  transform: translateY(30%);
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
+
+.service:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card);
+}
+
+.service:hover::before {
+  opacity: 1;
+  transform: none;
+}
+
+.serviceIcon {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  transition:
+    transform var(--dur-base) var(--ease-spring),
+    background-color var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+
+.service:hover .serviceIcon {
+  transform: rotate(-8deg) scale(1.08);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+.serviceTitle {
+  font-size: var(--text-h3);
+}
+
+.serviceBody {
+  color: var(--color-ink-muted);
+  font-size: var(--text-small);
+}
+
+@media (min-width: 900px) {
+  .bento {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .introCard {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+}
+
+@media (max-width: 899px) {
   .hero {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "motto"
-      "headline"
-      "visual"
-      "foot";
   }
 
-  .visual {
-    justify-self: center;
-    width: min(78%, 22rem);
-    margin-block: calc(-1 * var(--space-6));
+  .heroVisual {
+    padding-inline: var(--space-8);
+  }
+
+  .bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .introCard {
+    grid-column: span 2;
   }
 }
 
-@media (max-width: 760px) {
-  .line {
-    display: inline;
-  }
-
-  .intro {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .cell {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-3);
+@media (max-width: 420px) {
+  .stat {
+    padding: var(--space-4);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tickerTrack {
-    animation: none;
-    flex-wrap: wrap;
-    width: auto;
+  .service:hover,
+  .service:hover .serviceIcon,
+  .socials a:hover,
+  .more:hover .moreIcon {
+    transform: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .services {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
   }
 
-  .tickerTrack li[aria-hidden] {
-    display: none;
+  .service {
+    padding: var(--space-4);
+  }
+
+  .serviceIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .serviceTitle {
+    font-size: 1.0625rem;
+  }
+
+  .serviceBody {
+    font-size: var(--text-label);
   }
 }
