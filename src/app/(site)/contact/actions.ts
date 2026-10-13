@@ -1,10 +1,13 @@
 "use server";
 
+import { headers } from "next/headers";
 import { after } from "next/server";
 import { getSettings } from "@/lib/content";
 import { domainAcceptsMail } from "@/lib/mail/dns";
 import { handleSubmissionEmails } from "@/lib/mail/send";
 import { verifyRecaptcha } from "@/lib/recaptcha";
+import { verifyTurnstile } from "@/lib/turnstile";
+import { visitorIp } from "@/lib/visitor";
 import { handleEnquiryWhatsApp } from "@/lib/whatsapp/send";
 import { createPublicClient } from "@/lib/supabase/public";
 import { emailProblem, normaliseEmail } from "@/lib/validate";
@@ -30,12 +33,22 @@ const MESSAGES: Record<string, string> = {
   field_too_long: "One of the fields is too long.",
   rate_limited: "You've sent a few already. Give it an hour, or email me directly.",
   recaptcha_failed: "This didn't pass the spam check. Try again in a moment, or email me directly.",
+  turnstile_failed: "We couldn't confirm you're human. Complete the check and send again.",
 };
 
-async function passesSpamCheck(form: FormData, action: "enquiry" | "message") {
+/** Cloudflare Turnstile, then reCAPTCHA when that's switched on. Returns the failure code, or null. */
+async function spamCheck(form: FormData, action: "enquiry" | "message") {
+  const human = await verifyTurnstile(text(form, "turnstile_token", 4000), action, visitorIp(await headers()));
+  if (!human.ok) {
+    console.info(`Turnstile rejected a ${action}: ${human.reason}`);
+    return "turnstile_failed";
+  }
   const result = await verifyRecaptcha(await getSettings(), text(form, "recaptcha_token", 4000), action);
-  if (!result.ok) console.info(`reCAPTCHA rejected a ${action}: ${result.reason}`);
-  return result.ok;
+  if (!result.ok) {
+    console.info(`reCAPTCHA rejected a ${action}: ${result.reason}`);
+    return "recaptcha_failed";
+  }
+  return null;
 }
 
 const FIELD_FOR: Record<string, string> = {
@@ -108,7 +121,8 @@ export async function submitEnquiry(_prev: SubmitState, form: FormData): Promise
   if (looksAutomated(form)) return failure("rate_limited", values);
   const invalid = await checkContact(values);
   if (invalid) return invalid;
-  if (!(await passesSpamCheck(form, "enquiry"))) return failure("recaptcha_failed", values);
+  const spam = await spamCheck(form, "enquiry");
+  if (spam) return failure(spam, values);
   const budget = formatBudget(values.budget_amount, values.budget_currency);
 
   const { data: id, error } = await createPublicClient().rpc("submit_enquiry", {
@@ -174,7 +188,8 @@ export async function submitMessage(_prev: SubmitState, form: FormData): Promise
   if (looksAutomated(form)) return failure("rate_limited", values);
   const invalid = await checkContact(values);
   if (invalid) return invalid;
-  if (!(await passesSpamCheck(form, "message"))) return failure("recaptcha_failed", values);
+  const spam = await spamCheck(form, "message");
+  if (spam) return failure(spam, values);
 
   const { data: id, error } = await createPublicClient().rpc("submit_message", {
     p_name: values.name,

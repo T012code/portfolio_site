@@ -1,6 +1,8 @@
 import { requireAdminPage } from "@/lib/admin/auth";
 import { mailSecretConfigured } from "@/lib/mail/secret";
+import { turnstileReady } from "@/lib/turnstile";
 import { SpamForm } from "./SpamForm";
+import { TurnstileStatus } from "./TurnstileStatus";
 import styles from "../../admin.module.css";
 
 export default async function SpamPage() {
@@ -9,7 +11,8 @@ export default async function SpamPage() {
     supabase.from("site_settings").select("recaptcha_enabled, recaptcha_site_key, recaptcha_min_score").eq("id", true).single(),
     supabase.rpc("recaptcha_secret_set"),
   ]);
-  const on = Boolean(settings?.recaptcha_enabled && settings.recaptcha_site_key && secretSet);
+  const recaptchaOn = Boolean(settings?.recaptcha_enabled && settings.recaptcha_site_key && secretSet);
+  const on = turnstileReady() || recaptchaOn;
 
   return (
     <>
@@ -17,8 +20,8 @@ export default async function SpamPage() {
         <div>
           <h1 className={styles.pageTitle}>Spam protection</h1>
           <p className={styles.pageIntro}>
-            Google reCAPTCHA v3 scores every contact form submission in the background. Visitors never see a puzzle;
-            likely bots are turned away before anything reaches your inbox.
+            Every contact form has a hidden trap field, a minimum fill time and hourly limits. Cloudflare Turnstile
+            adds a human check on top; Google reCAPTCHA is an optional second layer.
           </p>
         </div>
         <span className={styles.tone} data-tone={on ? "ok" : "neutral"}>
@@ -27,6 +30,7 @@ export default async function SpamPage() {
       </header>
 
       <div className={styles.sections}>
+        <TurnstileStatus ready={turnstileReady()} />
         {!mailSecretConfigured() ? (
           <p className={styles.alertError} role="alert">
             The server key MAIL_SECRET is missing, so the reCAPTCHA secret can&apos;t be stored. Add it in Vercel and redeploy.

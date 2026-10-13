@@ -34,18 +34,21 @@ function loadTurnstile(): Promise<TurnstileApi> {
 
 /**
  * Cloudflare Turnstile check. Tokens are single use, so remount it (change its `key`)
- * after every sign-in attempt to get a fresh one.
+ * after every attempt to get a fresh one. `quiet` keeps the box hidden unless Cloudflare
+ * needs the visitor to tick it.
  */
 export function Turnstile({
   siteKey,
   action,
   onToken,
   onError,
+  quiet = false,
 }: {
   siteKey: string;
   action: string;
   onToken: (token: string | null) => void;
   onError: () => void;
+  quiet?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const token = useEffectEvent((value: string | null) => onToken(value));
@@ -62,6 +65,7 @@ export function Turnstile({
           action,
           theme: "auto",
           size: "flexible",
+          appearance: quiet ? "interaction-only" : "always",
           callback: (t: string) => token(t),
           "expired-callback": () => token(null),
           "error-callback": () => {
@@ -75,7 +79,7 @@ export function Turnstile({
       cancelled = true;
       if (id && window.turnstile) window.turnstile.remove(id);
     };
-  }, [siteKey, action]);
+  }, [siteKey, action, quiet]);
 
-  return <div ref={ref} style={{ minHeight: 65 }} />;
+  return <div ref={ref} style={quiet ? undefined : { minHeight: 65 }} />;
 }
