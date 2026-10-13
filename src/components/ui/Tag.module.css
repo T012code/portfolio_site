@@ -8,11 +8,13 @@
 }
 
 .tag {
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--color-rule);
+  padding: 0.2rem var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
   font-size: var(--text-label);
-  line-height: 1.4;
-  letter-spacing: 0.02em;
-  color: var(--color-ink-muted);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
   white-space: nowrap;
 }

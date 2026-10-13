@@ -2,13 +2,13 @@
 .header {
   display: grid;
   gap: var(--space-8);
-  padding-block: clamp(3rem, 2rem + 5vw, 7rem) var(--space-12);
+  padding-block: clamp(2rem, 1rem + 4vw, 5rem) var(--space-12);
 }
 
 .title {
   font-size: var(--text-poster);
   line-height: 0.95;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.045em;
   margin-left: -0.05em;
 }
 

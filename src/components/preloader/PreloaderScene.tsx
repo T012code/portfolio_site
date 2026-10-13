@@ -6,7 +6,11 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { buildPieces, easeOutExpo } from "@/components/three/markGeometry";
 
-const INK = "#D6D2CC";
+const INK = "#EEF3FF";
+const LIME = "#C7F25A";
+const SKY = "#9FD0FF";
+// The square of the mark is the lime spark; the bent bars stay white on cobalt.
+const pieceColor = (i: number) => (i === 0 ? LIME : INK);
 const PARTICLES = 700;
 
 // Blueprint to product: wireframe pieces fly in and lock, then the solid fills in.
@@ -54,7 +58,7 @@ function BlueprintMark({ leaving, onIntroDone }: { leaving: boolean; onIntroDone
       const line = lines.current[i];
       if (line) line.opacity = 1 - fill * 0.8;
       const wire = wires.current[i];
-      if (wire) wire.opacity = 0.22 * (1 - fill);
+      if (wire) wire.opacity = 0.35 * (1 - fill);
     });
 
     const g = group.current;
@@ -82,7 +86,7 @@ function BlueprintMark({ leaving, onIntroDone }: { leaving: boolean; onIntroDone
               ref={(m) => {
                 solids.current[i] = m;
               }}
-              color={INK}
+              color={pieceColor(i)}
               roughness={0.3}
               metalness={0.15}
               clearcoat={0.8}
@@ -98,10 +102,10 @@ function BlueprintMark({ leaving, onIntroDone }: { leaving: boolean; onIntroDone
               ref={(m) => {
                 wires.current[i] = m;
               }}
-              color={INK}
+              color={SKY}
               wireframe
               transparent
-              opacity={0.22}
+              opacity={0.35}
               depthWrite={false}
             />
           </mesh>
@@ -110,7 +114,7 @@ function BlueprintMark({ leaving, onIntroDone }: { leaving: boolean; onIntroDone
               ref={(m) => {
                 lines.current[i] = m;
               }}
-              color={INK}
+              color={i === 0 ? LIME : SKY}
               transparent
               opacity={1}
               depthWrite={false}
@@ -156,7 +160,7 @@ function DataStream({ leaving }: { leaving: boolean }) {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
-      <pointsMaterial color={INK} size={0.03} sizeAttenuation transparent opacity={0.55} depthWrite={false} />
+      <pointsMaterial color={SKY} size={0.03} sizeAttenuation transparent opacity={0.55} depthWrite={false} />
     </points>
   );
 }
@@ -177,7 +181,7 @@ export default function PreloaderScene({
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       onCreated={() => onReady()}
     >
-      <fog attach="fog" args={["#1c1919", 9, 26]} />
+      <fog attach="fog" args={["#0a1233", 9, 26]} />
       <ambientLight intensity={0.4} />
       <directionalLight position={[4, 6, 6]} intensity={1.4} />
       <Environment resolution={128} frames={1}>
@@ -190,10 +194,10 @@ export default function PreloaderScene({
         args={[40, 40]}
         cellSize={0.5}
         cellThickness={0.6}
-        cellColor="#4a4442"
+        cellColor="#24379a"
         sectionSize={2.5}
         sectionThickness={1}
-        sectionColor="#8a837e"
+        sectionColor="#c7f25a"
         fadeDistance={24}
         fadeStrength={1.5}
         infiniteGrid

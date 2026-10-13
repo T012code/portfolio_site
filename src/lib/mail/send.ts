@@ -5,7 +5,7 @@ import { SITE_URL } from "@/lib/env";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { Row } from "@/lib/supabase/database.types";
 import { decryptSecret, mailGate } from "./secret";
-import { buildTemplateEmail, firstName, safeName, tableEmailHtml, type TemplateKey } from "./templates";
+import { buildTemplateEmail, firstName, safeName, tableEmailHtml, TEMPLATE_LABELS, type TemplateKey } from "./templates";
 
 export type MailSettings = Row<"mail_settings">;
 export type MailTemplate = Row<"mail_templates">;
@@ -181,7 +181,7 @@ export async function handleSubmissionEmails(sub: Submission) {
         to: settings.notify_email || settings.from_email,
         subject: subject.slice(0, 200),
         text: [intro, "", ...sub.rows.filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`)].join("\n"),
-        html: tableEmailHtml(sub.rows, brand, intro),
+        html: tableEmailHtml(sub.rows, brand, intro, sub.type === "enquiry" ? "New enquiry" : "New message"),
         replyTo: sub.email,
         ref,
       }),
@@ -200,7 +200,7 @@ export async function handleSubmissionEmails(sub: Submission) {
       site_name: site.display_name,
       site_url: SITE_URL.replace(/^https?:\/\//, ""),
     };
-    const email = buildTemplateEmail(template, vars, brand, site.motto);
+    const email = buildTemplateEmail(template, vars, brand, site.motto, TEMPLATE_LABELS[`${sub.type}_autoreply`]);
     jobs.push(
       deliver(runtime, {
         kind: "autoreply",

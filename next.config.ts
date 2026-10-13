@@ -36,6 +36,8 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
+  // Phosphor isn't on Next's default list; this keeps unused icons out of the client bundle.
+  experimental: { optimizePackageImports: ["@phosphor-icons/react"] },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [{ protocol: "https", hostname: supabaseHost, pathname: "/storage/v1/object/public/**" }],

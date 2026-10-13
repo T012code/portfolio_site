@@ -21,20 +21,21 @@ If you message my WhatsApp Business number, or leave your WhatsApp number on the
 Bookings are handled by Cal.com. It collects your name, email address, the time you pick and any notes you add, and shares the booking details with me.
 
 ### When you browse
-The site does not use advertising or analytics cookies and does not track you across other websites. On the contact page, Google reCAPTCHA may set its own cookies to tell people from bots. Your browser stores two small preferences on your device: your light or dark theme choice, and whether you've already seen the intro animation in this visit. Hosting providers keep short-lived technical logs (such as IP address and browser type) to keep the site running and secure.
+The site counts visits with its own privacy-friendly analytics: the page you open, the site that linked you here, your approximate location (country and city, worked out from your IP address), your IP address, and your device, browser and operating system type. It sets no cookies for this and does not track you across other websites; there are no advertising cookies. On the contact page, Google reCAPTCHA may set its own cookies to tell people from bots. Your browser stores two small preferences on your device: your light or dark theme choice, and whether you've already seen the intro animation in this visit. Hosting providers keep short-lived technical logs (such as IP address and browser type) to keep the site running and secure.
 
 ## Why I use it
 - To reply to your enquiry or message and arrange a call
 - To prepare a proposal and, if we work together, to deliver the project and send invoices and receipts
 - To send an automatic confirmation that your message arrived
 - To keep the site secure and prevent spam
+- To understand how many people visit, from where, and which pages they read
 
 The legal basis is your consent when you submit a form, and my legitimate interest in answering business enquiries. If we sign an agreement, the basis becomes that contract.
 
 ## Who it is shared with
 
 I don't sell or rent personal information. It is shared only with the services that run this website, each bound by its own privacy and security terms:
-- Supabase: stores form submissions and site files
+- Supabase: stores form submissions, site files and visit statistics
 - Vercel: hosts the website
 - Cal.com: handles call bookings
 - WhatsApp (Meta): carries WhatsApp messages to and from my business number
@@ -45,7 +46,7 @@ Some of these providers store data outside Nigeria, including in the European Un
 
 ## How long it is kept
 
-Enquiries and messages are kept for as long as needed to answer you. If we work together, project records are kept for the length of the project and for as long as tax and accounting rules require. Enquiries that don't lead to work are deleted within 24 months.
+Enquiries and messages are kept for as long as needed to answer you. If we work together, project records are kept for the length of the project and for as long as tax and accounting rules require. Enquiries that don't lead to work are deleted within 24 months. Analytics records keep the IP address for 90 days, after which it is removed; the rest of the record is deleted after about 13 months.
 
 ## How it is protected
 

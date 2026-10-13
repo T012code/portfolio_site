@@ -1,38 +1,68 @@
-.band {
-  background: var(--color-inverse-paper);
-  color: var(--color-inverse-ink);
-  padding-block: var(--space-section);
+.outer {
+  padding-bottom: var(--space-section);
 }
 
-.band :global(.label) {
-  color: color-mix(in oklch, var(--color-inverse-ink) 70%, var(--color-inverse-paper));
+.band {
+  position: relative;
+  display: grid;
+  gap: var(--space-12);
+  padding: clamp(2.5rem, 1.5rem + 5vw, 6rem);
+  border-radius: var(--radius-lg);
+  background: var(--color-inverse-paper);
+  color: var(--color-inverse-ink);
+  overflow: hidden;
+  isolation: isolate;
 }
 
 .band :focus-visible {
-  outline-color: var(--color-inverse-ink);
+  outline-color: var(--color-pop);
 }
 
-.inner {
-  display: grid;
-  gap: var(--space-12);
+/* One soft light, upper right; it drifts slowly so the field feels lit rather than flat. */
+.glow {
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  z-index: -1;
+  width: 70%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--color-accent) 55%, transparent), transparent);
+  opacity: 0.8;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .glow {
+    animation: drift 14s var(--ease-in-out) infinite alternate;
+  }
+}
+
+@keyframes drift {
+  to {
+    transform: translate(-18%, 22%) scale(1.15);
+  }
 }
 
 .heading {
   font-size: var(--text-poster);
   line-height: 0.95;
-  letter-spacing: -0.035em;
-  max-width: 14ch;
-  margin-left: -0.05em;
+  letter-spacing: -0.045em;
+  max-width: 12ch;
+  margin-left: -0.04em;
+}
+
+.last {
+  color: var(--color-pop);
 }
 
 .row {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-items: flex-end;
-  gap: var(--space-10);
+  align-items: center;
+  gap: var(--space-8);
   padding-top: var(--space-8);
-  border-top: var(--rule-width) solid color-mix(in oklch, var(--color-inverse-ink) 30%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--color-inverse-ink) 16%, transparent);
 }
 
 .buttons {
@@ -43,25 +73,44 @@
 
 .ghost {
   --btn-fg: var(--color-inverse-ink) !important;
-  --btn-hover-bg: color-mix(in oklch, var(--color-inverse-ink) 14%, transparent) !important;
+  --btn-hover-bg: color-mix(in srgb, var(--color-inverse-ink) 12%, transparent) !important;
   --btn-hover-fg: var(--color-inverse-ink) !important;
 }
 
 .contacts {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-6) var(--space-12);
+  gap: var(--space-3);
   margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.contacts dd {
-  margin: var(--space-1) 0 0;
-}
-
-.contacts a {
+.contact {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  padding-block: var(--space-1);
-  font-weight: var(--weight-strong);
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
+  border: 1px solid color-mix(in srgb, var(--color-inverse-ink) 16%, transparent);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-small);
+  text-decoration: none;
+  transition:
+    background-color var(--dur-micro) var(--ease-out),
+    border-color var(--dur-micro) var(--ease-out);
+}
+
+.contact:hover {
+  background: var(--color-inverse-surface);
+  border-color: color-mix(in srgb, var(--color-pop) 50%, transparent);
+}
+
+.contactIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-pop) 16%, transparent);
+  color: var(--color-pop);
 }

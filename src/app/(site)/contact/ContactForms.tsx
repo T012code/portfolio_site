@@ -2,8 +2,10 @@
 
 import dynamic from "next/dynamic";
 import { startTransition, useActionState, useCallback, useEffect, useId, useRef, useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Icon } from "@/components/ui/Icon";
+import { SentMark, SubmitButton } from "@/components/ui/SubmitButton";
+import { normalisePhone } from "@/lib/phone";
+import { emailProblem } from "@/lib/validate";
+import { PhoneField } from "./PhoneField";
 import { submitEnquiry, submitMessage, type SubmitState } from "./actions";
 import styles from "./contact.module.css";
 
@@ -146,10 +148,24 @@ function useSubmit(
     if (state.status === "error") alertRef.current?.focus();
   }, [state]);
 
+  // Checked here first so a mistyped email or number never makes the round trip.
+  const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (pending) return;
-    const data = new FormData(e.currentTarget);
+    const formEl = e.currentTarget;
+    const data = new FormData(formEl);
+    const found: Record<string, string> = {};
+    const emailIssue = emailProblem(String(data.get("email") ?? ""));
+    if (emailIssue) found.email = emailIssue;
+    const phone = String(data.get("whatsapp") ?? "");
+    if (phone && !normalisePhone(phone)) found.whatsapp = "Check the number and country code.";
+    setClientErrors(found);
+    if (Object.keys(found).length > 0) {
+      formEl.querySelector<HTMLElement>(found.email ? 'input[type="email"]' : 'input[type="tel"]')?.focus();
+      return;
+    }
     data.set("started", String(startedAt.current));
     if (recaptcha.key) {
       setChecking(true);
@@ -159,7 +175,7 @@ function useSubmit(
     startTransition(() => formAction(data));
   };
 
-  return { state, pending, onSubmit, alertRef };
+  return { state, pending, onSubmit, alertRef, clientErrors };
 }
 
 function EnquiryForm({
@@ -175,7 +191,7 @@ function EnquiryForm({
   responseNote: string;
   recaptchaKey: string | null;
 }) {
-  const { state, pending, onSubmit, alertRef } = useSubmit(submitEnquiry, { key: recaptchaKey, action: "enquiry" });
+  const { state, pending, onSubmit, alertRef, clientErrors } = useSubmit(submitEnquiry, { key: recaptchaKey, action: "enquiry" });
   const [booked, setBooked] = useState(false);
   const [skipped, setSkipped] = useState(false);
   const onBooked = useCallback(() => setBooked(true), []);
@@ -189,7 +205,7 @@ function EnquiryForm({
     if (booked || skipped || !calLink) {
       return (
         <div className={styles.done}>
-          <Icon name="check" size={28} />
+          <SentMark />
           <h2 ref={doneRef} tabIndex={-1} className={styles.doneTitle}>
             {booked ? "You're booked in." : "Enquiry received."}
           </h2>
@@ -219,7 +235,7 @@ function EnquiryForm({
   }
 
   const values = state.status === "error" ? (state.values ?? {}) : {};
-  const errors = state.status === "error" ? (state.errors ?? {}) : {};
+  const errors = { ...(state.status === "error" ? (state.errors ?? {}) : {}), ...clientErrors };
 
   return (
     <form method="post" onSubmit={onSubmit} className={styles.form} noValidate>
@@ -234,10 +250,10 @@ function EnquiryForm({
       <Honeypot />
       <div className={styles.row2}>
         <TextField name="name" label="Full name" required autoComplete="name" value={values.name} error={errors.name} />
-        <TextField name="email" label="Email" type="email" required autoComplete="email" value={values.email} error={errors.email} />
+        <EmailField value={values.email} error={errors.email} />
       </div>
       <div className={styles.row2}>
-        <TextField name="whatsapp" label="WhatsApp number" type="tel" autoComplete="tel" value={values.whatsapp} />
+        <PhoneField name="whatsapp" label="WhatsApp number" value={values.whatsapp} error={errors.whatsapp} />
         <TextField name="company" label="Company or organisation" autoComplete="organization" value={values.company} />
       </div>
       <ChoiceGroup name="service" legend="What do you need?" options={options.services} value={values.service} />
@@ -255,9 +271,7 @@ function EnquiryForm({
         hint="What you're building, what exists already, and what a good outcome looks like."
       />
       <div className={styles.submitRow}>
-        <Button type="submit" loading={pending} icon="arrow-right">
-          {pending ? "Sending…" : "Continue to booking"}
-        </Button>
+        <SubmitButton pending={pending}>Continue to booking</SubmitButton>
         <p className={styles.note}>{responseNote}</p>
       </div>
     </form>
@@ -265,7 +279,7 @@ function EnquiryForm({
 }
 
 function MessageForm({ responseNote, recaptchaKey }: { responseNote: string; recaptchaKey: string | null }) {
-  const { state, pending, onSubmit, alertRef } = useSubmit(submitMessage, { key: recaptchaKey, action: "message" });
+  const { state, pending, onSubmit, alertRef, clientErrors } = useSubmit(submitMessage, { key: recaptchaKey, action: "message" });
   const doneRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -275,7 +289,7 @@ function MessageForm({ responseNote, recaptchaKey }: { responseNote: string; rec
   if (state.status === "success") {
     return (
       <div className={styles.done}>
-        <Icon name="check" size={28} />
+        <SentMark />
         <h2 ref={doneRef} tabIndex={-1} className={styles.doneTitle}>
           Message sent.
         </h2>
@@ -285,7 +299,7 @@ function MessageForm({ responseNote, recaptchaKey }: { responseNote: string; rec
   }
 
   const values = state.status === "error" ? (state.values ?? {}) : {};
-  const errors = state.status === "error" ? (state.errors ?? {}) : {};
+  const errors = { ...(state.status === "error" ? (state.errors ?? {}) : {}), ...clientErrors };
 
   return (
     <form method="post" onSubmit={onSubmit} className={styles.form} noValidate>
@@ -297,14 +311,12 @@ function MessageForm({ responseNote, recaptchaKey }: { responseNote: string; rec
       <Honeypot />
       <div className={styles.row2}>
         <TextField name="name" label="Full name" required autoComplete="name" value={values.name} error={errors.name} />
-        <TextField name="email" label="Email" type="email" required autoComplete="email" value={values.email} error={errors.email} />
+        <EmailField value={values.email} error={errors.email} />
       </div>
-      <TextField name="whatsapp" label="WhatsApp number" type="tel" autoComplete="tel" value={values.whatsapp} />
+      <PhoneField name="whatsapp" label="WhatsApp number" value={values.whatsapp} error={errors.whatsapp} />
       <TextField name="message" label="Message" multiline required value={values.message} error={errors.message} />
       <div className={styles.submitRow}>
-        <Button type="submit" loading={pending} icon="arrow-right">
-          {pending ? "Sending…" : "Send message"}
-        </Button>
+        <SubmitButton pending={pending}>Send message</SubmitButton>
       </div>
     </form>
   );
@@ -317,6 +329,40 @@ function Honeypot() {
         Leave this empty
         <input type="text" name="website" tabIndex={-1} autoComplete="off" />
       </label>
+    </div>
+  );
+}
+
+// Email with a check when the visitor leaves the field: format, and common misspellings of big providers.
+function EmailField({ value, error }: { value?: string; error?: string }) {
+  const id = useId();
+  const [problem, setProblem] = useState<string | null>(null);
+  const shown = problem ?? error;
+  return (
+    <div className={styles.field}>
+      <label htmlFor={id} className={styles.label}>
+        Email<span className={styles.required}> (required)</span>
+      </label>
+      <input
+        id={id}
+        name="email"
+        type="email"
+        inputMode="email"
+        autoComplete="email"
+        spellCheck={false}
+        required
+        defaultValue={value}
+        className={styles.input}
+        aria-invalid={shown ? true : undefined}
+        aria-describedby={shown ? `${id}-error` : undefined}
+        onBlur={(e) => setProblem(e.target.value ? emailProblem(e.target.value) : null)}
+        onInput={() => setProblem(null)}
+      />
+      {shown ? (
+        <span id={`${id}-error`} className={styles.error}>
+          {shown}
+        </span>
+      ) : null}
     </div>
   );
 }

@@ -74,6 +74,36 @@ export const BLOCKS = {
       defaults: { heading: "Ready to start a project?", primary_cta: "Book a discovery call", secondary_cta: "See my work" },
     },
   },
+  resume: {
+    header: {
+      label: "Header",
+      fields: [
+        text("label", "Eyebrow"),
+        area("headline", "Headline", "The last word shows in the accent colour."),
+        text("cv_label", "Download button", "Shown when a CV PDF is uploaded in Settings."),
+        text("print_label", "Save as PDF button"),
+      ],
+      defaults: {
+        label: "Resume",
+        headline: "Software engineer building secure, polished web products.",
+        cv_label: "Download CV",
+        print_label: "Save as PDF",
+      },
+    },
+    summary: {
+      label: "Profile",
+      fields: [
+        text("label", "Section label"),
+        { name: "paragraphs", label: "Write-up", kind: "paragraphs", hint: "Leave empty to use the About page intro." },
+      ],
+      defaults: { label: "Profile", paragraphs: [] },
+    },
+    sections: {
+      label: "Section labels",
+      fields: [text("experience", "Experience"), text("skills", "Skills"), text("services", "Services"), text("contact", "Contact")],
+      defaults: { experience: "Experience", skills: "Skills and tools", services: "What I offer", contact: "Contact" },
+    },
+  },
   work: {
     header: {
       label: "Header",
@@ -124,7 +154,7 @@ export const BLOCKS = {
     page: {
       label: "Privacy policy",
       fields: [text("title", "Title"), text("updated", "Last updated"), doc("body", "Policy text")],
-      defaults: { title: "Privacy policy", updated: "11 October 2026", body: PRIVACY_DEFAULT },
+      defaults: { title: "Privacy policy", updated: "13 October 2026", body: PRIVACY_DEFAULT },
     },
   },
   terms: {

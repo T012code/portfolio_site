@@ -2,7 +2,16 @@
 
 import { startTransition, useActionState, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
-import { buildTemplateEmail, htmlToText, SAMPLE_VARS, TEMPLATE_VARS, textToHtml, type TemplateFormat } from "@/lib/mail/templates";
+import {
+  buildTemplateEmail,
+  htmlToText,
+  SAMPLE_VARS,
+  TEMPLATE_LABELS,
+  TEMPLATE_VARS,
+  textToHtml,
+  type TemplateFormat,
+  type TemplateKey,
+} from "@/lib/mail/templates";
 import type { FormState } from "../../actions";
 import { saveMailTemplate, sendTemplatePreview } from "../../email-actions";
 import styles from "../../admin.module.css";
@@ -43,8 +52,8 @@ export function TemplateEditor({
 
   const vars = useMemo(() => ({ ...SAMPLE_VARS, site_name: brand, site_url: siteUrl.replace(/^https?:\/\//, "") }), [brand, siteUrl]);
   const preview = useMemo(
-    () => buildTemplateEmail({ format, subject, body }, vars, brand, footer),
-    [format, subject, body, vars, brand, footer],
+    () => buildTemplateEmail({ format, subject, body }, vars, brand, footer, TEMPLATE_LABELS[template.key as TemplateKey]),
+    [format, subject, body, vars, brand, footer, template.key],
   );
 
   // Switching format converts the message, so nothing written is lost.

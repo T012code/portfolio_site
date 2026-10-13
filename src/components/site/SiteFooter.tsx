@@ -1,12 +1,14 @@
+import { ArrowUpIcon, EnvelopeSimpleIcon, GithubLogoIcon, LinkedinLogoIcon, WhatsappLogoIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
 import { Mark } from "@/components/brand/Mark";
-import { Icon } from "@/components/ui/Icon";
 import type { Settings } from "@/lib/content";
+import { whatsappUrl } from "@/lib/format";
 import styles from "./SiteFooter.module.css";
 
 const PAGES = [
   { href: "/work", label: "Work" },
   { href: "/about", label: "About" },
+  { href: "/resume", label: "Resume" },
   { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
 ];
@@ -17,6 +19,14 @@ const LEGAL = [
 ];
 
 export function SiteFooter({ settings, year }: { settings: Settings; year: number }) {
+  const whatsapp = whatsappUrl(settings.whatsapp);
+  const socials = [
+    { href: `mailto:${settings.email}`, label: "Email", icon: EnvelopeSimpleIcon },
+    settings.github_url ? { href: settings.github_url, label: "GitHub", icon: GithubLogoIcon, external: true } : null,
+    settings.linkedin_url ? { href: settings.linkedin_url, label: "LinkedIn", icon: LinkedinLogoIcon, external: true } : null,
+    whatsapp ? { href: whatsapp, label: "WhatsApp", icon: WhatsappLogoIcon, external: true } : null,
+  ].filter((s) => s !== null);
+
   return (
     <footer className={styles.footer} style={{ viewTransitionName: "site-footer" }}>
       <div className={`wrap ${styles.inner}`}>
@@ -36,6 +46,21 @@ export function SiteFooter({ settings, year }: { settings: Settings; year: numbe
               ))}
             </ul>
           </nav>
+          <ul className={styles.socials}>
+            {socials.map(({ href, label, icon: Glyph, external }) => (
+              <li key={label}>
+                <a
+                  href={href}
+                  className={styles.social}
+                  aria-label={label}
+                  title={label}
+                  {...(external ? { target: "_blank", rel: "me noopener" } : {})}
+                >
+                  <Glyph size={20} weight="duotone" aria-hidden="true" />
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div className={styles.bottom}>
@@ -50,30 +75,12 @@ export function SiteFooter({ settings, year }: { settings: Settings; year: numbe
               </span>
             ))}
           </p>
-          <ul className={styles.links}>
-            <li>
-              <a href={`mailto:${settings.email}`}>{settings.email}</a>
-            </li>
-            {settings.github_url ? (
-              <li>
-                <a href={settings.github_url} rel="me noopener" target="_blank">
-                  GitHub
-                </a>
-              </li>
-            ) : null}
-            {settings.linkedin_url ? (
-              <li>
-                <a href={settings.linkedin_url} rel="me noopener" target="_blank">
-                  LinkedIn
-                </a>
-              </li>
-            ) : null}
-            <li>
-              <a href="#top" className={styles.topLink}>
-                Back to top <Icon name="arrow-up" size={14} />
-              </a>
-            </li>
-          </ul>
+          <a href="#top" className={styles.topLink}>
+            Back to top
+            <span className={styles.topIcon}>
+              <ArrowUpIcon size={14} weight="bold" aria-hidden="true" />
+            </span>
+          </a>
         </div>
       </div>
     </footer>

@@ -16,6 +16,26 @@ export type Database = {
   public: {
     Tables: {
       admins: Table<{ created_at: string; disabled_at: string | null; email: string }, "email">;
+      page_views: Table<
+        {
+          browser: string | null;
+          city: string | null;
+          country: string | null;
+          created_at: string;
+          device: "desktop" | "mobile" | "tablet";
+          id: number;
+          ip: string | null;
+          os: string | null;
+          path: string;
+          referrer_host: string | null;
+          region: string | null;
+          session_id: string | null;
+          title: string | null;
+          utm_source: string | null;
+          visitor_id: string;
+        },
+        "path" | "visitor_id"
+      >;
       capabilities: Table<
         {
           body: string;
@@ -257,6 +277,26 @@ export type Database = {
       admin_add: { Args: { p_email: string }; Returns: undefined };
       admin_list: { Args: never; Returns: { created_at: string; email: string }[] };
       admin_remove: { Args: { p_email: string }; Returns: undefined };
+      analytics_summary: { Args: { p_days: number }; Returns: Json };
+      record_page_view: {
+        Args: {
+          p_browser: string;
+          p_city: string;
+          p_country: string;
+          p_device: string;
+          p_gate: string;
+          p_ip: string;
+          p_os: string;
+          p_path: string;
+          p_referrer_host: string;
+          p_region: string;
+          p_session_id: string | null;
+          p_title: string;
+          p_utm_source: string;
+          p_visitor_id: string;
+        };
+        Returns: undefined;
+      };
       am_i_admin: { Args: never; Returns: boolean };
       mail_log_begin: {
         Args: {

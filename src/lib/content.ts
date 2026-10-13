@@ -109,3 +109,10 @@ export async function getFaqs(): Promise<Faq[]> {
   const db = createPublicClient();
   return unwrap(await db.from("faqs").select("*").eq("published", true).order("sort"), "FAQs");
 }
+
+// "Now" for derived figures (years of experience). Cached for a day so pages can prerender.
+export async function getToday(): Promise<string> {
+  "use cache";
+  cacheLife("days");
+  return new Date().toISOString().slice(0, 10);
+}

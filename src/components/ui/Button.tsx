@@ -22,7 +22,7 @@ function Inner({ children, icon }: { children: ReactNode; icon?: IconName | null
       <span className={styles.label}>{children}</span>
       {icon ? (
         <span className={styles.icon}>
-          <Icon name={icon} size={18} />
+          <Icon name={icon} size={16} />
         </span>
       ) : null}
     </>
@@ -38,7 +38,7 @@ export function ButtonLink({
   ...props
 }: Common & Omit<ComponentProps<typeof Link>, "children">) {
   return (
-    <Link className={classes(variant, block, className)} {...props}>
+    <Link className={classes(variant, block, className)} data-icon={icon ?? undefined} {...props}>
       <Inner icon={icon}>{children}</Inner>
     </Link>
   );
@@ -53,7 +53,7 @@ export function ButtonAnchor({
   ...props
 }: Common & Omit<ComponentProps<"a">, "children">) {
   return (
-    <a className={classes(variant, block, className)} {...props}>
+    <a className={classes(variant, block, className)} data-icon={icon ?? undefined} {...props}>
       <Inner icon={icon}>{children}</Inner>
     </a>
   );
@@ -75,6 +75,7 @@ export function Button({
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       data-loading={loading || undefined}
+      data-icon={icon ?? undefined}
       {...props}
     >
       <Inner icon={loading ? "loader" : icon}>{children}</Inner>

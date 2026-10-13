@@ -24,6 +24,12 @@ export function mailGate() {
   return derive("mail-gate:v1")?.toString("hex") ?? null;
 }
 
+/** Stable, non-reversible visitor id for analytics: the same browser on the same IP maps to one id. */
+export function visitorId(ip: string, userAgent: string) {
+  const key = derive("analytics-visitor:v1");
+  return key ? crypto.createHmac("sha256", key).update(`${ip}|${userAgent}`).digest("hex") : null;
+}
+
 export function gateHash(gate: string) {
   return crypto.createHash("sha256").update(gate, "utf8").digest("hex");
 }

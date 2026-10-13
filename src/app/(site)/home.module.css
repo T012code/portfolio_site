@@ -1,256 +1,471 @@
-/* ── Hero ── */
+/* ── Hero: words left, the ID card hanging on the right ── */
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.5fr);
-  grid-template-areas:
-    "motto motto"
-    "headline headline"
-    "foot visual";
-  gap: var(--space-12) var(--space-16);
-  padding-block: clamp(3rem, 2rem + 6vw, 8rem) var(--space-section);
-}
-
-.motto {
-  grid-area: motto;
-  display: flex;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   align-items: center;
-  gap: var(--space-3);
-  margin-bottom: calc(-1 * var(--space-6));
-  color: var(--color-ink);
+  gap: var(--space-12) var(--space-16);
+  padding-block: clamp(2.5rem, 1.5rem + 5vw, 6rem) clamp(4rem, 3rem + 5vw, 8rem);
 }
 
-.motto::before {
-  content: "";
-  width: 2.5rem;
-  height: var(--rule-width);
-  background: currentColor;
+.heroText {
+  display: grid;
+  gap: var(--space-8);
+  align-content: center;
 }
 
 .headline {
-  grid-area: headline;
-  font-size: var(--text-h1);
+  font-size: clamp(2.5rem, 1.2rem + 3.6vw, 4.5rem);
+  font-stretch: 102%;
   line-height: var(--leading-tight);
-  margin-left: -0.055em;
-}
-
-.line {
-  display: block;
-}
-
-.visual {
-  grid-area: visual;
-  align-self: end;
-  justify-self: end;
-  display: grid;
-  place-items: center;
-  width: min(100%, 24rem);
-  aspect-ratio: 1;
-  color: var(--color-ink);
+  margin-left: -0.05em;
 }
 
 .heroFoot {
-  grid-area: foot;
   display: grid;
   gap: var(--space-6);
-  align-content: start;
-  padding-top: var(--space-6);
-  border-top: var(--rule-width) solid var(--color-rule);
 }
 
 .roleLine {
   font-size: var(--text-lead);
   color: var(--color-ink-muted);
-  max-width: 44ch;
+  max-width: 40ch;
 }
 
 .ctas {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-3);
 }
 
-/* ── Tools ticker ── */
-.ticker {
-  overflow: hidden;
-  border-block: var(--rule-width) solid var(--color-rule);
-  padding-block: var(--space-4);
-}
-
-.tickerTrack {
+.socials {
   display: flex;
-  width: max-content;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
-  animation: ticker 48s linear infinite;
 }
 
-.tickerTrack li {
-  padding-inline: var(--space-8);
-  font-size: var(--text-h3);
-  font-weight: var(--weight-display);
-  font-stretch: var(--stretch-display);
-  letter-spacing: var(--tracking-display);
-  white-space: nowrap;
+.socials a {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-rule);
+  border-radius: 50%;
+  background: var(--color-card);
+  transition:
+    transform var(--dur-base) var(--ease-spring),
+    color var(--dur-micro) var(--ease-out);
 }
 
-.tickerTrack li::after {
-  content: "";
-  display: inline-block;
-  width: 0.4em;
-  height: 0.4em;
-  margin-left: var(--space-8);
-  background: currentColor;
-  vertical-align: 0.15em;
+.socials a:hover {
+  transform: translateY(-3px);
+  color: var(--color-accent);
 }
 
-.ticker:hover .tickerTrack {
+.location {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: var(--space-2);
+  font-size: var(--text-small);
+  color: var(--color-ink-muted);
+}
+
+.heroVisual {
+  position: relative;
+  align-self: start;
+  /* The clip sits just under the header, so the card hangs from the top of the hero. */
+  margin-top: calc(-1 * clamp(2.5rem, 1.5rem + 5vw, 6rem) + var(--space-4));
+  --badge-strap: clamp(5rem, 2rem + 6vw, 8rem);
+  --badge-card: clamp(16rem, 12rem + 7vw, 20rem);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .heroVisual {
+    animation: drop-in 1.3s var(--ease-spring) 0.2s both;
+  }
+}
+
+/* Behind the preloader, the card waits at the top until the curtain lifts. */
+:global(html:not([data-preloaded]):not([data-preloader-leaving]):has([data-preloader])) .heroVisual {
   animation-play-state: paused;
 }
 
-@keyframes ticker {
-  to {
-    transform: translateX(-50%);
+@keyframes drop-in {
+  from {
+    transform: translateY(-45%) rotate(-5deg);
   }
+}
+
+.backTitle,
+.backLabel {
+  font-size: var(--text-label);
+  font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.backIcons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-2);
+}
+
+.backIcons > span {
+  display: grid;
+  place-items: center;
+  height: 2.75rem;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--color-card) 80%, transparent);
+}
+
+.backIcons svg {
+  color: var(--brand);
+}
+
+.backFact {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--text-small);
+  font-weight: var(--weight-strong);
+}
+
+/* ── Crossing ribbons of tools ── */
+.ribbons {
+  position: relative;
+  display: grid;
+  margin-block: 0 var(--space-section);
+  padding-block: var(--space-12);
+  overflow: clip;
+}
+
+.ribbon {
+  grid-area: 1 / 1;
+  width: 110vw;
+  margin-left: -5vw;
+  overflow: hidden;
+  padding-block: var(--space-4);
+}
+
+.ribbonFront {
+  z-index: 1;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  transform: rotate(-2.5deg);
+  box-shadow: var(--shadow-float);
+}
+
+.ribbonBack {
+  background: var(--color-pop);
+  color: var(--color-pop-ink);
+  transform: rotate(3deg) translateY(10px);
+}
+
+.ribbonMark {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.ribbonItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-inline: var(--space-6);
+  font-size: clamp(1.125rem, 1rem + 0.8vw, 1.625rem);
+  font-weight: var(--weight-display);
+  font-stretch: var(--stretch-display);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 /* ── Sections ── */
 .section {
-  padding-block: var(--space-section) 0;
-}
-
-/* The last section before the call-to-action band keeps breathing room, whichever it is. */
-.section:not(:has(~ .section)) {
   padding-bottom: var(--space-section);
 }
 
 .sectionHead {
   display: flex;
-  align-items: baseline;
+  flex-wrap: wrap;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
+  gap: var(--space-6);
+  margin-bottom: var(--space-10);
 }
 
 .more {
   display: inline-flex;
   align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-small);
+  font-weight: var(--weight-strong);
+  text-decoration: none;
+}
+
+.moreIcon {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  transition:
+    transform var(--dur-base) var(--ease-spring),
+    background-color var(--dur-micro) var(--ease-out),
+    color var(--dur-micro) var(--ease-out);
+}
+
+.more:hover .moreIcon {
+  transform: translateX(4px);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+/* ── About: label in the margin, a paragraph that reads itself in, a ruled row of figures ── */
+.about {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+}
+
+.aboutLabel {
+  font-size: var(--text-small);
+  font-weight: var(--weight-strong);
+  color: var(--color-accent);
+}
+
+.aboutBody {
+  display: grid;
+  gap: clamp(2.5rem, 2rem + 2vw, 4rem);
+}
+
+.aboutLead {
+  max-width: 34ch;
+  font-size: clamp(1.625rem, 1.2rem + 1.6vw, 2.625rem);
+  font-weight: 600;
+  font-stretch: 104%;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  text-wrap: pretty;
+}
+
+.figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-rule);
+}
+
+.figures li {
+  display: grid;
   gap: var(--space-2);
-  padding-block: var(--space-2);
+  align-content: start;
+  padding: var(--space-6) var(--space-6) 0 0;
+}
+
+.figures li + li {
+  padding-left: var(--space-6);
+  border-left: 1px solid var(--color-rule);
+}
+
+.figure {
+  font-size: clamp(2.5rem, 2rem + 2vw, 4rem);
+  font-weight: var(--weight-display);
+  font-stretch: var(--stretch-display);
+  letter-spacing: -0.05em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.figures li:first-child .figure {
+  color: var(--color-accent);
+}
+
+.figureLabel {
+  font-size: var(--text-small);
+  color: var(--color-ink-muted);
+}
+
+.aboutFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-8);
+}
+
+.now {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
   font-size: var(--text-small);
   font-weight: var(--weight-strong);
 }
 
-.more svg {
-  transition: transform var(--dur-base) var(--ease-out);
+@media (min-width: 900px) {
+  .about {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+    gap: var(--space-12);
+  }
+
+  .aboutLabel {
+    padding-top: 0.6em;
+  }
 }
 
-.more:hover svg {
-  transform: translateX(3px);
+@media (max-width: 560px) {
+  .figures {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .figures li,
+  .figures li + li {
+    padding: var(--space-5) var(--space-4) var(--space-5) 0;
+    border-left: 0;
+  }
+
+  .figures li:nth-child(even) {
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--color-rule);
+  }
+
+  .figures li:nth-child(n + 3) {
+    border-top: 1px solid var(--color-rule);
+  }
 }
 
-/* ── Intro ── */
-.intro {
+/* ── What I do: icon cards ── */
+.services {
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: var(--space-10) var(--space-16);
-  align-items: center;
-}
-
-.portrait {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  background: var(--color-surface);
-}
-
-.portrait img {
-  object-fit: cover;
-}
-
-.introText {
-  display: grid;
-  gap: var(--space-8);
-  justify-items: start;
-  padding-top: var(--space-6);
-  border-top: var(--rule-width) solid var(--color-rule);
-}
-
-.introLead {
-  font-size: var(--text-h3);
-  font-weight: var(--weight-body);
-  line-height: 1.4;
-  max-width: 36ch;
-}
-
-/* ── What I do: ruled index rows (any number of roles) ── */
-.cells {
-  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  gap: var(--space-4);
   margin: 0;
   padding: 0;
   list-style: none;
-  border-top: var(--rule-width) solid var(--color-rule);
 }
 
-.cell {
+.service {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: var(--space-8);
-  align-items: baseline;
-  padding: var(--space-6) 0;
-  border-bottom: var(--rule-width) solid var(--color-rule);
+  gap: var(--space-2);
+  align-content: start;
+  padding: var(--space-6);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  background: var(--color-card);
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
 }
 
-.cellTitle {
-  font-size: clamp(1.5rem, 1.05rem + 1.7vw, 2.5rem);
-  line-height: 1.05;
+/* A cobalt wash rises from the bottom on hover. */
+.service::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to top, var(--color-accent-soft), transparent 70%);
+  opacity: 0;
+  transform: translateY(30%);
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
 }
 
-.cellBody {
+.service:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card);
+}
+
+.service:hover::before {
+  opacity: 1;
+  transform: none;
+}
+
+.serviceIcon {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  transition:
+    transform var(--dur-base) var(--ease-spring),
+    background-color var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+
+.service:hover .serviceIcon {
+  transform: rotate(-8deg) scale(1.08);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+.serviceTitle {
+  font-size: var(--text-h3);
+}
+
+.serviceBody {
   color: var(--color-ink-muted);
-  max-width: 36ch;
+  font-size: var(--text-small);
 }
 
-@media (max-width: 960px) {
+@media (max-width: 899px) {
   .hero {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "motto"
-      "headline"
-      "visual"
-      "foot";
   }
 
-  .visual {
-    justify-self: center;
-    width: min(78%, 22rem);
-    margin-block: calc(-1 * var(--space-6));
-  }
-}
-
-@media (max-width: 760px) {
-  .line {
-    display: inline;
-  }
-
-  .intro {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .cell {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-3);
+  .heroVisual {
+    margin-top: 0;
+    --badge-strap: clamp(4rem, 2rem + 6vw, 6rem);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tickerTrack {
-    animation: none;
-    flex-wrap: wrap;
-    width: auto;
+  .service:hover,
+  .service:hover .serviceIcon,
+  .socials a:hover,
+  .more:hover .moreIcon {
+    transform: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .services {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
   }
 
-  .tickerTrack li[aria-hidden] {
-    display: none;
+  .service {
+    padding: var(--space-4);
+  }
+
+  .serviceIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .serviceTitle {
+    font-size: 1.0625rem;
+  }
+
+  .serviceBody {
+    font-size: var(--text-label);
   }
 }

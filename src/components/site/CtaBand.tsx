@@ -1,5 +1,6 @@
+import { ChatCircleDotsIcon, EnvelopeSimpleIcon } from "@phosphor-icons/react/ssr";
+import { Reveal } from "@/components/motion/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
-import { Icon } from "@/components/ui/Icon";
 import type { Settings } from "@/lib/content";
 import { whatsappUrl } from "@/lib/format";
 import styles from "./CtaBand.module.css";
@@ -11,14 +12,23 @@ type Props = {
   settings: Settings;
 };
 
-// The one place the ink runs as a field: a poster-style close on every page.
+// Splits a heading so its last word is set in lime.
+function splitLast(text: string) {
+  const i = text.trimEnd().lastIndexOf(" ");
+  return i === -1 ? ["", text] : [text.slice(0, i + 1), text.slice(i + 1)];
+}
+
+// The midnight close on every page: one rounded field, two ways to reach out.
 export function CtaBand({ heading, primary, secondary, settings }: Props) {
   const whatsapp = whatsappUrl(settings.whatsapp);
+  const [lead, last] = splitLast(heading);
   return (
-    <section className={styles.band} aria-labelledby="cta-heading">
-      <div className={`wrap ${styles.inner}`}>
+    <section className={`wrap ${styles.outer}`} aria-labelledby="cta-heading">
+      <Reveal className={styles.band}>
+        <span className={styles.glow} aria-hidden="true" />
         <h2 id="cta-heading" className={styles.heading}>
-          {heading}
+          {lead}
+          <span className={styles.last}>{last}</span>
         </h2>
         <div className={styles.row}>
           <div className={styles.buttons}>
@@ -31,30 +41,28 @@ export function CtaBand({ heading, primary, secondary, settings }: Props) {
               </ButtonLink>
             ) : null}
           </div>
-          <dl className={styles.contacts}>
-            <div>
-              <dt className="label">Email</dt>
-              <dd>
-                <a href={`mailto:${settings.email}`}>
-                  <Icon name="mail" size={16} />
-                  {settings.email}
-                </a>
-              </dd>
-            </div>
+          <ul className={styles.contacts}>
+            <li>
+              <a href={`mailto:${settings.email}`} className={styles.contact}>
+                <span className={styles.contactIcon}>
+                  <EnvelopeSimpleIcon size={18} weight="duotone" aria-hidden="true" />
+                </span>
+                {settings.email}
+              </a>
+            </li>
             {whatsapp ? (
-              <div>
-                <dt className="label">WhatsApp</dt>
-                <dd>
-                  <a href={whatsapp} target="_blank" rel="noopener">
-                    <Icon name="message-circle" size={16} />
-                    {settings.phone}
-                  </a>
-                </dd>
-              </div>
+              <li>
+                <a href={whatsapp} target="_blank" rel="noopener" className={styles.contact}>
+                  <span className={styles.contactIcon}>
+                    <ChatCircleDotsIcon size={18} weight="duotone" aria-hidden="true" />
+                  </span>
+                  WhatsApp {settings.phone}
+                </a>
+              </li>
             ) : null}
-          </dl>
+          </ul>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

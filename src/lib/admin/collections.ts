@@ -196,7 +196,7 @@ export const SETTINGS_FIELDS: { group: string; fields: Field[] }[] = [
     fields: [
       { name: "portrait_path", label: "Portrait", kind: "image" },
       { name: "portrait_alt", label: "Portrait description", kind: "text", max: 200 },
-      { name: "cv_path", label: "CV (PDF)", kind: "file", accept: "application/pdf", hint: "Shows a Download CV button on About." },
+      { name: "cv_path", label: "CV (PDF)", kind: "file", accept: "application/pdf", hint: "Shows a Download CV button on the Resume page." },
       { name: "og_image_path", label: "Social share image", kind: "image", hint: "1200 × 630. Used when links are shared." },
     ],
   },

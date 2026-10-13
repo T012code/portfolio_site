@@ -31,6 +31,7 @@ through `submit_enquiry` / `submit_message`, which validate input and rate-limit
 
 `src/components/brand` holds the mark and wordmark as vector paths taken from the
 business card artwork. Type is Archivo (variable width), self-hosted from `public/fonts`.
+Colour and motion tokens live at the top of `src/app/globals.css`.
 
 ## Going live
 
@@ -57,7 +58,39 @@ business card artwork. Type is Archivo (variable width), self-hosted from `publi
    submissions still arrive in the admin inbox.
 5. **Domain**: add `www.layothedeveloper.com` in Vercel, update `NEXT_PUBLIC_SITE_URL`, redeploy.
 
-## Testing the 3D hero without a GPU
+## Testing the 3D preloader without a GPU
 
-The hero falls back to the static mark on software-rendered WebGL. Append `?3d=force` to
-the URL to render the 3D scene anyway.
+The preloader skips its 3D scene on software-rendered WebGL. Append `?3d=force` to
+the URL to render it anyway.
+
+## Analytics
+
+Admin → Analytics shows reach (now, 24 hours, 7/30/90 days, all time), visitors, page views,
+visits, pages per visit, bounce rate, a daily traffic chart, countries, cities, top pages, sources,
+devices, browsers, systems and the last five visitors with IP and location.
+
+- The site sends a beacon per page view to `/api/collect` (no cookies). Location comes from
+  Vercel's `x-vercel-ip-*` headers, so it only fills in on Vercel deployments.
+- The visitor id is an HMAC of IP + user agent keyed from `MAIL_SECRET`; recording goes through
+  `record_page_view`, which requires the same server gate as email. Without `MAIL_SECRET` nothing
+  is recorded.
+- Bots, automated browsers and the signed-in admin are not counted.
+- Retention (`supabase/migrations/20261013100200_analytics_retention.sql`) clears IPs after 90 days
+  and removes rows after 400 days via pg_cron.
+
+## SEO
+
+Every public page sets its title, description, canonical URL and full Open Graph / Twitter tags
+through `src/lib/seo.ts`, with a generated share card from `/og?title=…&kicker=…` (an image
+uploaded in Settings still wins for the home page). Structured data: WebSite + Person on the home
+page, ProfilePage on Resume, AboutPage on About, CollectionPage with the projects on Work,
+FAQPage on FAQ, and breadcrumbs on inner pages. `sitemap.xml` lists page and project images;
+`manifest.webmanifest` and an Apple touch icon are generated.
+
+## Versions
+
+- **V2** (current): daylight-blue design with motion, icon packs and the Resume page.
+- **V1**: the original monochrome design, kept on the `v1` branch (also tagged `v1.0.0` locally).
+
+Icons: [Phosphor](https://phosphoricons.com) (MIT) for interface icons and
+[Simple Icons](https://simpleicons.org) (CC0, via `react-icons`) for tech brand marks.

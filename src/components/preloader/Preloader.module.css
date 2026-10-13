@@ -1,15 +1,21 @@
-/* Always the dark card palette: the preloader is a stage, independent of the site theme. */
+/* A cobalt stage with lime accents, the same in both site themes. */
 .preloader {
-  --pl-bg: oklch(20.5% 0.005 17.5);
-  --pl-ink: oklch(86.5% 0.0093 78.3);
-  --pl-dim: oklch(86.5% 0.0093 78.3 / 0.55);
-  --pl-line: oklch(86.5% 0.0093 78.3 / 0.08);
+  --pl-bg: oklch(17% 0.07 266);
+  --pl-ink: oklch(98% 0.01 250);
+  --pl-dim: oklch(98% 0.01 250 / 0.7);
+  --pl-line: oklch(98% 0.01 250 / 0.1);
+  --pl-pop: oklch(89% 0.19 125);
+  --pl-sky: oklch(82% 0.1 240);
 
   position: fixed;
   inset: 0;
   z-index: calc(var(--z-cursor) + 10);
   overflow: hidden;
-  background: radial-gradient(120% 90% at 50% 40%, oklch(25.6% 0.0061 17.6), var(--pl-bg) 70%);
+  background:
+    radial-gradient(45% 40% at 50% 42%, oklch(52% 0.22 263 / 0.75), transparent 70%),
+    radial-gradient(50% 45% at 92% 0%, oklch(72% 0.14 235 / 0.35), transparent 70%),
+    radial-gradient(45% 40% at 0% 100%, oklch(89% 0.19 125 / 0.16), transparent 70%),
+    var(--pl-bg);
   color: var(--pl-ink);
   clip-path: inset(0 0 0 0);
   /* Without JavaScript, never trap the page behind the overlay. */
@@ -64,7 +70,7 @@
   right: 0;
   top: 0;
   height: 30%;
-  background: linear-gradient(to bottom, transparent, oklch(86.5% 0.0093 78.3 / 0.05), transparent);
+  background: linear-gradient(to bottom, transparent, oklch(95% 0.02 250 / 0.05), transparent);
   animation: scan 3.2s var(--ease-in-out) infinite;
   pointer-events: none;
 }
@@ -108,6 +114,11 @@
   opacity: 0;
 }
 
+/* Until JavaScript decides between 3D and the flat outline, the outline waits undrawn. */
+.preloader:not([data-hydrated]) .outline path {
+  animation-play-state: paused;
+}
+
 .outline path {
   fill: var(--pl-ink);
   fill-opacity: 0;
@@ -118,6 +129,11 @@
   animation:
     draw 1.6s var(--ease-in-out) 0.2s forwards,
     fill-in 0.8s var(--ease-out) 1.6s forwards;
+}
+
+.outline path:first-child {
+  fill: var(--pl-pop);
+  stroke: var(--pl-pop);
 }
 
 .outline path:nth-child(2) {
@@ -177,7 +193,7 @@
 .blink {
   width: 0.45rem;
   height: 0.45rem;
-  background: var(--pl-ink);
+  background: var(--pl-pop);
   animation: blink 1s steps(2, jump-none) infinite;
 }
 
@@ -235,19 +251,21 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.06em;
   min-width: 4.5ch;
+  color: var(--pl-pop);
 }
 
 .track {
   position: relative;
-  height: 2px;
-  background: oklch(86.5% 0.0093 78.3 / 0.15);
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background: oklch(98% 0.01 250 / 0.18);
   overflow: hidden;
 }
 
 .bar {
   position: absolute;
   inset: 0;
-  background: var(--pl-ink);
+  background: linear-gradient(90deg, var(--pl-sky), var(--pl-pop));
   transform: scaleX(0);
   transform-origin: left center;
 }

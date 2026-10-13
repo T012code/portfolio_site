@@ -1,39 +1,52 @@
 import type { Metadata } from "next";
+import { TwoTone } from "@/components/ui/TwoTone";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { Reveal } from "@/components/motion/Reveal";
 import { CtaBand } from "@/components/site/CtaBand";
 import { getBlocks, getFaqs, getSettings } from "@/lib/content";
+import { breadcrumbs, jsonLd, pageMetadata } from "@/lib/seo";
 import shared from "../page.module.css";
 import styles from "./faq.module.css";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const blocks = await getBlocks("faq");
-  return { title: "FAQ", description: blocks.header.intro || undefined, alternates: { canonical: "/faq" } };
+  const [blocks, settings] = await Promise.all([getBlocks("faq"), getSettings()]);
+  return pageMetadata({
+    settings,
+    title: "FAQ",
+    description: blocks.header.intro || "How projects run, what they cost and what happens after launch.",
+    path: "/faq",
+    card: blocks.header.label,
+    kicker: "FAQ",
+  });
 }
 
 export default async function FaqPage() {
   const [settings, blocks, faqs] = await Promise.all([getSettings(), getBlocks("faq"), getFaqs()]);
-  const jsonLd = {
-    "@context": "https://schema.org",
+  const structured = jsonLd([
+    {
     "@type": "FAQPage",
     mainEntity: faqs.map((f) => ({
       "@type": "Question",
       name: f.question,
       acceptedAnswer: { "@type": "Answer", text: f.answer },
     })),
-  };
+    },
+    breadcrumbs([{ name: "FAQ", path: "/faq" }]),
+  ]);
 
   return (
     <PageTransition>
       <script
         type="application/ld+json"
         // JSON-LD must be inline; "<" is escaped so content can't close the tag.
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+        dangerouslySetInnerHTML={{ __html: structured }}
       />
       <header className={`wrap ${shared.header}`}>
         <h1 className={shared.title}>
           <span className="intro-line">
-            <span>{blocks.header.label}</span>
+            <span>
+              <TwoTone text={blocks.header.label} />
+            </span>
           </span>
         </h1>
         {blocks.header.intro ? <p className={`intro-fade ${shared.lead}`}>{blocks.header.intro}</p> : null}
@@ -41,15 +54,12 @@ export default async function FaqPage() {
 
       <section className={`wrap ${shared.section}`} aria-label="Questions">
         <Reveal as="ul" className={styles.list} stagger>
-          {faqs.map((f, i) => (
+          {faqs.map((f) => (
             <li key={f.id}>
               <details className={styles.item}>
                 <summary className={styles.question}>
-                  <span className={styles.index} aria-hidden="true">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
                   <h2 className={styles.questionText}>{f.question}</h2>
-                  {/* The square from the logo: outlined when closed, filled when open. */}
+                  {/* A plus that turns into a minus as the answer opens. */}
                   <span className={styles.toggle} aria-hidden="true" />
                 </summary>
                 <div className={styles.answer}>

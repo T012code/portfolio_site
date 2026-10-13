@@ -1,21 +1,36 @@
-/* FAQ: ruled accordion, native <details> so it works without JavaScript. */
+/* FAQ: rounded accordion cards, native <details> so it works without JavaScript. */
 .list {
+  display: grid;
+  gap: var(--space-3);
   margin: 0;
   padding: 0;
   list-style: none;
-  border-top: var(--rule-width) solid var(--color-rule);
 }
 
 .item {
-  border-bottom: var(--rule-width) solid var(--color-rule);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  background: var(--color-card);
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+
+.item:hover,
+.item[open] {
+  border-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+
+.item[open] {
+  box-shadow: var(--shadow-card);
 }
 
 .question {
   display: grid;
-  grid-template-columns: 3rem minmax(0, 1fr) auto;
-  align-items: baseline;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
   gap: var(--space-4);
-  padding-block: var(--space-6);
+  padding: var(--space-5) var(--space-6);
   cursor: pointer;
   list-style: none;
 }
@@ -24,64 +39,101 @@
   display: none;
 }
 
-.index {
-  font-size: var(--text-small);
-  font-variant-numeric: tabular-nums;
-  color: var(--color-ink-muted);
-}
-
 .questionText {
-  font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
-  line-height: 1.2;
+  font-size: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+  line-height: 1.25;
 }
 
 .toggle {
-  align-self: center;
-  width: 0.875rem;
-  height: 0.875rem;
-  border: 2px solid var(--color-ink);
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
   transition:
     background-color var(--dur-base) var(--ease-out),
-    transform var(--dur-base) var(--ease-out);
+    transform var(--dur-base) var(--ease-spring);
+}
+
+.toggle::before,
+.toggle::after {
+  content: "";
+  grid-area: 1 / 1;
+  width: 0.875rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-accent-strong);
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out);
+}
+
+.toggle::after {
+  transform: rotate(90deg);
 }
 
 .question:hover .toggle {
-  transform: translate(2px, -2px);
+  transform: scale(1.08);
 }
 
 .item[open] .toggle {
-  background: var(--color-ink);
-  transform: translate(2px, -2px);
+  background: var(--color-accent);
+  transform: rotate(180deg);
+}
+
+.item[open] .toggle::before,
+.item[open] .toggle::after {
+  background: var(--color-accent-ink);
+}
+
+.item[open] .toggle::after {
+  transform: rotate(0deg);
 }
 
 .question:focus-visible {
-  outline: 2px solid var(--color-ink);
+  outline: 2px solid var(--color-focus);
   outline-offset: 4px;
+  border-radius: var(--radius-lg);
 }
 
 .answer {
   display: grid;
   gap: var(--space-4);
-  max-width: 64ch;
-  margin-left: calc(3rem + var(--space-4));
-  padding-bottom: var(--space-8);
+  max-width: 68ch;
+  padding: 0 var(--space-6) var(--space-6);
   color: var(--color-ink-muted);
   line-height: 1.65;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .item[open] .answer {
+    animation: answer-in var(--dur-base) var(--ease-out);
+  }
+}
+
+@keyframes answer-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .toggle {
+  .toggle,
+  .toggle::before,
+  .toggle::after {
     transition: none;
   }
 }
 
 @media (max-width: 600px) {
   .question {
-    grid-template-columns: 2rem minmax(0, 1fr) auto;
-    gap: var(--space-3);
+    padding: var(--space-4);
   }
 
   .answer {
-    margin-left: calc(2rem + var(--space-3));
+    padding: 0 var(--space-4) var(--space-4);
   }
 }

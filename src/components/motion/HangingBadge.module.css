@@ -1,0 +1,234 @@
+.stage {
+  --strap: var(--badge-strap, clamp(5rem, 3rem + 6vw, 8rem));
+  --card-w: var(--badge-card, clamp(15rem, 12rem + 8vw, 18rem));
+
+  position: relative;
+  display: grid;
+  justify-items: center;
+  padding-top: var(--space-2);
+  touch-action: pan-y;
+}
+
+/* The clip the lanyard hangs from: the pivot of the swing. */
+.clip {
+  position: relative;
+  z-index: 2;
+  width: 3.25rem;
+  height: 0.875rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-ink);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--color-ink) 30%, transparent);
+}
+
+.swing {
+  display: grid;
+  justify-items: center;
+  margin-top: -0.4375rem;
+  transform-origin: 50% 0;
+  will-change: transform;
+}
+
+.strap {
+  width: 1.375rem;
+  height: var(--strap);
+  overflow: hidden;
+  background: linear-gradient(90deg, var(--color-accent-strong), var(--color-accent) 50%, var(--color-accent-strong));
+  color: var(--color-accent-ink);
+}
+
+.strap > span {
+  display: block;
+  writing-mode: vertical-rl;
+  padding-top: var(--space-3);
+  font-size: 0.5625rem;
+  font-weight: var(--weight-strong);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.hook {
+  width: 2.25rem;
+  height: 1.25rem;
+  margin-top: -2px;
+  border: 3px solid color-mix(in srgb, var(--color-ink) 60%, var(--color-surface));
+  border-bottom: 0;
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.card {
+  position: relative;
+  display: grid;
+  width: var(--card-w);
+  aspect-ratio: 5 / 7.4;
+  margin-top: -0.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: none;
+  color: var(--color-ink);
+  font: inherit;
+  text-align: left;
+  cursor: grab;
+  transform-style: preserve-3d;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.card:focus-visible {
+  outline-offset: 6px;
+}
+
+.front,
+.back {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-rule);
+  border-radius: inherit;
+  background: var(--color-card);
+  box-shadow: var(--shadow-float);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.front {
+  padding: var(--space-4);
+}
+
+/* A punched slot at the top of the card where the hook goes through. */
+.front::before,
+.back::before {
+  content: "";
+  position: absolute;
+  top: var(--space-3);
+  left: 50%;
+  width: 2.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-strong);
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-1) var(--space-3);
+}
+
+.cardMark {
+  width: 1.375rem;
+  color: var(--color-accent);
+}
+
+.cardId {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.photo {
+  position: relative;
+  display: block;
+  flex: 1;
+  min-height: 0;
+  border-radius: calc(var(--radius-lg) - var(--space-3));
+  background: linear-gradient(160deg, var(--color-sky), var(--color-accent));
+  overflow: hidden;
+}
+
+.photo img {
+  object-fit: cover;
+  object-position: 50% 20%;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.name {
+  margin-top: var(--space-3);
+  font-size: 1.5rem;
+  font-weight: var(--weight-display);
+  font-stretch: var(--stretch-display);
+  letter-spacing: var(--tracking-display);
+  line-height: 1.1;
+}
+
+.fullName {
+  font-size: var(--text-label);
+  color: var(--color-ink-muted);
+}
+
+.role {
+  margin-top: var(--space-2);
+  font-size: var(--text-small);
+  font-weight: var(--weight-strong);
+  color: var(--color-accent);
+}
+
+.cardFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--color-rule);
+  font-size: var(--text-label);
+  color: var(--color-ink-muted);
+}
+
+.place,
+.flipHint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.flipHint {
+  padding: 0.125rem var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  font-weight: var(--weight-strong);
+}
+
+.back {
+  transform: rotateY(180deg);
+  padding: var(--space-8) var(--space-4) var(--space-4);
+}
+
+/* Iridescent laminate, like a real ID card catching the light. */
+.holo {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--color-sky) 55%, transparent), transparent 45%),
+    linear-gradient(315deg, color-mix(in srgb, var(--color-pop) 45%, transparent), transparent 50%),
+    linear-gradient(45deg, color-mix(in srgb, var(--color-accent) 30%, transparent), transparent 60%);
+  opacity: 0.55;
+}
+
+.backBody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  height: 100%;
+  min-height: 0;
+}
+
+.backEmail {
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--color-ink-muted);
+  overflow-wrap: anywhere;
+}

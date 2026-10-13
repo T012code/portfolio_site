@@ -1,7 +1,6 @@
 import { cacheLife } from "next/cache";
-import { Cursor } from "@/components/motion/Cursor";
-import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { Preloader } from "@/components/preloader/Preloader";
+import { Analytics } from "@/components/site/Analytics";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { getSettings } from "@/lib/content";
@@ -26,8 +25,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         {children}
       </main>
       <SiteFooter settings={settings} year={year} />
-      <SmoothScroll />
-      <Cursor />
+      <Analytics />
     </>
   );
 }

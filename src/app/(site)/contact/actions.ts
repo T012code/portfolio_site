@@ -2,10 +2,13 @@
 
 import { after } from "next/server";
 import { getSettings } from "@/lib/content";
+import { domainAcceptsMail } from "@/lib/mail/dns";
 import { handleSubmissionEmails } from "@/lib/mail/send";
 import { verifyRecaptcha } from "@/lib/recaptcha";
 import { handleEnquiryWhatsApp } from "@/lib/whatsapp/send";
 import { createPublicClient } from "@/lib/supabase/public";
+import { emailProblem, normaliseEmail } from "@/lib/validate";
+import { normalisePhone } from "@/lib/phone";
 
 export type SubmitState =
   | { status: "idle" }
@@ -21,6 +24,8 @@ const MIN_FILL_MS = 2500;
 const MESSAGES: Record<string, string> = {
   invalid_name: "Add your name.",
   invalid_email: "Check your email address.",
+  email_domain: "That domain can't receive email.",
+  invalid_phone: "Check the number and country code.",
   invalid_message: "Tell me a little more about the project (at least a sentence).",
   field_too_long: "One of the fields is too long.",
   rate_limited: "You've sent a few already. Give it an hour, or email me directly.",
@@ -36,6 +41,8 @@ async function passesSpamCheck(form: FormData, action: "enquiry" | "message") {
 const FIELD_FOR: Record<string, string> = {
   invalid_name: "name",
   invalid_email: "email",
+  email_domain: "email",
+  invalid_phone: "whatsapp",
   invalid_message: "message",
 };
 
@@ -51,14 +58,29 @@ function looksAutomated(form: FormData) {
   return !Number.isFinite(started) || started <= 0 || Date.now() - started < MIN_FILL_MS;
 }
 
-function failure(code: string, values: Record<string, string>): SubmitState {
+function failure(code: string, values: Record<string, string>, detail?: string): SubmitState {
   const field = FIELD_FOR[code];
+  const message = detail ?? MESSAGES[code] ?? "Something went wrong. Try again, or email me directly.";
   return {
     status: "error",
-    message: MESSAGES[code] ?? "Something went wrong. Try again, or email me directly.",
-    errors: field ? { [field]: MESSAGES[code] } : undefined,
+    message,
+    errors: field ? { [field]: message } : undefined,
     values,
   };
+}
+
+/** Email and phone checks shared by both forms; returns a failure, or null when both pass. */
+async function checkContact(values: { email: string; whatsapp: string }): Promise<SubmitState | null> {
+  const problem = emailProblem(values.email);
+  if (problem) return failure("invalid_email", values, problem);
+  values.email = normaliseEmail(values.email);
+  if (!(await domainAcceptsMail(values.email.slice(values.email.lastIndexOf("@") + 1)))) return failure("email_domain", values);
+  if (values.whatsapp) {
+    const phone = normalisePhone(values.whatsapp);
+    if (!phone) return failure("invalid_phone", values);
+    values.whatsapp = phone;
+  }
+  return null;
 }
 
 const SYMBOLS: Record<string, string> = { NGN: "₦", USD: "$" };
@@ -84,6 +106,8 @@ export async function submitEnquiry(_prev: SubmitState, form: FormData): Promise
     message: text(form, "message", 5000),
   };
   if (looksAutomated(form)) return failure("rate_limited", values);
+  const invalid = await checkContact(values);
+  if (invalid) return invalid;
   if (!(await passesSpamCheck(form, "enquiry"))) return failure("recaptcha_failed", values);
   const budget = formatBudget(values.budget_amount, values.budget_currency);
 
@@ -148,6 +172,8 @@ export async function submitMessage(_prev: SubmitState, form: FormData): Promise
     message: text(form, "message", 5000),
   };
   if (looksAutomated(form)) return failure("rate_limited", values);
+  const invalid = await checkContact(values);
+  if (invalid) return invalid;
   if (!(await passesSpamCheck(form, "message"))) return failure("recaptcha_failed", values);
 
   const { data: id, error } = await createPublicClient().rpc("submit_message", {

@@ -103,6 +103,13 @@ const ICONS = {
   ),
   plus: <path d="M5 12h14M12 5v14" />,
   "log-out": <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />,
+  chart: <path d="M3 3v16a2 2 0 0 0 2 2h16M7 16l4-4 4 4 5-6" />,
+  globe: (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20" />
+    </>
+  ),
   external: <path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />,
 } as const;
 
@@ -117,8 +124,8 @@ export function Icon({ name, size = 18, ...props }: { name: IconName; size?: num
       fill="none"
       stroke="currentColor"
       strokeWidth={2}
-      strokeLinecap="square"
-      strokeLinejoin="miter"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       aria-hidden="true"
       focusable="false"
       {...props}
