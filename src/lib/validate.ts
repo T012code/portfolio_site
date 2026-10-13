@@ -27,15 +27,15 @@ const TYPOS: Record<string, string> = {
 export function emailProblem(raw: string): string | null {
   const value = raw.trim();
   if (!value) return "Add your email address.";
-  if (value.length > 254) return "That email address is too long.";
+  if (value.length > 254) return "That email is too long.";
   const at = value.lastIndexOf("@");
-  if (at < 1 || at === value.length - 1) return "Enter a full email address, like name@example.com.";
+  if (at < 1 || at === value.length - 1) return "That email isn't complete.";
   const local = value.slice(0, at);
   const domain = value.slice(at + 1).toLowerCase();
-  if (local.length > 64 || !LOCAL.test(local)) return "The part before the @ doesn't look right.";
+  if (local.length > 64 || !LOCAL.test(local)) return "Check the part before the @.";
   const labels = domain.split(".");
-  if (labels.length < 2 || labels.some((l) => !LABEL.test(l))) return "The part after the @ doesn't look right.";
-  if (!/^[a-z]{2,}$/.test(labels[labels.length - 1])) return "The email address needs a domain ending, like .com.";
+  if (labels.length < 2 || labels.some((l) => !LABEL.test(l))) return "Check the part after the @.";
+  if (!/^[a-z]{2,}$/.test(labels[labels.length - 1])) return "Add an ending, like .com.";
   const fix = TYPOS[domain];
   if (fix) return `Did you mean ${local}@${fix}?`;
   return null;

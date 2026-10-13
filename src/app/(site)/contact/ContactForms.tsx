@@ -160,7 +160,7 @@ function useSubmit(
     const emailIssue = emailProblem(String(data.get("email") ?? ""));
     if (emailIssue) found.email = emailIssue;
     const phone = String(data.get("whatsapp") ?? "");
-    if (phone && !normalisePhone(phone)) found.whatsapp = "Check the WhatsApp number and its country code.";
+    if (phone && !normalisePhone(phone)) found.whatsapp = "Check the number and country code.";
     setClientErrors(found);
     if (Object.keys(found).length > 0) {
       formEl.querySelector<HTMLElement>(found.email ? 'input[type="email"]' : 'input[type="tel"]')?.focus();

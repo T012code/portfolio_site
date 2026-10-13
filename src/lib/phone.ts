@@ -41,11 +41,6 @@ export function isCountry(code: string | null | undefined): code is CountryCode 
   return Boolean(code) && (getCountries() as string[]).includes(code as string);
 }
 
-/** Two regional-indicator letters make the flag emoji. */
-export function flag(country: string) {
-  return String.fromCodePoint(...[...country.toUpperCase()].map((c) => 0x1f1a5 + c.charCodeAt(0)));
-}
-
 let cached: { code: CountryCode; name: string; dial: string }[] | null = null;
 
 /** Every country with a dialling code, by name. */

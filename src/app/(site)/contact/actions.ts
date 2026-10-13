@@ -24,8 +24,8 @@ const MIN_FILL_MS = 2500;
 const MESSAGES: Record<string, string> = {
   invalid_name: "Add your name.",
   invalid_email: "Check your email address.",
-  email_domain: "That email domain doesn't accept mail. Check the spelling after the @.",
-  invalid_phone: "Check the WhatsApp number and its country code.",
+  email_domain: "That domain can't receive email.",
+  invalid_phone: "Check the number and country code.",
   invalid_message: "Tell me a little more about the project (at least a sentence).",
   field_too_long: "One of the fields is too long.",
   rate_limited: "You've sent a few already. Give it an hour, or email me directly.",
