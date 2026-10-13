@@ -1,5 +1,7 @@
 // Shared by the server (sending) and the dashboard (live preview). No server-only imports.
 
+import { SITE_URL } from "@/lib/env";
+
 export const TEMPLATE_KEYS = ["enquiry_autoreply", "message_autoreply"] as const;
 export type TemplateKey = (typeof TEMPLATE_KEYS)[number];
 
@@ -11,6 +13,12 @@ export const TEMPLATE_VARS = [
   { key: "site_name", label: "Your name", sample: "Layò" },
   { key: "site_url", label: "Website", sample: "layothedeveloper.com" },
 ] as const;
+
+/** The label in each autoresponder's header, so the email says at a glance what it is. */
+export const TEMPLATE_LABELS: Record<TemplateKey, string> = {
+  enquiry_autoreply: "Enquiry received",
+  message_autoreply: "Message received",
+};
 
 export type TemplateVars = Partial<Record<(typeof TEMPLATE_VARS)[number]["key"], string>>;
 
@@ -52,42 +60,89 @@ function paragraphsToHtml(text: string) {
     .split(/\n{2,}/)
     .map((block) => {
       const html = escapeHtml(block)
-        .replace(URL_PATTERN, (url) => `<a href="${url}" style="color:#262222">${url}</a>`)
+        .replace(URL_PATTERN, (url) => `<a href="${url}" style="${LINK}">${url}</a>`)
         .replace(/\n/g, "<br>");
       return `<p style="margin:0 0 16px">${html}</p>`;
     })
     .join("");
 }
 
-const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif";
+// The site's V2 palette, written out (email clients have no CSS variables).
+const C = {
+  page: "#eef3fb",
+  card: "#ffffff",
+  line: "#dde6f5",
+  ink: "#0b1330",
+  muted: "#55617f",
+  cobalt: "#2f5bff",
+  lime: "#c7f25a",
+  limeInk: "#18230a",
+  soft: "#f6f9fe",
+};
+const FONT = "'Archivo',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif";
+const LINK = `color:${C.cobalt};text-decoration:underline`;
+const BUTTON = `display:inline-block;padding:13px 24px;border-radius:999px;background:${C.cobalt};color:#ffffff;font:700 15px/1 ${FONT};text-decoration:none`;
 
-/** A plain, light layout that renders the same in Gmail, Outlook and Apple Mail. */
-export function emailLayout({ brand, body, footer }: { brand: string; body: string; footer?: string }) {
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"></head>
-<body style="margin:0;padding:0;background:#f4f2ef">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f2ef"><tr><td align="center" style="padding:32px 16px">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #e3dfda">
-<tr><td style="padding:28px 32px 4px;font:700 17px/1.2 ${FONT};letter-spacing:0.02em;color:#262222">${escapeHtml(brand)}</td></tr>
-<tr><td style="padding:16px 32px 12px;font:16px/1.6 ${FONT};color:#262222">${body}</td></tr>
-${footer ? `<tr><td style="padding:16px 32px;border-top:1px solid #e3dfda;font:12px/1.5 ${FONT};color:#706c68">${escapeHtml(footer)}</td></tr>` : ""}
-</table></td></tr></table></body></html>`;
+type Layout = {
+  brand: string;
+  body: string;
+  /** Shown under the brand in the footer (the site motto). */
+  footer?: string;
+  /** What this email is, in the header pill: "Enquiry received", "New message". */
+  label?: string;
+  /** Emails to visitors say why they got them; notifications to the owner don't. */
+  toVisitor?: boolean;
+};
+
+/**
+ * The branded shell every email uses: a cobalt header with the mark, the name and a lime label;
+ * a white card for the message; a quiet footer with the site link. Tables and inline styles only,
+ * so it holds together in Gmail, Outlook and Apple Mail.
+ */
+export function emailLayout({ brand, body, footer, label, toVisitor }: Layout) {
+  const site = SITE_URL.replace(/^https?:\/\//, "");
+  const pill = label
+    ? `<td align="right" class="pill" style="vertical-align:middle;padding-left:12px"><span style="display:inline-block;padding:7px 12px;border-radius:999px;background:${C.lime};color:${C.limeInk};font:700 11px/1 ${FONT};letter-spacing:0.06em;text-transform:uppercase">${escapeHtml(label)}</span></td>`
+    : "";
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><style>@media (max-width:480px){.brandcell,.pill{display:block!important;width:auto!important}.pill{display:block!important;width:auto!important;padding:14px 0 0!important;text-align:left!important}.body{padding:24px 20px 8px!important}.foot{padding:18px 20px 20px!important}.head{padding:20px!important}}</style><title>${escapeHtml(label ?? brand)}</title></head>
+<body style="margin:0;padding:0;background:${C.page};-webkit-text-size-adjust:100%">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.page}"><tr><td align="center" style="padding:32px 16px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:${C.card};border:1px solid ${C.line};border-radius:20px;border-collapse:separate;overflow:hidden">
+<tr><td class="head" style="padding:22px 28px;background:${C.cobalt};background-image:radial-gradient(120% 140% at 100% 0%,#7cc4ff 0%,rgba(124,196,255,0) 55%);border-radius:19px 19px 0 0">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+<td class="brandcell" style="vertical-align:middle"><table role="presentation" cellpadding="0" cellspacing="0"><tr>
+<td style="padding-right:12px;vertical-align:middle"><img src="${SITE_URL}/apple-icon" width="40" height="40" alt="" style="display:block;border:0;border-radius:10px"></td>
+<td style="vertical-align:middle;font:700 20px/1.1 ${FONT};letter-spacing:-0.01em;color:#ffffff">${escapeHtml(brand)}<br><span style="font:500 12px/1.4 ${FONT};letter-spacing:0.02em;color:#dbe6ff">${escapeHtml(site)}</span></td>
+</tr></table></td>
+${pill}
+</tr></table></td></tr>
+<tr><td class="body" style="padding:32px 32px 16px;font:16px/1.65 ${FONT};color:${C.ink}">${body}</td></tr>
+<tr><td class="foot" style="padding:20px 32px 24px;background:${C.soft};border-top:1px solid ${C.line};border-radius:0 0 19px 19px;font:13px/1.55 ${FONT};color:${C.muted}">
+<strong style="color:${C.ink}">${escapeHtml(brand)}</strong>${footer ? ` · ${escapeHtml(footer)}` : ""}<br>
+<a href="${SITE_URL}" style="color:${C.cobalt};text-decoration:none;font-weight:700">${escapeHtml(site)}</a>
+</td></tr>
+</table>
+${toVisitor ? `<p style="margin:16px 0 0;font:12px/1.5 ${FONT};color:${C.muted}">You're getting this because you got in touch through ${escapeHtml(site)}.</p>` : ""}
+</td></tr></table></body></html>`;
 }
 
-export function textEmailHtml(text: string, brand: string, footer?: string) {
-  return emailLayout({ brand, body: paragraphsToHtml(text), footer });
+export function textEmailHtml(text: string, brand: string, options: { footer?: string; label?: string; toVisitor?: boolean } = {}) {
+  return emailLayout({ brand, body: paragraphsToHtml(text), ...options });
 }
 
-export function tableEmailHtml(rows: [string, string][], brand: string, intro: string) {
+/** The owner's notification: an intro line and the submitted fields as label / value rows. */
+export function tableEmailHtml(rows: [string, string][], brand: string, intro: string, label?: string) {
   const cells = rows
     .filter(([, v]) => v)
     .map(
       ([k, v]) =>
-        `<tr><td style="padding:6px 16px 6px 0;color:#706c68;vertical-align:top;white-space:nowrap">${escapeHtml(k)}</td><td style="padding:6px 0;white-space:pre-wrap">${escapeHtml(v)}</td></tr>`,
+        `<tr><td style="padding:10px 16px 10px 0;border-bottom:1px solid ${C.line};color:${C.muted};font-size:13px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;vertical-align:top;white-space:nowrap">${escapeHtml(k)}</td><td style="padding:10px 0;border-bottom:1px solid ${C.line};white-space:pre-wrap">${escapeHtml(v)}</td></tr>`,
     )
     .join("");
   return emailLayout({
     brand,
-    body: `<p style="margin:0 0 16px">${escapeHtml(intro)}</p><table role="presentation" cellpadding="0" cellspacing="0" style="font:15px/1.5 ${FONT};color:#262222">${cells}</table>`,
+    label,
+    body: `<p style="margin:0 0 16px">${escapeHtml(intro)}</p><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font:15px/1.5 ${FONT};color:${C.ink}">${cells}</table>`,
   });
 }
 
@@ -147,10 +202,12 @@ export function textToHtml(text: string) {
 }
 
 // Inline the few styles email clients need, without overriding styles the author set.
+// A link with class="button" becomes a cobalt pill button.
 function styleHtml(html: string) {
   return html
     .replace(/<p(?![^>]*\bstyle=)(\s[^>]*)?>/gi, (_, attrs = "") => `<p${attrs} style="margin:0 0 16px">`)
-    .replace(/<a(?![^>]*\bstyle=)(\s[^>]*)?>/gi, (_, attrs = "") => `<a${attrs} style="color:#262222">`)
+    .replace(/<a(?![^>]*\bstyle=)(?=[^>]*\bclass\s*=\s*["']?button\b)(\s[^>]*)?>/gi, (_, attrs = "") => `<a${attrs} style="${BUTTON}">`)
+    .replace(/<a(?![^>]*\bstyle=)(\s[^>]*)?>/gi, (_, attrs = "") => `<a${attrs} style="${LINK}">`)
     .replace(/<(ul|ol)(?![^>]*\bstyle=)(\s[^>]*)?>/gi, (_, tag: string, attrs = "") => `<${tag}${attrs} style="margin:0 0 16px;padding-left:20px">`);
 }
 
@@ -163,6 +220,7 @@ export function buildTemplateEmail(
   vars: TemplateVars,
   brand: string,
   footer?: string,
+  label?: string,
 ): { subject: string; text: string; html?: string } {
   const subject = renderTemplate(template.subject, vars).replace(/\s+/g, " ").trim();
   if (template.format === "text") {
@@ -173,6 +231,6 @@ export function buildTemplateEmail(
   return {
     subject,
     text: htmlToText(bodyHtml),
-    html: emailLayout({ brand, body: styleHtml(bodyHtml), footer }),
+    html: emailLayout({ brand, body: styleHtml(bodyHtml), footer, label, toVisitor: true }),
   };
 }

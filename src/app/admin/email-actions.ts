@@ -10,6 +10,7 @@ import {
   buildTemplateEmail,
   SAMPLE_VARS,
   TEMPLATE_KEYS,
+  TEMPLATE_LABELS,
   TEMPLATE_VARS,
   textEmailHtml,
   unsafeHtml,
@@ -120,7 +121,7 @@ export async function sendTestEmail(to: string): Promise<MailResult> {
     to: address,
     subject: "Test email from your website",
     text,
-    html: textEmailHtml(text, loaded.runtime.settings.from_name || site.display_name, site.motto),
+    html: textEmailHtml(text, loaded.runtime.settings.from_name || site.display_name, { footer: site.motto, label: "Test email" }),
   });
   refresh();
   return result;
@@ -196,7 +197,13 @@ export async function sendTemplatePreview(key: string, to: string): Promise<Mail
   const template = loaded.runtime.templates[key as TemplateKey];
   if (!template) return { status: "failed", detail: "Template not found." };
   const site = await getSettings();
-  const email = buildTemplateEmail(template, SAMPLE_VARS, loaded.runtime.settings.from_name || site.display_name, site.motto);
+  const email = buildTemplateEmail(
+    template,
+    SAMPLE_VARS,
+    loaded.runtime.settings.from_name || site.display_name,
+    site.motto,
+    TEMPLATE_LABELS[key as TemplateKey],
+  );
   const result = await deliver(loaded.runtime, {
     kind: "test",
     to: address,
@@ -233,7 +240,11 @@ export async function sendInboxReply(
     to: entry.email,
     subject: cleanSubject,
     text: cleanBody,
-    html: textEmailHtml(cleanBody, loaded.runtime.settings.from_name || site.display_name),
+    html: textEmailHtml(cleanBody, loaded.runtime.settings.from_name || site.display_name, {
+      footer: site.motto,
+      label: kind === "enquiries" ? "About your enquiry" : "Reply",
+      toVisitor: true,
+    }),
     replyTo: loaded.runtime.settings.from_email,
     ref: { type: kind === "enquiries" ? "enquiry" : "message", id: entry.id },
   });

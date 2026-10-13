@@ -107,7 +107,7 @@ export function SiteHeader({ name }: { name: string }) {
           </nav>
 
           <div className={styles.actions}>
-            <ThemeToggle />
+            <ThemeToggle hint={pathname === "/"} />
             <ButtonLink href="/contact" className={styles.cta} icon="arrow-up-right">
               Book a call
             </ButtonLink>

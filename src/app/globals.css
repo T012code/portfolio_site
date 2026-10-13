@@ -398,8 +398,9 @@ html[data-menu-open] {
 }
 
 /* ── Motion: page transitions (React ViewTransition) ──
-   Strictly sequential: the old page is gone before the new one starts, so the two never
-   overlap. The header stays put; the footer leaves with the old page and follows the new one. */
+   A quick hand-off: the old page fades in 0.12s and the new one starts rising halfway through,
+   so they barely overlap and the animation adds about 0.35s to a navigation. The header stays put;
+   the footer leaves with the old page and follows the new one. */
 ::view-transition {
   pointer-events: none;
 }
@@ -436,7 +437,7 @@ html[data-menu-open] {
 }
 
 ::view-transition-new(site-footer) {
-  animation: footer-in 0.3s var(--ease-out) var(--page-out) both;
+  animation: footer-in 0.3s var(--ease-out) var(--page-in-delay) both;
 }
 
 /* The page is one named group: no morph between old and new, just out then in. */
@@ -454,12 +455,13 @@ html[data-menu-open] {
 }
 
 ::view-transition-new(page) {
-  animation: page-in 0.4s var(--ease-out) var(--page-out) both;
+  animation: page-in 0.32s var(--ease-out) var(--page-in-delay) both;
   mix-blend-mode: normal;
 }
 
 :root {
-  --page-out: 0.16s;
+  --page-out: 0.12s;
+  --page-in-delay: 0.05s;
 }
 
 @keyframes page-out {

@@ -132,6 +132,6 @@ async function notifyOwner(waId: string, name: string, body: string) {
     to: settings.notify_email || settings.from_email,
     subject: `New WhatsApp message from ${name || formatNumber(waId)}`.slice(0, 200),
     text: [intro, "", ...rows.map(([k, v]) => `${k}: ${v}`)].join("\n"),
-    html: tableEmailHtml(rows, settings.from_name || "Layò", intro),
+    html: tableEmailHtml(rows, settings.from_name || "Layò", intro, "New WhatsApp chat"),
   });
 }

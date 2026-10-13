@@ -12,16 +12,29 @@ export type DnsCheck = {
   note: string;
 };
 
-async function lookup(name: string, type: "TXT" | "MX") {
+async function lookup(name: string, type: "TXT" | "MX" | "A", timeout = 6000) {
   const url = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(name)}&type=${type}`;
-  const res = await fetch(url, { headers: { accept: "application/dns-json" }, cache: "no-store", signal: AbortSignal.timeout(6000) });
+  const res = await fetch(url, { headers: { accept: "application/dns-json" }, cache: "no-store", signal: AbortSignal.timeout(timeout) });
   if (!res.ok) throw new Error(`DNS lookup failed (${res.status})`);
   const json = (await res.json()) as { Answer?: { type: number; data: string }[] };
-  const wanted = type === "TXT" ? 16 : 15;
+  const wanted = { TXT: 16, MX: 15, A: 1 }[type];
   // TXT values arrive quoted and possibly split into 255-byte chunks: join them.
   return (json.Answer ?? [])
     .filter((a) => a.type === wanted)
     .map((a) => (type === "TXT" ? a.data.replace(/"\s*"/g, "").replace(/^"|"$/g, "") : a.data));
+}
+
+/**
+ * Whether a domain can receive email: it has an MX record, or at least an address (A) record.
+ * When DNS itself can't be reached, the answer is yes, so a lookup outage never blocks a visitor.
+ */
+export async function domainAcceptsMail(domain: string): Promise<boolean> {
+  try {
+    if ((await lookup(domain, "MX", 3000)).some((mx) => !/^0\s+\.?$/.test(mx.trim()))) return true;
+    return (await lookup(domain, "A", 3000)).length > 0;
+  } catch {
+    return true;
+  }
 }
 
 async function safely(fn: () => Promise<DnsCheck>, fallback: Omit<DnsCheck, "status" | "found" | "note">): Promise<DnsCheck> {
