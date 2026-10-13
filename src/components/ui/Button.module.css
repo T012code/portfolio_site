@@ -69,9 +69,17 @@
   transition: transform var(--dur-base) var(--ease-out);
 }
 
+/* Once the fill has risen, the pill's own colour follows, so no rim of the old colour shows at the edge. */
 .button:hover {
+  background-color: var(--btn-hover-bg);
   color: var(--btn-hover-fg);
   text-decoration: none;
+  transition:
+    transform var(--dur-micro) var(--ease-out),
+    color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    background-color 0s linear var(--dur-base);
 }
 
 .button:hover::before {
@@ -99,6 +107,11 @@
 
 .button:disabled::before {
   transform: translateY(102%);
+}
+
+.button:disabled:hover {
+  background-color: var(--btn-bg);
+  color: var(--btn-fg);
 }
 
 .button[data-loading] {

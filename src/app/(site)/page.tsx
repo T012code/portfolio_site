@@ -42,7 +42,7 @@ export default async function HomePage() {
   const cardStack = [
     ...CARD_STACK.filter((n) => skillNames.includes(n)),
     ...skillNames.filter((n) => !CARD_STACK.includes(n)),
-  ].slice(0, 9);
+  ].slice(0, 8);
   const current = experience.find((e) => !e.end_date);
   const lines = blocks.hero.lines;
   const stats = [

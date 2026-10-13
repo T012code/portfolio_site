@@ -491,6 +491,12 @@ html[data-menu-open] {
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  [data-scroll-words] span {
+    opacity: 1 !important;
+  }
+}
+
 /* ── Motion: headline intro, line by line ──
    Reveals use clip and transform, never opacity: text keeps full contrast in every frame
    (including while paused behind the preloader). */
