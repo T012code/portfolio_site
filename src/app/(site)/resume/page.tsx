@@ -22,16 +22,23 @@ import { TopicIcon } from "@/components/ui/TopicIcon";
 import { TwoTone } from "@/components/ui/TwoTone";
 import { getBlocks, getExperience, getServices, getSettings, getSkills, getToday } from "@/lib/content";
 import { experienceRange, whatsappUrl, yearsSince } from "@/lib/format";
+import { SITE_URL } from "@/lib/env";
 import { mediaUrl } from "@/lib/media";
+import { pageMetadata } from "@/lib/seo";
+import { breadcrumbs, jsonLd, personNode } from "@/lib/seo";
 import styles from "./resume.module.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const [blocks, settings] = await Promise.all([getBlocks("resume"), getSettings()]);
-  return {
+  return pageMetadata({
+    settings,
     title: blocks.header.label,
-    description: `${settings.full_name}: ${blocks.header.headline}`,
-    alternates: { canonical: "/resume" },
-  };
+    description: `${settings.full_name}: ${blocks.header.headline} Experience, skills, services and a downloadable CV.`,
+    path: "/resume",
+    card: settings.full_name,
+    kicker: blocks.header.label,
+    type: "profile",
+  });
 }
 
 export default async function ResumePage() {
@@ -65,8 +72,26 @@ export default async function ResumePage() {
       : null,
   ].filter((c) => c !== null);
 
+  const structured = jsonLd([
+    {
+      "@type": "ProfilePage",
+      url: new URL("/resume", SITE_URL).toString(),
+      name: `${blocks.header.label}: ${settings.full_name}`,
+      mainEntity: personNode(settings, {
+        description: write[0],
+        knowsAbout: skills.map((s) => s.name),
+        hasOccupation: { "@type": "Occupation", name: role, occupationLocation: { "@type": "City", name: "Lagos" } },
+        worksFor: experience
+          .filter((e) => !e.end_date)
+          .map((e) => ({ "@type": "Organization", name: e.org })),
+      }),
+    },
+    breadcrumbs([{ name: blocks.header.label, path: "/resume" }]),
+  ]);
+
   return (
     <PageTransition>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: structured }} />
       <header className={`wrap ${styles.hero}`}>
         <div className={styles.heroText}>
           <p className="eyebrow intro-fade" style={{ "--delay": "0.05s" } as React.CSSProperties}>

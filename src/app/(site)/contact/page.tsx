@@ -4,13 +4,20 @@ import { PageTransition } from "@/components/motion/PageTransition";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { getBlocks, getSettings } from "@/lib/content";
 import { whatsappUrl } from "@/lib/format";
+import { pageMetadata } from "@/lib/seo";
 import { ContactForms } from "./ContactForms";
 import shared from "../page.module.css";
 import styles from "./contact.module.css";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const blocks = await getBlocks("contact");
-  return { title: blocks.header.label, description: blocks.header.intro || undefined, alternates: { canonical: "/contact" } };
+  const [blocks, settings] = await Promise.all([getBlocks("contact"), getSettings()]);
+  return pageMetadata({
+    settings,
+    title: blocks.header.label,
+    description: blocks.header.intro || `Start a project with ${settings.full_name}: book a discovery call or send a message.`,
+    path: "/contact",
+    kicker: "Book a discovery call",
+  });
 }
 
 export default async function ContactPage() {

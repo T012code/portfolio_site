@@ -11,15 +11,21 @@ import { TopicIcon } from "@/components/ui/TopicIcon";
 import { TwoTone } from "@/components/ui/TwoTone";
 import { getBlocks, getCapabilities, getExperience, getProcess, getSettings } from "@/lib/content";
 import { mediaUrl } from "@/lib/media";
+import { breadcrumbs, jsonLd, pageMetadata, personNode } from "@/lib/seo";
+import { SITE_URL } from "@/lib/env";
 import styles from "./about.module.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const [blocks, settings] = await Promise.all([getBlocks("about"), getSettings()]);
-  return {
+  return pageMetadata({
+    settings,
     title: blocks.intro.label,
     description: blocks.intro.paragraphs[0] ?? settings.seo_description,
-    alternates: { canonical: "/about" },
-  };
+    path: "/about",
+    card: `${blocks.intro.label}: ${settings.display_name}`,
+    kicker: blocks.intro.label,
+    type: "profile",
+  });
 }
 
 export default async function AboutPage() {
@@ -34,8 +40,19 @@ export default async function AboutPage() {
   const [lead, ...rest] = blocks.intro.paragraphs;
   const current = experience.filter((e) => !e.end_date).slice(0, 3);
 
+  const structured = jsonLd([
+    {
+      "@type": "AboutPage",
+      url: new URL("/about", SITE_URL).toString(),
+      name: blocks.intro.label,
+      mainEntity: personNode(settings, { description: lead }),
+    },
+    breadcrumbs([{ name: blocks.intro.label, path: "/about" }]),
+  ]);
+
   return (
     <PageTransition>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: structured }} />
       <header className={`wrap ${styles.hero}`}>
         <div className={styles.heroText}>
           <p className="eyebrow intro-fade" style={{ "--delay": "0.05s" } as React.CSSProperties}>

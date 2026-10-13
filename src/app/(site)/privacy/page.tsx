@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/site/LegalPage";
-import { getBlocks } from "@/lib/content";
+import { getBlocks, getSettings } from "@/lib/content";
+import { pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const blocks = await getBlocks("privacy");
-  return {
+  const [blocks, settings] = await Promise.all([getBlocks("privacy"), getSettings()]);
+  return pageMetadata({
+    settings,
     title: blocks.page.title,
     description: "What personal information this website collects, why, and the choices you have.",
-    alternates: { canonical: "/privacy" },
-  };
+    path: "/privacy",
+  });
 }
 
 export default async function PrivacyPage() {

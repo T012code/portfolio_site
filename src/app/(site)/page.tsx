@@ -25,6 +25,7 @@ import { getBlocks, getCapabilities, getExperience, getProjects, getSettings, ge
 import { toProjectItem, yearsSince } from "@/lib/format";
 import { mediaUrl } from "@/lib/media";
 import { SITE_URL } from "@/lib/env";
+import { jsonLd, PERSON_ID, personNode, WEBSITE_ID, websiteNode } from "@/lib/seo";
 import styles from "./home.module.css";
 
 // Stack chips that float around the hero portrait, in this order when the skill exists.
@@ -57,26 +58,22 @@ export default async function HomePage() {
     { value: experience.length, label: "Roles and contracts", icon: BriefcaseIcon },
     { value: skills.length, label: "Tools in my kit", icon: WrenchIcon },
   ].filter((s) => s.value > 0);
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: settings.full_name,
-    alternateName: settings.display_name,
-    jobTitle: settings.taglines[0] ?? "Software engineer",
-    url: SITE_URL,
-    email: `mailto:${settings.email}`,
-    image: portrait ? new URL(portrait, SITE_URL).toString() : undefined,
-    address: { "@type": "PostalAddress", addressLocality: "Lagos", addressCountry: "NG" },
-    sameAs: [settings.linkedin_url, settings.github_url].filter(Boolean),
-    knowsAbout: skillNames,
-  };
+  const structured = jsonLd([
+    websiteNode(settings),
+    personNode(settings, {
+      description: settings.seo_description,
+      knowsAbout: skillNames,
+      worksFor: experience.filter((e) => !e.end_date).map((e) => ({ "@type": "Organization", name: e.org })),
+    }),
+    { "@type": "WebPage", "@id": `${SITE_URL}/#webpage`, url: SITE_URL, name: settings.seo_title, isPartOf: { "@id": WEBSITE_ID }, about: { "@id": PERSON_ID } },
+  ]);
 
   return (
     <PageTransition>
       <script
         type="application/ld+json"
         // JSON-LD must be inline; "<" is escaped so content can't close the tag.
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+        dangerouslySetInnerHTML={{ __html: structured }}
       />
       <section className={`wrap ${styles.hero}`} aria-labelledby="hero-heading">
         <div className={styles.heroText}>

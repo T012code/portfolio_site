@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/site/LegalPage";
-import { getBlocks } from "@/lib/content";
+import { getBlocks, getSettings } from "@/lib/content";
+import { pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const blocks = await getBlocks("terms");
-  return {
+  const [blocks, settings] = await Promise.all([getBlocks("terms"), getSettings()]);
+  return pageMetadata({
+    settings,
     title: blocks.page.title,
-    description: "The terms for using this website and how projects are agreed.",
-    alternates: { canonical: "/terms" },
-  };
+    description: "The terms for using this website and for enquiries and projects.",
+    path: "/terms",
+  });
 }
 
 export default async function TermsPage() {
