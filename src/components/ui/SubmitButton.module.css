@@ -1,0 +1,180 @@
+.submit {
+  min-width: 12rem;
+}
+
+/* ── Label roll ── */
+.labels {
+  display: grid;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.labels > span {
+  grid-area: 1 / 1;
+  transition: transform 0.5s var(--ease-out);
+}
+
+.labels > span:last-child {
+  transform: translateY(115%);
+}
+
+.submit[data-loading] .labels > span:first-child {
+  transform: translateY(-115%);
+}
+
+.submit[data-loading] .labels > span:last-child {
+  transform: none;
+}
+
+/* ── Plane and ring share the chip ── */
+.chip {
+  display: grid;
+  background: color-mix(in srgb, var(--color-pop) 90%, transparent);
+  color: var(--color-pop-ink);
+}
+
+.chip > * {
+  grid-area: 1 / 1;
+  place-self: center;
+}
+
+.chip > .plane {
+  transition: transform 0.55s var(--ease-out);
+}
+
+.submit:hover:not([data-loading]) .chip > .plane {
+  transform: translate(2px, -2px) rotate(-8deg);
+}
+
+.submit[data-loading] .chip > .plane {
+  animation: none;
+  transform: translate(26px, -26px) rotate(-20deg) scale(0.6);
+  transition-duration: 0.45s;
+  transition-timing-function: cubic-bezier(0.5, 0, 0.9, 0.4);
+}
+
+.chip > .ring {
+  width: 1.125rem;
+  height: 1.125rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-dasharray: 0.62 1;
+  transform: scale(0);
+  transition: transform 0.4s var(--ease-spring) 0.15s;
+}
+
+.submit[data-loading] .chip > .ring {
+  transform: scale(1);
+  animation: turn 0.85s linear infinite;
+}
+
+@keyframes turn {
+  from {
+    rotate: 0deg;
+  }
+  to {
+    rotate: 360deg;
+  }
+}
+
+/* ── Sheen while sending ── */
+.submit::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, white 38%, transparent) 50%, transparent 70%);
+  transform: translateX(-110%);
+  pointer-events: none;
+}
+
+.submit[data-loading]::after {
+  animation: sheen 1.3s var(--ease-in-out) infinite;
+}
+
+@keyframes sheen {
+  to {
+    transform: translateX(110%);
+  }
+}
+
+/* Sending keeps the cobalt fill; it isn't a disabled state. */
+.submit[data-loading],
+.submit[data-loading]:hover {
+  color: var(--btn-fg);
+}
+
+.submit[data-loading]::before {
+  transform: translateY(102%);
+}
+
+/* ── Sent mark ── */
+.sent {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  animation: pop 0.6s var(--ease-spring) both;
+}
+
+.sent svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sentRing {
+  stroke-width: 2;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  animation: draw 0.7s var(--ease-out) 0.1s forwards;
+}
+
+.sentCheck {
+  stroke-width: 3.4;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 0.45s var(--ease-out) 0.55s forwards;
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .labels > span,
+  .chip > .plane,
+  .chip > .ring {
+    transition: none;
+  }
+
+  .submit[data-loading]::after,
+  .submit[data-loading] .chip > .ring,
+  .sent {
+    animation: none;
+  }
+
+  .sentRing,
+  .sentCheck {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

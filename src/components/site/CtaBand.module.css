@@ -31,32 +31,15 @@
   opacity: 0.8;
 }
 
-.spark {
-  position: absolute;
-  top: clamp(1.5rem, 1rem + 2vw, 3rem);
-  right: clamp(1.5rem, 1rem + 2vw, 3rem);
-  color: var(--color-pop);
-}
-
 @media (prefers-reduced-motion: no-preference) {
   .glow {
     animation: drift 14s var(--ease-in-out) infinite alternate;
-  }
-
-  .spark {
-    animation: turn 18s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
   }
 }
 
 @keyframes drift {
   to {
     transform: translate(-18%, 22%) scale(1.15);
-  }
-}
-
-@keyframes turn {
-  to {
-    transform: rotate(360deg);
   }
 }
 
@@ -130,13 +113,4 @@
   border-radius: 50%;
   background: color-mix(in srgb, var(--color-pop) 16%, transparent);
   color: var(--color-pop);
-}
-
-@media (max-width: 600px) {
-  .spark {
-    width: 2.25rem;
-    height: 2.25rem;
-    top: var(--space-4);
-    right: var(--space-4);
-  }
 }

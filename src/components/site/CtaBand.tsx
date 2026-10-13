@@ -1,4 +1,4 @@
-import { ChatCircleDotsIcon, EnvelopeSimpleIcon, SparkleIcon } from "@phosphor-icons/react/ssr";
+import { ChatCircleDotsIcon, EnvelopeSimpleIcon } from "@phosphor-icons/react/ssr";
 import { Reveal } from "@/components/motion/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
 import type { Settings } from "@/lib/content";
@@ -12,13 +12,13 @@ type Props = {
   settings: Settings;
 };
 
-// Splits a heading so its last word carries the lime spark.
+// Splits a heading so its last word is set in lime.
 function splitLast(text: string) {
   const i = text.trimEnd().lastIndexOf(" ");
   return i === -1 ? ["", text] : [text.slice(0, i + 1), text.slice(i + 1)];
 }
 
-// The midnight close on every page: one rounded field, a slow-turning spark, two ways to reach out.
+// The midnight close on every page: one rounded field, two ways to reach out.
 export function CtaBand({ heading, primary, secondary, settings }: Props) {
   const whatsapp = whatsappUrl(settings.whatsapp);
   const [lead, last] = splitLast(heading);
@@ -26,7 +26,6 @@ export function CtaBand({ heading, primary, secondary, settings }: Props) {
     <section className={`wrap ${styles.outer}`} aria-labelledby="cta-heading">
       <Reveal className={styles.band}>
         <span className={styles.glow} aria-hidden="true" />
-        <SparkleIcon className={styles.spark} size={72} weight="fill" aria-hidden="true" />
         <h2 id="cta-heading" className={styles.heading}>
           {lead}
           <span className={styles.last}>{last}</span>

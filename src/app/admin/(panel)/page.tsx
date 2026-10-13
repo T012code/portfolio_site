@@ -230,11 +230,14 @@ export default async function Dashboard() {
                 Quick actions
               </h2>
             </div>
-            <ul className={styles.activity}>
+            <ul className={styles.quickGrid}>
               {quick.map((q) => (
-                <li key={q.href} style={{ gridTemplateColumns: "1fr" }}>
-                  <Link href={q.href} style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-                    <Icon name={q.icon} size={16} /> {q.label}
+                <li key={q.href}>
+                  <Link href={q.href} className={styles.quickLink}>
+                    <span className={styles.quickIcon}>
+                      <Icon name={q.icon} size={16} />
+                    </span>
+                    {q.label}
                   </Link>
                 </li>
               ))}

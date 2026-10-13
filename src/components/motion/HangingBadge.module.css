@@ -1,6 +1,6 @@
 .stage {
-  --strap: clamp(5rem, 3rem + 6vw, 8rem);
-  --card-w: clamp(15rem, 12rem + 8vw, 18rem);
+  --strap: var(--badge-strap, clamp(5rem, 3rem + 6vw, 8rem));
+  --card-w: var(--badge-card, clamp(15rem, 12rem + 8vw, 18rem));
 
   position: relative;
   display: grid;

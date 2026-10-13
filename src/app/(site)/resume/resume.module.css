@@ -1,4 +1,4 @@
-/* ── Hero: name and actions left, the hanging ID badge right ── */
+/* ── Hero: name and actions left, the CV as a stack of paper right ── */
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
@@ -60,65 +60,160 @@
   gap: var(--space-3);
 }
 
-.badge {
+.paper {
   justify-self: center;
+  align-self: center;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .badge {
-    animation: drop-in 1.2s var(--ease-spring) 0.25s both;
+/* ── The printed top sheet: a miniature of the CV ── */
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  height: 100%;
+  padding: var(--space-8) var(--space-6) var(--space-5);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.sheet > * {
+  flex-shrink: 0;
+}
+
+/* Phones: the sheet is small, so the profile excerpt makes way for roles and stack. */
+@media (max-width: 560px) {
+  .sheetOptional {
+    display: none !important;
+  }
+
+  .sheet {
+    gap: var(--space-2);
+    padding: var(--space-6) var(--space-4) var(--space-4);
   }
 }
 
-@keyframes drop-in {
-  from {
-    transform: translateY(-40%) rotate(-6deg);
-    opacity: 0;
-  }
-  40% {
-    opacity: 1;
-  }
+.sheetHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+  border-bottom: 2px solid var(--color-accent);
 }
 
-.backTitle {
-  font-size: var(--text-label);
+.sheetPhoto {
+  position: relative;
+  flex: none;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  background: linear-gradient(160deg, var(--color-sky), var(--color-accent));
+  overflow: hidden;
+}
+
+.sheetPhoto img {
+  object-fit: cover;
+  object-position: 50% 20%;
+}
+
+.sheetWho {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.sheetWho strong {
+  font-size: 1.0625rem;
+  font-weight: var(--weight-display);
+  font-stretch: var(--stretch-display);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.sheetWho span {
+  color: var(--color-ink-muted);
+}
+
+.sheetLabel {
+  margin-top: var(--space-1);
+  font-size: 0.625rem;
   font-weight: var(--weight-strong);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.sheetProfile {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
   color: var(--color-ink-muted);
 }
 
-.backIcons {
+.sheetRoles {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sheetRoles li {
+  display: grid;
+}
+
+.sheetRoles strong {
+  font-weight: var(--weight-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheetRoles span {
+  color: var(--color-ink-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheetStack {
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
 }
 
-.backIcons > span {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 1;
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--color-card) 80%, transparent);
-}
-
-.backIcons svg {
+.sheetStack svg {
   color: var(--brand);
 }
 
-.backFact {
-  font-size: var(--text-small);
+.sheetFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--color-rule);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
   color: var(--color-ink-muted);
 }
 
-.backFact strong {
-  display: block;
-  font-size: 2rem;
-  font-weight: var(--weight-display);
-  font-stretch: var(--stretch-display);
-  letter-spacing: -0.04em;
-  line-height: 1;
-  color: var(--color-ink);
+.sheetFoot > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pdf {
+  flex: none;
+  padding: 0.125rem var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-pop);
+  color: var(--color-pop-ink);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-strong);
+  letter-spacing: 0.06em;
 }
 
 /* ── Body: sticky aside, long-form main ── */
@@ -450,7 +545,7 @@
 
 /* ── Print: a clean, single-column CV ── */
 @media print {
-  .badge,
+  .paper,
   .actions,
   .noPrint {
     display: none !important;

@@ -6,11 +6,11 @@ import {
   LinkedinLogoIcon,
   MapPinIcon,
   PhoneIcon,
-  SealCheckIcon,
 } from "@phosphor-icons/react/ssr";
 import type { Metadata } from "next";
-import { HangingBadge } from "@/components/motion/HangingBadge";
+import Image from "next/image";
 import { PageTransition } from "@/components/motion/PageTransition";
+import { PaperStack } from "@/components/motion/PaperStack";
 import { Reveal } from "@/components/motion/Reveal";
 import { Timeline } from "@/components/motion/Timeline";
 import { CtaBand } from "@/components/site/CtaBand";
@@ -94,10 +94,6 @@ export default async function ResumePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: structured }} />
       <header className={`wrap ${styles.hero}`}>
         <div className={styles.heroText}>
-          <p className="eyebrow intro-fade" style={{ "--delay": "0.05s" } as React.CSSProperties}>
-            <SealCheckIcon size={14} weight="fill" aria-hidden="true" />
-            {blocks.header.label}
-          </p>
           <h1 className={styles.name}>
             <span className="intro-line">
               <span>{settings.full_name}</span>
@@ -134,31 +130,57 @@ export default async function ResumePage() {
             </ButtonLink>
           </div>
         </div>
-        <div className={styles.badge}>
-          <HangingBadge
-            portrait={portrait}
-            portraitAlt={settings.portrait_alt}
-            name={settings.display_name}
-            fullName={settings.full_name}
-            role={role}
-            location={settings.location}
-            email={settings.email}
-            back={
-              <>
-                <span className={styles.backTitle}>Stack I reach for</span>
-                <span className={styles.backIcons}>
-                  {skills.slice(0, 9).map((s) => (
-                    <span key={s.id} title={s.name}>
-                      <TechIcon name={s.name} size={22} />
-                    </span>
-                  ))}
+        <div className={styles.paper}>
+          <PaperStack label={`${settings.full_name}, CV preview`}>
+            <div className={styles.sheet}>
+              <div className={styles.sheetHead}>
+                <span className={styles.sheetPhoto}>
+                  {portrait ? <Image src={portrait} alt="" fill sizes="64px" /> : null}
                 </span>
-                <span className={styles.backFact}>
-                  <strong>{years}+</strong> years building for the web
+                <span className={styles.sheetWho}>
+                  <strong>{settings.full_name}</strong>
+                  <span>
+                    {role} · {settings.location}
+                  </span>
                 </span>
-              </>
-            }
-          />
+              </div>
+              {write[0] ? (
+                <>
+                  <span className={`${styles.sheetLabel} ${styles.sheetOptional}`}>{blocks.summary.label}</span>
+                  <span className={`${styles.sheetProfile} ${styles.sheetOptional}`}>{write[0]}</span>
+                </>
+              ) : null}
+              {experience.length > 0 ? (
+                <>
+                  <span className={styles.sheetLabel}>{blocks.sections.experience}</span>
+                  <ul className={styles.sheetRoles}>
+                    {experience.slice(0, 3).map((e) => (
+                      <li key={e.id}>
+                        <strong>{e.title}</strong>
+                        <span>
+                          {e.org} · {experienceRange(e)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : null}
+              {skills.length > 0 ? (
+                <>
+                  <span className={styles.sheetLabel}>{blocks.sections.skills}</span>
+                  <span className={styles.sheetStack}>
+                    {skills.slice(0, 8).map((s) => (
+                      <TechIcon key={s.id} name={s.name} size={18} />
+                    ))}
+                  </span>
+                </>
+              ) : null}
+              <span className={styles.sheetFoot}>
+                <span>{settings.email}</span>
+                <span className={styles.pdf}>PDF</span>
+              </span>
+            </div>
+          </PaperStack>
         </div>
       </header>
 

@@ -1,4 +1,4 @@
-/* ── Hero: words left, lit portrait right ── */
+/* ── Hero: words left, the ID card hanging on the right ── */
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
@@ -11,10 +11,6 @@
   display: grid;
   gap: var(--space-8);
   align-content: center;
-}
-
-.motto {
-  margin-bottom: calc(-1 * var(--space-2));
 }
 
 .headline {
@@ -101,37 +97,57 @@
 
 .heroVisual {
   position: relative;
+  align-self: start;
+  /* The clip sits just under the header, so the card hangs from the top of the hero. */
+  margin-top: calc(-1 * clamp(2.5rem, 1.5rem + 5vw, 6rem) + var(--space-4));
+  --badge-strap: clamp(5rem, 2rem + 6vw, 8rem);
+  --badge-card: clamp(16rem, 12rem + 7vw, 20rem);
 }
 
-.sticker {
+@media (prefers-reduced-motion: no-preference) {
+  .heroVisual {
+    animation: drop-in 1.3s var(--ease-spring) 0.2s both;
+  }
+}
+
+@keyframes drop-in {
+  from {
+    transform: translateY(-45%) rotate(-5deg);
+  }
+}
+
+.backTitle,
+.backLabel {
+  font-size: var(--text-label);
+  font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.backIcons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.backIcons > span {
   display: grid;
   place-items: center;
-  align-content: center;
-  width: 6.5rem;
   aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--color-pop);
-  color: var(--color-pop-ink);
-  box-shadow: var(--shadow-float);
-  text-align: center;
-  line-height: 1;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--color-card) 80%, transparent);
 }
 
-.sticker strong {
-  font-size: 2rem;
-  font-weight: var(--weight-display);
-  font-stretch: var(--stretch-display);
-  letter-spacing: -0.04em;
+.backIcons svg {
+  color: var(--brand);
 }
 
-.sticker span {
-  max-width: 5rem;
-  margin-top: var(--space-1);
-  font-size: 0.6875rem;
+.backFact {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--text-small);
   font-weight: var(--weight-strong);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  line-height: 1.2;
 }
 
 /* ── Crossing ribbons of tools ── */
@@ -163,6 +179,13 @@
   background: var(--color-pop);
   color: var(--color-pop-ink);
   transform: rotate(3deg) translateY(10px);
+}
+
+.ribbonMark {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 2px;
+  background: currentColor;
 }
 
 .ribbonItem {
@@ -220,61 +243,57 @@
   color: var(--color-accent-ink);
 }
 
-/* ── Bento: intro card and stat tiles ── */
-.bento {
+/* ── About: label in the margin, a paragraph that reads itself in, a ruled row of figures ── */
+.about {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-4);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.introCard {
-  grid-column: span 4;
-  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-6);
-  align-content: start;
-  padding: clamp(1.5rem, 1rem + 2.5vw, 3rem);
-  border-radius: var(--radius-lg);
-  background:
-    radial-gradient(80% 120% at 100% 0%, color-mix(in srgb, var(--color-sky) 40%, transparent), transparent 60%),
-    var(--color-accent-soft);
 }
 
-.introLead {
-  max-width: 34ch;
-  font-size: clamp(1.375rem, 1.1rem + 1.2vw, 2.125rem);
-  font-weight: 500;
-  font-stretch: 104%;
-  line-height: 1.3;
-  letter-spacing: -0.02em;
-}
-
-.stat {
-  display: grid;
-  gap: var(--space-2);
-  align-content: start;
-  padding: var(--space-6);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-lg);
-  background: var(--color-card);
-  box-shadow: var(--shadow-card);
-}
-
-.statIcon {
-  display: grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  margin-bottom: var(--space-4);
-  border-radius: var(--radius);
-  background: var(--color-accent-soft);
+.aboutLabel {
+  font-size: var(--text-small);
+  font-weight: var(--weight-strong);
   color: var(--color-accent);
 }
 
-.statValue {
-  font-size: clamp(2.5rem, 2rem + 2vw, 3.75rem);
+.aboutBody {
+  display: grid;
+  gap: clamp(2.5rem, 2rem + 2vw, 4rem);
+}
+
+.aboutLead {
+  max-width: 34ch;
+  font-size: clamp(1.625rem, 1.2rem + 1.6vw, 2.625rem);
+  font-weight: 600;
+  font-stretch: 104%;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  text-wrap: pretty;
+}
+
+.figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-rule);
+}
+
+.figures li {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding: var(--space-6) var(--space-6) 0 0;
+}
+
+.figures li + li {
+  padding-left: var(--space-6);
+  border-left: 1px solid var(--color-rule);
+}
+
+.figure {
+  font-size: clamp(2.5rem, 2rem + 2vw, 4rem);
   font-weight: var(--weight-display);
   font-stretch: var(--stretch-display);
   letter-spacing: -0.05em;
@@ -282,9 +301,61 @@
   font-variant-numeric: tabular-nums;
 }
 
-.statLabel {
+.figures li:first-child .figure {
+  color: var(--color-accent);
+}
+
+.figureLabel {
   font-size: var(--text-small);
   color: var(--color-ink-muted);
+}
+
+.aboutFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-8);
+}
+
+.now {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-small);
+  font-weight: var(--weight-strong);
+}
+
+@media (min-width: 900px) {
+  .about {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+    gap: var(--space-12);
+  }
+
+  .aboutLabel {
+    padding-top: 0.6em;
+  }
+}
+
+@media (max-width: 560px) {
+  .figures {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .figures li,
+  .figures li + li {
+    padding: var(--space-5) var(--space-4) var(--space-5) 0;
+    border-left: 0;
+  }
+
+  .figures li:nth-child(even) {
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--color-rule);
+  }
+
+  .figures li:nth-child(n + 3) {
+    border-top: 1px solid var(--color-rule);
+  }
 }
 
 /* ── What I do: icon cards ── */
@@ -369,38 +440,14 @@
   font-size: var(--text-small);
 }
 
-@media (min-width: 900px) {
-  .bento {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .introCard {
-    grid-column: span 2;
-    grid-row: span 2;
-  }
-}
-
 @media (max-width: 899px) {
   .hero {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .heroVisual {
-    padding-inline: var(--space-8);
-  }
-
-  .bento {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .introCard {
-    grid-column: span 2;
-  }
-}
-
-@media (max-width: 420px) {
-  .stat {
-    padding: var(--space-4);
+    margin-top: 0;
+    --badge-strap: clamp(4rem, 2rem + 6vw, 6rem);
   }
 }
 

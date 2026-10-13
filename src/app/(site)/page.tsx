@@ -1,20 +1,12 @@
-import {
-  ArrowRightIcon,
-  BriefcaseIcon,
-  CalendarCheckIcon,
-  FolderSimpleStarIcon,
-  GithubLogoIcon,
-  LinkedinLogoIcon,
-  SparkleIcon,
-  WrenchIcon,
-} from "@phosphor-icons/react/ssr";
+import { ArrowRightIcon, GithubLogoIcon, LinkedinLogoIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
 import { CountUp } from "@/components/motion/CountUp";
-import { HeroPortrait } from "@/components/motion/HeroPortrait";
+import { HangingBadge } from "@/components/motion/HangingBadge";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { Reveal } from "@/components/motion/Reveal";
 import { Ribbon } from "@/components/motion/Ribbon";
+import { ScrollWords } from "@/components/motion/ScrollWords";
 import { CtaBand } from "@/components/site/CtaBand";
 import { ProjectGrid } from "@/components/site/ProjectGrid";
 import { ButtonLink } from "@/components/ui/Button";
@@ -28,8 +20,8 @@ import { SITE_URL } from "@/lib/env";
 import { jsonLd, PERSON_ID, personNode, WEBSITE_ID, websiteNode } from "@/lib/seo";
 import styles from "./home.module.css";
 
-// Stack chips that float around the hero portrait, in this order when the skill exists.
-const HERO_STACK = ["React", "Next.js", "WordPress", "Flutter", "Supabase", "Node.js", "PHP"];
+// Logos on the back of the ID card, in this order when the skill exists.
+const CARD_STACK = ["React", "Next.js", "WordPress", "Flutter", "Supabase", "Node.js", "PHP", "TypeScript", "MySQL"];
 
 export default async function HomePage() {
   const [settings, blocks, about, projects, capabilities, skills, experience, today] = await Promise.all([
@@ -47,16 +39,17 @@ export default async function HomePage() {
   const portrait = mediaUrl(settings.portrait_path);
   const years = yearsSince(experience, today);
   const skillNames = skills.map((s) => s.name);
-  const heroStack = [
-    ...HERO_STACK.filter((n) => skillNames.includes(n)),
-    ...skillNames.filter((n) => !HERO_STACK.includes(n)),
-  ].slice(0, 5);
+  const cardStack = [
+    ...CARD_STACK.filter((n) => skillNames.includes(n)),
+    ...skillNames.filter((n) => !CARD_STACK.includes(n)),
+  ].slice(0, 9);
+  const current = experience.find((e) => !e.end_date);
   const lines = blocks.hero.lines;
   const stats = [
-    { value: years, suffix: "+", label: "Years building for the web", icon: CalendarCheckIcon },
-    { value: projects.length, label: "Selected projects", icon: FolderSimpleStarIcon },
-    { value: experience.length, label: "Roles and contracts", icon: BriefcaseIcon },
-    { value: skills.length, label: "Tools in my kit", icon: WrenchIcon },
+    { value: years, suffix: "+", label: "Years building for the web" },
+    { value: projects.length, label: "Selected projects" },
+    { value: experience.length, label: "Roles and contracts" },
+    { value: skills.length, label: "Tools in my kit" },
   ].filter((s) => s.value > 0);
   const structured = jsonLd([
     websiteNode(settings),
@@ -77,10 +70,6 @@ export default async function HomePage() {
       />
       <section className={`wrap ${styles.hero}`} aria-labelledby="hero-heading">
         <div className={styles.heroText}>
-          <p className={`eyebrow intro-fade ${styles.motto}`} style={{ "--delay": "0.1s" } as React.CSSProperties}>
-            <SparkleIcon size={14} weight="fill" aria-hidden="true" />
-            {settings.motto}
-          </p>
           <h1 id="hero-heading" className={styles.headline}>
             {lines.map((line, i) => (
               <span
@@ -129,25 +118,31 @@ export default async function HomePage() {
           </div>
         </div>
         <div className={styles.heroVisual}>
-          <HeroPortrait
+          <HangingBadge
             portrait={portrait}
-            alt={settings.portrait_alt}
-            chips={heroStack.map((name) => ({
-              key: name,
-              node: (
-                <>
-                  <TechIcon name={name} size={18} />
-                  {name}
-                </>
-              ),
-            }))}
-            sticker={
-              years > 0 ? (
-                <span className={styles.sticker}>
-                  <strong>{years}+</strong>
-                  <span>years shipping</span>
+            portraitAlt={settings.portrait_alt}
+            name={settings.display_name}
+            fullName={settings.full_name}
+            role={settings.taglines[0] ?? "Software engineer"}
+            location={settings.location}
+            email={settings.email}
+            back={
+              <>
+                <span className={styles.backTitle}>Stack I reach for</span>
+                <span className={styles.backIcons}>
+                  {cardStack.map((name) => (
+                    <span key={name} title={name}>
+                      <TechIcon name={name} size={22} />
+                    </span>
+                  ))}
                 </span>
-              ) : null
+                {current ? (
+                  <span className={styles.backFact}>
+                    <span className={styles.backLabel}>Currently</span>
+                    {current.title}, {current.org}
+                  </span>
+                ) : null}
+              </>
             }
           />
         </div>
@@ -159,7 +154,7 @@ export default async function HomePage() {
             {skills.map((s) => (
               <span key={s.id} className={styles.ribbonItem}>
                 {s.name}
-                <SparkleIcon size={16} weight="fill" aria-hidden="true" />
+                <span className={styles.ribbonMark} aria-hidden="true" />
               </span>
             ))}
           </Ribbon>
@@ -174,13 +169,31 @@ export default async function HomePage() {
         </div>
       ) : null}
 
-      <section className={`wrap ${styles.section}`} aria-labelledby="intro-heading">
-        <Reveal as="ul" className={styles.bento} stagger>
-          <li className={styles.introCard}>
-            <h2 id="intro-heading" className="eyebrow">
-              {about.intro.label}
-            </h2>
-            {about.intro.paragraphs[0] ? <p className={styles.introLead}>{about.intro.paragraphs[0]}</p> : null}
+      <section className={`wrap ${styles.section} ${styles.about}`} aria-labelledby="intro-heading">
+        <h2 id="intro-heading" className={styles.aboutLabel}>
+          {about.intro.label}
+        </h2>
+        <div className={styles.aboutBody}>
+          {about.intro.paragraphs[0] ? <ScrollWords text={about.intro.paragraphs[0]} className={styles.aboutLead} /> : null}
+          {stats.length > 0 ? (
+            <Reveal as="ul" className={styles.figures} stagger>
+              {stats.map(({ value, suffix, label }) => (
+                <li key={label}>
+                  <span className={styles.figure}>
+                    <CountUp value={value} suffix={suffix} />
+                  </span>
+                  <span className={styles.figureLabel}>{label}</span>
+                </li>
+              ))}
+            </Reveal>
+          ) : null}
+          <div className={styles.aboutFoot}>
+            {current ? (
+              <p className={styles.now}>
+                <span className={styles.dot} aria-hidden="true" />
+                Currently {current.title} at {current.org}
+              </p>
+            ) : null}
             <div className={styles.ctas}>
               <ButtonLink href="/resume" icon="arrow-right">
                 Read my resume
@@ -189,19 +202,8 @@ export default async function HomePage() {
                 {blocks.cta.secondary_cta}
               </ButtonLink>
             </div>
-          </li>
-          {stats.map(({ value, suffix, label, icon: Glyph }) => (
-            <li key={label} className={styles.stat}>
-              <span className={styles.statIcon}>
-                <Glyph size={22} weight="duotone" aria-hidden="true" />
-              </span>
-              <span className={styles.statValue}>
-                <CountUp value={value} suffix={suffix} />
-              </span>
-              <span className={styles.statLabel}>{label}</span>
-            </li>
-          ))}
-        </Reveal>
+          </div>
+        </div>
       </section>
 
       <section className={`wrap ${styles.section}`} aria-labelledby="featured-heading">

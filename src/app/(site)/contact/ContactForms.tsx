@@ -2,8 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { startTransition, useActionState, useCallback, useEffect, useId, useRef, useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Icon } from "@/components/ui/Icon";
+import { SentMark, SubmitButton } from "@/components/ui/SubmitButton";
 import { submitEnquiry, submitMessage, type SubmitState } from "./actions";
 import styles from "./contact.module.css";
 
@@ -189,7 +188,7 @@ function EnquiryForm({
     if (booked || skipped || !calLink) {
       return (
         <div className={styles.done}>
-          <Icon name="check" size={28} />
+          <SentMark />
           <h2 ref={doneRef} tabIndex={-1} className={styles.doneTitle}>
             {booked ? "You're booked in." : "Enquiry received."}
           </h2>
@@ -255,9 +254,7 @@ function EnquiryForm({
         hint="What you're building, what exists already, and what a good outcome looks like."
       />
       <div className={styles.submitRow}>
-        <Button type="submit" loading={pending} icon="arrow-right">
-          {pending ? "Sending…" : "Continue to booking"}
-        </Button>
+        <SubmitButton pending={pending}>Continue to booking</SubmitButton>
         <p className={styles.note}>{responseNote}</p>
       </div>
     </form>
@@ -275,7 +272,7 @@ function MessageForm({ responseNote, recaptchaKey }: { responseNote: string; rec
   if (state.status === "success") {
     return (
       <div className={styles.done}>
-        <Icon name="check" size={28} />
+        <SentMark />
         <h2 ref={doneRef} tabIndex={-1} className={styles.doneTitle}>
           Message sent.
         </h2>
@@ -302,9 +299,7 @@ function MessageForm({ responseNote, recaptchaKey }: { responseNote: string; rec
       <TextField name="whatsapp" label="WhatsApp number" type="tel" autoComplete="tel" value={values.whatsapp} />
       <TextField name="message" label="Message" multiline required value={values.message} error={errors.message} />
       <div className={styles.submitRow}>
-        <Button type="submit" loading={pending} icon="arrow-right">
-          {pending ? "Sending…" : "Send message"}
-        </Button>
+        <SubmitButton pending={pending}>Send message</SubmitButton>
       </div>
     </form>
   );
