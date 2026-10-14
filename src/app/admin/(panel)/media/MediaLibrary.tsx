@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { mediaUrl } from "@/lib/media";
+import { Button } from "@/components/ui/Button";
+import { mediaUrl, needsOptimizing } from "@/lib/media";
 import type { Row } from "@/lib/supabase/database.types";
-import { deleteMedia, updateMediaAlt } from "../../actions";
+import { deleteMedia, optimizeMedia, updateMediaAlt } from "../../actions";
 import { IMAGE_TYPES, uploadMedia } from "../upload";
 import styles from "../../admin.module.css";
 
@@ -14,6 +15,9 @@ function formatSize(bytes: number) {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
+const fileName = (path: string) => path.split("/").pop() ?? path;
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
 export function MediaLibrary({ initial }: { initial: Media[] }) {
   const [items, setItems] = useState(initial);
   const [over, setOver] = useState(false);
@@ -21,6 +25,8 @@ export function MediaLibrary({ initial }: { initial: Media[] }) {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const fullSize = items.filter(needsOptimizing);
 
   async function upload(files: FileList | File[]) {
     setError(null);
@@ -30,7 +36,9 @@ export function MediaLibrary({ initial }: { initial: Media[] }) {
     const added: Media[] = [];
     for (const file of list) {
       try {
-        added.push(await uploadMedia(file));
+        const { media, warning } = await uploadMedia(file);
+        added.push(media);
+        if (warning) setError(warning);
       } catch (e) {
         setError((e as Error).message);
       } finally {
@@ -41,6 +49,36 @@ export function MediaLibrary({ initial }: { initial: Media[] }) {
       setItems((current) => [...added.reverse(), ...current]);
       setNotice(`${added.length} file${added.length > 1 ? "s" : ""} uploaded.`);
     }
+  }
+
+  // One image per request, so a long list never runs into a server time limit.
+  async function optimizeAll() {
+    const queue = items.filter(needsOptimizing);
+    if (queue.length === 0) return;
+    const ok = window.confirm(
+      `Optimize ${plural(queue.length, "image")}? Each one is replaced by its optimized copy. Projects and settings switch to the new file; links you copied earlier stop working.`,
+    );
+    if (!ok) return;
+    setError(null);
+    setNotice(null);
+    setProgress({ done: 0, total: queue.length });
+    let saved = 0;
+    let optimized = 0;
+    const failed: string[] = [];
+    for (const [i, item] of queue.entries()) {
+      try {
+        const result = await optimizeMedia(item.id);
+        saved += Math.max(0, result.saved);
+        optimized += 1;
+        setItems((current) => current.map((m) => (m.id === item.id ? result.media : m)));
+      } catch (e) {
+        failed.push(`${fileName(item.path)}: ${(e as Error).message}`);
+      }
+      setProgress({ done: i + 1, total: queue.length });
+    }
+    setProgress(null);
+    if (optimized > 0) setNotice(`Optimized ${plural(optimized, "image")} and saved ${formatSize(saved)}.`);
+    if (failed.length > 0) setError(`Couldn't optimize ${failed.join("; ")}`);
   }
 
   function remove(item: Media) {
@@ -107,6 +145,37 @@ export function MediaLibrary({ initial }: { initial: Media[] }) {
         />
       </label>
 
+      {fullSize.length > 0 || progress ? (
+        <section className={styles.card} aria-labelledby="optimize-heading" style={{ marginBottom: "var(--space-8)" }}>
+          <div>
+            <h2 id="optimize-heading" className={styles.cardTitle}>
+              Optimize earlier uploads
+            </h2>
+            <p className={styles.cardIntro}>
+              {progress
+                ? "Keep this tab open until it finishes."
+                : `${plural(fullSize.length, "image")} from before optimizing was added ${fullSize.length === 1 ? "is" : "are"} stored at full size. Optimizing resizes each one to 2560px at most, turns it upright, removes hidden data such as a phone's GPS location and compresses it at high quality.`}
+            </p>
+          </div>
+          {progress ? (
+            <div className={styles.stack} style={{ gap: "var(--space-2)" }} role="status">
+              <span className={styles.muted}>
+                Optimizing {Math.min(progress.done + 1, progress.total)} of {progress.total}…
+              </span>
+              <div className={styles.progress}>
+                <span style={{ transform: `scaleX(${progress.done / progress.total})` }} />
+              </div>
+            </div>
+          ) : (
+            <div>
+              <Button type="button" icon="check" onClick={optimizeAll} disabled={busy > 0 || pending}>
+                Optimize {plural(fullSize.length, "image")}
+              </Button>
+            </div>
+          )}
+        </section>
+      ) : null}
+
       <div aria-live="polite">
         {error ? (
           <p className={styles.alertError} role="alert" style={{ marginBottom: "var(--space-6)" }}>
@@ -145,6 +214,7 @@ export function MediaLibrary({ initial }: { initial: Media[] }) {
                 <span className={styles.hint}>
                   {formatSize(m.size_bytes)}
                   {m.width && m.height ? ` · ${m.width}×${m.height}` : ""}
+                  {needsOptimizing(m) ? " · Full size" : ""}
                 </span>
                 {isImage ? (
                   <input
@@ -163,7 +233,7 @@ export function MediaLibrary({ initial }: { initial: Media[] }) {
                     type="button"
                     className={`${styles.smallButton} ${styles.dangerButton}`}
                     onClick={() => remove(m)}
-                    disabled={pending}
+                    disabled={pending || progress !== null}
                   >
                     Delete
                   </button>

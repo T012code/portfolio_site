@@ -21,22 +21,44 @@ If you message my WhatsApp Business number, or leave your WhatsApp number on the
 Bookings are handled by Cal.com. It collects your name, email address, the time you pick and any notes you add, and shares the booking details with me.
 
 ### When you browse
-The site counts visits with its own privacy-friendly analytics: the page you open, the site that linked you here, your approximate location (country and city, worked out from your IP address), your IP address, and your device, browser and operating system type. It sets no cookies for this and does not track you across other websites; there are no advertising cookies. On the contact page, Google reCAPTCHA may set its own cookies to tell people from bots. Your browser stores two small preferences on your device: your light or dark theme choice, and whether you've already seen the intro animation in this visit. Hosting providers keep short-lived technical logs (such as IP address and browser type) to keep the site running and secure.
+If you accept visit counting in the cookie notice, the site records the page you open, the site that linked you here, your approximate location (country and city, worked out from your IP address), your IP address, and your device, browser and operating system type. It does this with its own analytics, sets no cookies for it and does not follow you across other websites. If you reject, or don't choose, none of this is recorded. Hosting and security providers keep short-lived technical logs (such as IP address and browser type) to keep the site running and secure.
+
+## Cookies and similar tools
+
+When you first visit, a cookie notice asks whether I can count your visit. Visit counting stays off until you accept, and the site works the same either way. You can change or withdraw your choice at any time from Cookie settings at the bottom of every page, or in the cookie notice at the top of this page. Withdrawing stops visit counting from that moment.
+
+### Optional, only if you accept
+- Visit counting: a random visit ID in your browser's session storage (lv-session), deleted when you close the tab, plus the details listed under "When you browse". No cookies are set for it.
+
+### Necessary, always on
+These keep the site working and secure, so they don't need your consent, but you should still know about them:
+- Your cookie choice (layo-consent, in your browser's local storage): your choice, its date and a random ID. Kept for 12 months, after which you're asked again.
+- Theme (layo-theme, local storage): your light or dark choice, if you pick one.
+- Intro and tip (layo-preloaded and layo-theme-hint, session storage): whether you've seen the intro animation and the theme tip during this visit. Deleted when you close the tab.
+- Google reCAPTCHA, on the contact page: checks form submissions for spam using browser and interaction signals, and may set Google cookies such as _GRECAPTCHA, under Google's own privacy policy (policies.google.com/privacy).
+- Cal.com, only if you book a call: the booking calendar loads from Cal.com and may set its own cookies to complete the booking.
+- Cloudflare: protects the site from attacks and may set short-lived security cookies such as __cf_bm.
+
+There are no advertising or social media tracking cookies.
+
+### Record of your choice
+Each time you choose, the site keeps a record of the choice: the random ID, accept or reject, the version of the notice and the date. It shows that consent was given, holds no IP address or other details about you, and is deleted after about 26 months.
 
 ## Why I use it
 - To reply to your enquiry or message and arrange a call
 - To prepare a proposal and, if we work together, to deliver the project and send invoices and receipts
 - To send an automatic confirmation that your message arrived
 - To keep the site secure and prevent spam
-- To understand how many people visit, from where, and which pages they read
+- To understand how many people visit, from where, and which pages they read, if you accept visit counting
 
-The legal basis is your consent when you submit a form, and my legitimate interest in answering business enquiries. If we sign an agreement, the basis becomes that contract.
+The legal basis is your consent when you submit a form or accept visit counting, and my legitimate interest in answering business enquiries and keeping the site secure. If we sign an agreement, the basis becomes that contract.
 
 ## Who it is shared with
 
 I don't sell or rent personal information. It is shared only with the services that run this website, each bound by its own privacy and security terms:
 - Supabase: stores form submissions, site files and visit statistics
 - Vercel: hosts the website
+- Cloudflare: sits in front of the website to protect it and keep it fast, so it handles every request, including your IP address
 - Cal.com: handles call bookings
 - WhatsApp (Meta): carries WhatsApp messages to and from my business number
 - Google reCAPTCHA: checks contact form submissions for spam. It looks at browser and interaction signals, under Google's own privacy policy (policies.google.com/privacy)
@@ -46,7 +68,7 @@ Some of these providers store data outside Nigeria, including in the European Un
 
 ## How long it is kept
 
-Enquiries and messages are kept for as long as needed to answer you. If we work together, project records are kept for the length of the project and for as long as tax and accounting rules require. Enquiries that don't lead to work are deleted within 24 months. Analytics records keep the IP address for 90 days, after which it is removed; the rest of the record is deleted after about 13 months.
+Enquiries and messages are kept for as long as needed to answer you. If we work together, project records are kept for the length of the project and for as long as tax and accounting rules require. Enquiries that don't lead to work are deleted within 24 months. Analytics records keep the IP address for 90 days, after which it is removed; the rest of the record is deleted after about 13 months. Records of cookie choices are deleted after about 26 months.
 
 ## How it is protected
 
@@ -100,9 +122,9 @@ To the extent the law allows, I'm not liable for any indirect or consequential l
 
 The site links to services such as Cal.com, GitHub, LinkedIn and WhatsApp. I'm not responsible for their content or how they handle your data.
 
-## Privacy
+## Privacy and cookies
 
-How personal information is handled is explained in the Privacy Policy.
+How personal information is handled, which cookies and similar tools the site uses, and how to change your cookie choice are explained in the Privacy Policy. You can change your cookie choice at any time from Cookie settings at the bottom of every page.
 
 ## Governing law
 

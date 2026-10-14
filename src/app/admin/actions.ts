@@ -2,13 +2,13 @@
 
 import { refresh, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireAdminAction } from "@/lib/admin/auth";
+import { requireAdminAction, type AdminSession } from "@/lib/admin/auth";
 import { getCollection, SETTINGS_FIELDS } from "@/lib/admin/collections";
 import { parseFields, type Field } from "@/lib/admin/fields";
 import { BLOCKS, type PageName } from "@/lib/blocks";
 import { TAGS } from "@/lib/tags";
-import { MEDIA_BUCKET } from "@/lib/media";
-import type { Json } from "@/lib/supabase/database.types";
+import { isRaster, MEDIA_BUCKET, needsOptimizing } from "@/lib/media";
+import type { Json, Row } from "@/lib/supabase/database.types";
 
 export type FormState = {
   status: "idle" | "success" | "error";
@@ -171,23 +171,123 @@ export async function saveSettings(_prev: FormState, form: FormData): Promise<Fo
 // ── Media ───────────────────────────────────────────────────────────────
 
 export type MediaInput = { path: string; mime: string; size: number; width: number | null; height: number | null };
+export type UploadResult = { media: Row<"media">; warning?: string };
+export type OptimizeResult = { media: Row<"media">; saved: number };
 
-export async function registerMedia(input: MediaInput) {
+type StoredFile = Pick<Row<"media">, "path" | "mime" | "size_bytes" | "width" | "height">;
+
+/** Reads an image from Storage and writes its optimized copy under images/ (see lib/media-optimize). */
+async function storeOptimized(supabase: AdminSession["supabase"], path: string) {
+  const { optimizeImage, optimizedPath } = await import("@/lib/media-optimize");
+  const { data: blob, error } = await supabase.storage.from(MEDIA_BUCKET).download(path);
+  if (error || !blob) throw new Error(`Couldn't read ${path}: ${error?.message ?? "empty file"}`);
+  const original = Buffer.from(await blob.arrayBuffer());
+  const image = await optimizeImage(original);
+  const target = optimizedPath(path, image.ext);
+  const { error: uploadError } = await supabase.storage
+    .from(MEDIA_BUCKET)
+    .upload(target, image.data, { contentType: image.mime, cacheControl: "31536000", upsert: false });
+  if (uploadError) throw new Error(uploadError.message);
+  const file: StoredFile = {
+    path: target,
+    mime: image.mime,
+    size_bytes: image.data.length,
+    width: image.width,
+    height: image.height,
+  };
+  return { file, originalSize: original.length };
+}
+
+/**
+ * Records a file the browser has just put in uploads/. Images are optimized first and only the
+ * optimized copy is kept. If that fails, the image is kept as uploaded and can be optimized later
+ * from the Media page.
+ */
+export async function registerMedia(input: MediaInput): Promise<UploadResult> {
   const session = await requireAdminAction();
   if (!/^uploads\/[\w./-]+$/.test(input.path) || input.path.includes("..")) throw new Error("Invalid path.");
-  const { data, error } = await session.supabase
+  let file: StoredFile = {
+    path: input.path,
+    mime: input.mime.slice(0, 100),
+    size_bytes: Math.max(0, Math.floor(input.size)),
+    width: input.width,
+    height: input.height,
+  };
+  let warning: string | undefined;
+  if (isRaster(input.mime)) {
+    try {
+      file = (await storeOptimized(session.supabase, input.path)).file;
+    } catch (e) {
+      console.error("media: optimizing an upload failed", input.path, e);
+      warning = "Saved without optimizing. Try Optimize on the Media page, or upload a JPEG or PNG export.";
+    }
+  }
+
+  const { data, error } = await session.supabase.from("media").insert(file).select("*").single();
+  if (error) {
+    if (file.path !== input.path) await session.supabase.storage.from(MEDIA_BUCKET).remove([file.path]);
+    throw new Error(friendly(error));
+  }
+  if (file.path !== input.path) {
+    const { error: removeError } = await session.supabase.storage.from(MEDIA_BUCKET).remove([input.path]);
+    if (removeError) console.error("media: couldn't remove the original upload", input.path, removeError.message);
+  }
+  return { media: data, warning };
+}
+
+/**
+ * Swaps an image stored as uploaded for its optimized copy: writes the copy, points the media record,
+ * projects and site settings at it, then deletes the original. The original stays in place until the
+ * last step, so the site never links to a missing file.
+ */
+export async function optimizeMedia(id: string): Promise<OptimizeResult> {
+  const { supabase } = await requireAdminAction();
+  const { data: row, error } = await supabase.from("media").select("*").eq("id", id).single();
+  if (error || !row) throw new Error("File not found.");
+  if (!needsOptimizing(row)) return { media: row, saved: 0 };
+
+  const old = row.path;
+  const { file, originalSize } = await storeOptimized(supabase, old);
+  const discardCopy = () => supabase.storage.from(MEDIA_BUCKET).remove([file.path]);
+
+  const { data: updated, error: mediaError } = await supabase
     .from("media")
-    .insert({
-      path: input.path,
-      mime: input.mime.slice(0, 100),
-      size_bytes: Math.max(0, Math.floor(input.size)),
-      width: input.width,
-      height: input.height,
-    })
+    .update(file)
+    .eq("id", id)
+    .eq("path", old)
     .select("*")
-    .single();
-  if (error) throw new Error(friendly(error));
-  return data;
+    .maybeSingle();
+  if (mediaError || !updated) {
+    await discardCopy();
+    throw new Error(mediaError ? friendly(mediaError) : "This file changed in another tab. Reload and try again.");
+  }
+
+  const [projects, portrait, shareImage] = await Promise.all([
+    supabase.from("projects").update({ image_path: file.path }).eq("image_path", old).select("id"),
+    supabase.from("site_settings").update({ portrait_path: file.path }).eq("portrait_path", old).select("id"),
+    supabase.from("site_settings").update({ og_image_path: file.path }).eq("og_image_path", old).select("id"),
+  ]);
+  const refError = projects.error ?? portrait.error ?? shareImage.error;
+  if (refError) {
+    // Point everything back at the original, which is still in place.
+    await Promise.all([
+      supabase.from("projects").update({ image_path: old }).eq("image_path", file.path),
+      supabase.from("site_settings").update({ portrait_path: old }).eq("portrait_path", file.path),
+      supabase.from("site_settings").update({ og_image_path: old }).eq("og_image_path", file.path),
+      supabase
+        .from("media")
+        .update({ path: old, mime: row.mime, size_bytes: row.size_bytes, width: row.width, height: row.height })
+        .eq("id", id),
+    ]);
+    await discardCopy();
+    throw new Error(friendly(refError));
+  }
+  if (projects.data?.length) updateTag(TAGS.projects);
+  if (portrait.data?.length || shareImage.data?.length) updateTag(TAGS.settings);
+
+  const { error: removeError } = await supabase.storage.from(MEDIA_BUCKET).remove([old]);
+  if (removeError) console.error("media: couldn't remove the original", old, removeError.message);
+  return { media: updated, saved: originalSize - file.size_bytes };
 }
 
 export async function updateMediaAlt(id: string, alt: string) {

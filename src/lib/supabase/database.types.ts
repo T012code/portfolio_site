@@ -36,6 +36,10 @@ export type Database = {
         },
         "path" | "visitor_id"
       >;
+      consent_log: Table<
+        { analytics: boolean; consent_id: string; created_at: string; id: number; notice_version: number },
+        "analytics" | "consent_id" | "notice_version"
+      >;
       capabilities: Table<
         {
           body: string;
@@ -278,6 +282,11 @@ export type Database = {
       admin_list: { Args: never; Returns: { created_at: string; email: string }[] };
       admin_remove: { Args: { p_email: string }; Returns: undefined };
       analytics_summary: { Args: { p_days: number }; Returns: Json };
+      consent_summary: { Args: { p_days: number }; Returns: Json };
+      record_consent: {
+        Args: { p_analytics: boolean; p_consent_id: string; p_gate: string; p_version: number };
+        Returns: undefined;
+      };
       record_page_view: {
         Args: {
           p_browser: string;

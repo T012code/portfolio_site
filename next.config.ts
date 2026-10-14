@@ -40,6 +40,10 @@ const nextConfig: NextConfig = {
   experimental: { optimizePackageImports: ["@phosphor-icons/react"] },
   images: {
     formats: ["image/avif", "image/webp"],
+    // The only quality allowed, so every image uses it (Next picks the closest allowed value). Tested
+    // with SSIM on a portrait and a UI screenshot: 80 kept skin texture and small text noticeably
+    // cleaner than the default 75 for about 10–15% more bytes.
+    qualities: [80],
     remotePatterns: [{ protocol: "https", hostname: supabaseHost, pathname: "/storage/v1/object/public/**" }],
   },
   async headers() {

@@ -1,0 +1,263 @@
+/* Cookie notice: a card in the ID badge's language (punched slot, mark and mono label, dashed foot).
+   Fixed on the right and vertically centred; in the middle of the screen on phones. */
+
+.dock {
+  position: fixed;
+  inset: 0 clamp(1rem, 2.5vw, 2.5rem) 0 auto;
+  /* Under the open phone menu (which uses --z-overlay), over everything else. */
+  z-index: calc(var(--z-overlay) - 1);
+  display: grid;
+  align-items: center;
+  pointer-events: none;
+}
+
+.card {
+  position: relative;
+  display: grid;
+  gap: var(--space-4);
+  width: 23rem;
+  max-height: calc(100dvh - 2 * var(--space-4));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-8) var(--space-5) var(--space-5);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  /* A faint laminate sheen over the card, like the badge's back. */
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--color-sky) 16%, transparent), transparent 42%),
+    linear-gradient(315deg, color-mix(in srgb, var(--color-pop) 12%, transparent), transparent 40%),
+    var(--color-card);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-float);
+  pointer-events: auto;
+  transform-origin: 100% 50%;
+}
+
+/* The punched slot a lanyard hook would go through. */
+.card::before {
+  content: "";
+  position: absolute;
+  top: var(--space-3);
+  left: 50%;
+  width: 2.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-strong);
+  transform: translateX(-50%);
+}
+
+/* In the flow of the privacy page. */
+.inline {
+  width: 100%;
+  max-width: 34rem;
+  max-height: none;
+  overflow: visible;
+  box-shadow: var(--shadow-card);
+  scroll-margin-top: 7rem;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 2.75rem;
+}
+
+.mark {
+  width: 1.375rem;
+  flex: none;
+  color: var(--color-accent);
+}
+
+.kind {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: 0 calc(-1 * var(--space-2)) 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-micro) var(--ease-out),
+    color var(--dur-micro) var(--ease-out);
+}
+
+.close:hover {
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.close:active {
+  background: var(--color-surface-strong);
+}
+
+.title {
+  font-size: 1.5rem;
+  line-height: 1.1;
+}
+
+.title:focus {
+  outline: none;
+}
+
+.title:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.owner {
+  margin-top: var(--space-1);
+  font-size: var(--text-label);
+  color: var(--color-ink-muted);
+}
+
+.body {
+  font-size: var(--text-small);
+  line-height: 1.55;
+}
+
+/* What runs regardless: an outlined, tinted box with a leading icon. */
+.always {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-size: var(--text-label);
+  line-height: 1.5;
+  color: var(--color-ink-muted);
+}
+
+.always strong {
+  color: var(--color-ink);
+  font-weight: var(--weight-strong);
+}
+
+.alwaysIcon {
+  flex: none;
+  margin-top: 1px;
+  color: var(--color-accent);
+}
+
+.status {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  font-size: var(--text-label);
+  font-weight: var(--weight-strong);
+}
+
+/* Reject and Accept carry equal weight: same colour, same size, side by side. */
+.actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.actions .choice {
+  --btn-bg: var(--color-ink);
+  --btn-fg: var(--color-paper);
+  --btn-hover-bg: var(--color-accent);
+  --btn-hover-fg: var(--color-accent-ink);
+  --btn-chip-bg: color-mix(in srgb, currentColor 18%, transparent);
+  box-shadow: none;
+}
+
+.actions .choice:hover {
+  box-shadow: none;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--color-rule);
+  font-size: var(--text-label);
+  line-height: 1.45;
+  color: var(--color-ink-muted);
+}
+
+.policy {
+  position: relative;
+  flex: none;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  font-weight: var(--weight-strong);
+  text-decoration: none;
+  transition:
+    background-color var(--dur-micro) var(--ease-out),
+    color var(--dur-micro) var(--ease-out);
+}
+
+.policy:hover {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+/* A 44px-tall touch target around the small pill. */
+.policy::after {
+  content: "";
+  position: absolute;
+  inset: -0.625rem -0.25rem;
+}
+
+/* Phones: in the middle of the screen. */
+@media (max-width: 560px) {
+  .dock {
+    inset: 0;
+    justify-items: center;
+    padding: var(--space-4);
+  }
+
+  .card:not(.inline) {
+    width: 100%;
+    max-width: 23rem;
+    padding-inline: var(--space-4);
+    transform-origin: 50% 50%;
+  }
+}
+
+/* Tall phones: centre it in the space below the header, clear of the header's theme tip. */
+@media (max-width: 560px) and (min-height: 700px) {
+  .dock {
+    padding-top: 5.5rem;
+  }
+
+  .card:not(.inline) {
+    max-height: calc(100dvh - 5.5rem - var(--space-4));
+  }
+}
+
+@media (max-width: 360px) {
+  .actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media print {
+  .dock,
+  .inline {
+    display: none;
+  }
+}

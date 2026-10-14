@@ -106,6 +106,24 @@
   color: inherit;
 }
 
+/* "Cookie settings" opens the notice, so it's a button dressed as the links beside it. */
+.metaButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: transparent;
+  cursor: pointer;
+  transition: text-decoration-color var(--dur-micro) var(--ease-out);
+}
+
+.metaButton:hover {
+  text-decoration-color: currentColor;
+}
+
 .topLink {
   display: inline-flex;
   align-items: center;

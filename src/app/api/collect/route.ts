@@ -5,8 +5,9 @@ import { createPublicClient } from "@/lib/supabase/public";
 import { SITE_URL } from "@/lib/env";
 import { visitorCountry, visitorIp, visitorPlace } from "@/lib/visitor";
 
-// Page-view beacon from the site. Location comes from the edge headers (lib/visitor); the visitor id is
-// an HMAC of IP and user agent, so no cookie is set. Bots and the signed-in admin are skipped.
+// Page-view beacon from the site, sent only with the visitor's consent. Location comes from the edge
+// headers (lib/visitor); the visitor id is an HMAC of IP and user agent, so no cookie is set. Bots and
+// the signed-in admin are skipped.
 
 const noContent = () => new Response(null, { status: 204 });
 
@@ -38,6 +39,10 @@ export async function POST(request: NextRequest) {
   } catch {
     return noContent();
   }
+
+  // Sent only after the visitor accepts visit counting; this also turns away pages still open from
+  // before the cookie notice existed.
+  if (body.consent !== true) return noContent();
 
   const path = typeof body.path === "string" ? body.path : "";
   if (!path.startsWith("/") || path.startsWith("/admin") || path.startsWith("/api")) return noContent();
