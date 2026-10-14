@@ -154,14 +154,14 @@ export const BLOCKS = {
     page: {
       label: "Privacy policy",
       fields: [text("title", "Title"), text("updated", "Last updated"), doc("body", "Policy text")],
-      defaults: { title: "Privacy policy", updated: "13 October 2026", body: PRIVACY_DEFAULT },
+      defaults: { title: "Privacy policy", updated: "14 October 2026", body: PRIVACY_DEFAULT },
     },
   },
   terms: {
     page: {
       label: "Terms of use",
       fields: [text("title", "Title"), text("updated", "Last updated"), doc("body", "Terms text")],
-      defaults: { title: "Terms of use", updated: "11 October 2026", body: TERMS_DEFAULT },
+      defaults: { title: "Terms of use", updated: "14 October 2026", body: TERMS_DEFAULT },
     },
   },
 } as const satisfies Record<string, Record<string, BlockDef>>;

@@ -12,7 +12,9 @@ export default async function MediaPage() {
         <div>
           <h1 className={styles.pageTitle}>Media</h1>
           <p className={styles.pageIntro}>
-            Images and PDFs up to 10 MB. Files in use on the site can&apos;t be deleted until they&apos;re replaced.
+            Images and PDFs up to 10 MB. Images are resized to 2560px at most, cleared of hidden data such as GPS
+            location and compressed as they upload. Files in use on the site can&apos;t be deleted until they&apos;re
+            replaced.
           </p>
         </div>
       </header>

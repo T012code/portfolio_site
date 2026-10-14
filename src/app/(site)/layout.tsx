@@ -1,6 +1,7 @@
 import { cacheLife } from "next/cache";
 import { Preloader } from "@/components/preloader/Preloader";
 import { Analytics } from "@/components/site/Analytics";
+import { ConsentPanel } from "@/components/site/ConsentPanel";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { getSettings } from "@/lib/content";
@@ -19,6 +20,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <a href="#main" className="skip-link">
         Skip to content
       </a>
+      {/* Early in the page so keyboard users reach the choice first. */}
+      <ConsentPanel />
       <div id="top" />
       <SiteHeader name={settings.display_name} />
       <main id="main" tabIndex={-1}>

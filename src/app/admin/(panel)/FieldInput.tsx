@@ -111,8 +111,9 @@ function MediaInput({
     setBusy(true);
     setError(null);
     try {
-      const media = await uploadMedia(file);
+      const { media, warning } = await uploadMedia(file);
       setPath(media.path);
+      if (warning) setError(warning);
     } catch (e) {
       setError((e as Error).message);
     } finally {

@@ -1,6 +1,7 @@
 import { ArrowUpIcon, EnvelopeSimpleIcon, GithubLogoIcon, LinkedinLogoIcon, WhatsappLogoIcon } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
 import { Mark } from "@/components/brand/Mark";
+import { CookieSettingsButton } from "@/components/site/CookieSettingsButton";
 import type { Settings } from "@/lib/content";
 import { whatsappUrl } from "@/lib/format";
 import styles from "./SiteFooter.module.css";
@@ -74,6 +75,8 @@ export function SiteFooter({ settings, year }: { settings: Settings; year: numbe
                 </Link>
               </span>
             ))}
+            {" · "}
+            <CookieSettingsButton className={`${styles.metaLink} ${styles.metaButton}`} />
           </p>
           <a href="#top" className={styles.topLink}>
             Back to top

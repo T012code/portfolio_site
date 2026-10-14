@@ -22,6 +22,11 @@
   padding-bottom: var(--space-section);
 }
 
+/* A block between a page's heading and its body, such as the cookie settings on the privacy page. */
+.preface {
+  padding-bottom: var(--space-12);
+}
+
 .sectionHead {
   display: flex;
   align-items: baseline;

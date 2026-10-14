@@ -1,0 +1,179 @@
+/* Cookie notice: a short, wide card in the ID badge's language (punched slot, laminate sheen),
+   fixed at the bottom left on larger screens and along the bottom on phones. */
+
+.dock {
+  position: fixed;
+  /* Lined up with the page's content edge, where the logo and headings start. */
+  left: max(var(--edge), calc((100vw - var(--wrap)) / 2));
+  bottom: var(--space-6);
+  /* Under the open phone menu (which uses --z-overlay), over everything else. */
+  z-index: calc(var(--z-overlay) - 1);
+}
+
+.card {
+  position: relative;
+  display: grid;
+  gap: var(--space-4);
+  width: min(28rem, calc(100vw - 2 * var(--space-4)));
+  max-height: calc(100dvh - var(--space-6) - var(--space-4));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-8) var(--space-5) var(--space-5);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  /* A faint laminate sheen over the card, like the badge's back. */
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--color-sky) 16%, transparent), transparent 42%),
+    linear-gradient(315deg, color-mix(in srgb, var(--color-pop) 12%, transparent), transparent 40%),
+    var(--color-card);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-float);
+  transform-origin: 0% 100%;
+}
+
+/* The punched slot a lanyard hook would go through. */
+.card::before {
+  content: "";
+  position: absolute;
+  top: var(--space-3);
+  left: 50%;
+  width: 2.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-strong);
+  transform: translateX(-50%);
+}
+
+/* In the flow of the privacy page. */
+.inline {
+  width: 100%;
+  max-width: 30rem;
+  max-height: none;
+  overflow: visible;
+  box-shadow: var(--shadow-card);
+  scroll-margin-top: 7rem;
+}
+
+/* Only when reopened from the footer, in the top right corner. */
+.close {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-micro) var(--ease-out),
+    color var(--dur-micro) var(--ease-out);
+}
+
+.close:hover {
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.close:active {
+  background: var(--color-surface-strong);
+}
+
+.text {
+  display: grid;
+  gap: var(--space-1);
+}
+
+/* Keeps a wrapped title clear of the close button. */
+.text[data-close] .title {
+  padding-right: var(--space-10);
+}
+
+.title {
+  font-size: 1.375rem;
+  line-height: 1.1;
+}
+
+.title:focus {
+  outline: none;
+}
+
+.title:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.body {
+  font-size: var(--text-small);
+  line-height: 1.5;
+  color: var(--color-ink-muted);
+}
+
+.link {
+  color: var(--color-accent-strong);
+  font-weight: var(--weight-strong);
+  text-decoration-color: currentColor;
+}
+
+.link:hover {
+  color: var(--color-accent);
+}
+
+.status {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  font-size: var(--text-label);
+  font-weight: var(--weight-strong);
+}
+
+/* Reject and Accept carry equal weight: same colour, same size, side by side. */
+.actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.actions .choice {
+  justify-content: center;
+  --btn-bg: var(--color-ink);
+  --btn-fg: var(--color-paper);
+  --btn-hover-bg: var(--color-accent);
+  --btn-hover-fg: var(--color-accent-ink);
+  --btn-chip-bg: color-mix(in srgb, currentColor 18%, transparent);
+  box-shadow: none;
+}
+
+.actions .choice:hover {
+  box-shadow: none;
+}
+
+/* Phones: across the bottom, clear of the home indicator. */
+@media (max-width: 560px) {
+  .dock {
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .card:not(.inline) {
+    width: 100%;
+    max-height: calc(100dvh - 2 * var(--space-3) - env(safe-area-inset-bottom, 0px));
+    padding-inline: var(--space-4);
+    transform-origin: 50% 100%;
+  }
+}
+
+@media print {
+  .dock,
+  .inline {
+    display: none;
+  }
+}

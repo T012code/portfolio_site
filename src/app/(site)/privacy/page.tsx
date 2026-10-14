@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ConsentSettings } from "@/components/site/ConsentPanel";
 import { LegalPage } from "@/components/site/LegalPage";
 import { getBlocks, getSettings } from "@/lib/content";
 import { pageMetadata } from "@/lib/seo";
@@ -15,5 +16,5 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function PrivacyPage() {
   const { page } = await getBlocks("privacy");
-  return <LegalPage title={page.title} updated={page.updated} body={page.body} />;
+  return <LegalPage title={page.title} updated={page.updated} body={page.body} preface={<ConsentSettings />} />;
 }

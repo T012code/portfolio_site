@@ -20,6 +20,9 @@ export type Summary = {
   recent: (Row & { last_seen: string; total_views: number })[];
 };
 
+/** Latest cookie choice per browser in the period. */
+export type ConsentSummary = { accepted: number; rejected: number };
+
 export const RANGES = [
   { days: 7, label: "7 days" },
   { days: 30, label: "30 days" },
@@ -82,7 +85,7 @@ function Bars({ rows, label, value, total }: { rows: { key: string; label: React
   );
 }
 
-export function AnalyticsView({ s, days }: { s: Summary; days: number }) {
+export function AnalyticsView({ s, days, consent }: { s: Summary; days: number; consent?: ConsentSummary | null }) {
   const t = s.totals;
   const kpis = [
     { label: "Visitors", value: number.format(t.visitors), delta: change(t.visitors, s.previous.visitors), hint: "Unique people" },
@@ -108,7 +111,15 @@ export function AnalyticsView({ s, days }: { s: Summary; days: number }) {
         <div>
           <h1 className={admin.pageTitle}>Analytics</h1>
           <p className={admin.pageIntro}>
-            Who visits the site and from where. Your own visits while signed in, and bots, are not counted.
+            Who visits the site and from where. Only visitors who accept the cookie notice are counted; your own
+            visits while signed in, and bots, are not.
+            {consent && consent.accepted + consent.rejected > 0
+              ? ` In the last ${days} days, ${number.format(consent.accepted)} of ${number.format(
+                  consent.accepted + consent.rejected,
+                )} visitors who answered the notice accepted (${Math.round(
+                  (consent.accepted / (consent.accepted + consent.rejected)) * 100,
+                )}%).`
+              : null}
           </p>
         </div>
         <nav aria-label="Date range" className={styles.ranges}>

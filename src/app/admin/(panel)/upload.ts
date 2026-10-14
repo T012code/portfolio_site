@@ -20,7 +20,10 @@ async function dimensions(file: File) {
   }
 }
 
-/** Upload straight from the browser to Storage (RLS checks the admin session), then record it. */
+/**
+ * Upload straight from the browser to Storage (RLS checks the admin session), then record it.
+ * The server swaps images for an optimized copy as it records them.
+ */
 export async function uploadMedia(file: File) {
   if (file.size > MAX_BYTES) throw new Error(`${file.name} is over 10 MB.`);
   const dot = file.name.lastIndexOf(".");
@@ -37,7 +40,8 @@ export async function uploadMedia(file: File) {
 
   const size = await dimensions(file);
   try {
-    return await registerMedia({ path, mime: file.type, size: file.size, ...size });
+    const result = await registerMedia({ path, mime: file.type, size: file.size, ...size });
+    return { ...result, warning: result.warning ? `${file.name}: ${result.warning}` : undefined };
   } catch (e) {
     // Don't leave an orphan in the bucket that the library can't see or delete.
     await supabase.storage.from(MEDIA_BUCKET).remove([path]);
