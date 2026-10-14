@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Layò service agreement</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  body { font-size: 9pt; line-height: 1.5; }
+
+  .hero { margin-top: 7mm; padding: 7mm 8mm; border-radius: var(--radius-lg); }
+  .hero .eyebrow { border-color: oklch(100% 0 0 / 0.2); background: oklch(100% 0 0 / 0.1); color: var(--navy-ink); }
+  .hero h1 { margin-top: 4mm; font-size: 24pt; }
+  .hero .ref { display: flex; gap: 8mm; margin-top: 5mm; font-size: 8.5pt; color: var(--navy-muted); }
+  .hero .blank { min-width: 38mm; border-color: oklch(100% 0 0 / 0.55); }
+
+  .parties { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-top: 5mm; }
+  .parties .label { color: var(--accent-strong); margin-bottom: 2.4mm; }
+  .parties p { line-height: 1.85; }
+  .field { display: flex; gap: 2mm; line-height: 1.85; }
+  .field .blank { flex: 1; min-width: 0; }
+
+  .lead { margin-top: 5mm; }
+
+  .clause { margin-top: 5mm; }
+  .clause h2 { display: flex; align-items: center; gap: 2.6mm; font-size: 11.5pt; margin-bottom: 1.6mm; }
+  .clause h2 .n {
+    display: inline-grid; place-items: center; min-width: 6.2mm; height: 6.2mm; padding: 0 1.4mm; border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent-strong); font-size: 8pt; font-weight: 600; letter-spacing: 0; font-stretch: 100%;
+  }
+  .clause ol li { display: grid; grid-template-columns: 8.8mm 1fr; padding: 0.9mm 0; }
+  .clause ol li > span:first-child { color: var(--accent-strong); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .page > .clause:first-child { margin-top: 0; }
+
+  .sigs { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; margin-top: 8mm; }
+  .sigs .label { color: var(--accent-strong); }
+  .sigs .line { height: 20mm; margin-bottom: 1.6mm; border-bottom: 1px solid var(--rule-strong); }
+  .sigs .small { color: var(--ink-muted); }
+  .sigs .field { margin-top: 2.6mm; }
+
+  h2.page-title { font-size: 20pt; }
+  .intro { margin-top: 2mm; color: var(--ink-muted); }
+
+  .form { margin-top: 6mm; border-top: 1.5px solid var(--ink); }
+  .form > div { display: grid; grid-template-columns: 42mm 1fr; gap: 4mm; padding: 3.4mm 0; border-bottom: 1px solid var(--rule); }
+  .form > div.tall { min-height: 17mm; }
+  .form .label { padding-top: 0.6mm; }
+  .form .opts { display: flex; flex-wrap: wrap; gap: 1.6mm 4.5mm; font-size: 8.5pt; }
+
+  h3.sub { margin-top: 7mm; font-size: 12pt; }
+  table { width: 100%; margin-top: 3mm; border-collapse: collapse; }
+  th { text-align: left; padding: 0 0 2.4mm; border-bottom: 1.5px solid var(--ink); }
+  th .label { color: var(--accent-strong); }
+  td { padding: 3mm 0; border-bottom: 1px solid var(--rule); vertical-align: top; height: 9mm; }
+  td.n { width: 12mm; color: var(--accent-strong); font-weight: 600; }
+  tr.total td { font-weight: 600; background: var(--accent-soft); }
+  tr.total td:first-child { padding-left: 3mm; border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+  tr.total td:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .note { margin-top: 5mm; }
+</style>
+</head>
+<body>
+
+<!-- Page 1 -->
+<div class="page">
+  <span class="lockup">
+    <img class="mark" src="assets/mark-cobalt.svg" alt="">
+    <img class="wordmark" src="assets/wordmark-ink.svg" alt="Layò">
+  </span>
+
+  <div class="hero band">
+    <span class="eyebrow">Service agreement</span>
+    <h1 class="display">Web &amp; Software Development <span class="tone">Services Agreement</span></h1>
+    <div class="ref">
+      <span>Agreement no. <span class="blank"></span></span>
+      <span>Date <span class="blank"></span></span>
+    </div>
+  </div>
+
+  <div class="parties">
+    <div class="panel">
+      <span class="label">The Developer</span>
+      <p><strong>Laniya Molayoninujesu</strong>, trading as Layò the developer</p>
+      <p>Address: Lagos, Nigeria</p>
+      <p>hello@layothedeveloper.com · +234 807 945 1031</p>
+    </div>
+    <div class="card">
+      <span class="label">The Client</span>
+      <div class="field">Name: <span class="blank"></span></div>
+      <div class="field">Company: <span class="blank"></span></div>
+      <div class="field">Address: <span class="blank"></span></div>
+      <div class="field">Email / phone: <span class="blank"></span></div>
+    </div>
+  </div>
+
+  <p class="lead callout">The Developer and the Client agree that the Developer will deliver the project described in Schedule A on the terms below. Words in bold are defined where they first appear.</p>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">1</span>Services</h2>
+    <ol>
+      <li><span>1.1</span><span>The Developer will provide the web and software development services described in Schedule A (the <strong>Services</strong>), including the deliverables, milestones and any exclusions listed there.</span></li>
+      <li><span>1.2</span><span>Anything not listed in Schedule A is outside the scope of this Agreement and is handled as a change request under clause 6.</span></li>
+    </ol>
+  </section>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">2</span>Timeline</h2>
+    <ol>
+      <li><span>2.1</span><span>The Developer will work to the milestones in Schedule A. The timeline depends on the Client supplying content, access and feedback on time. If the Client is late, the timeline moves by at least the length of the delay.</span></li>
+      <li><span>2.2</span><span>The Developer will send progress updates at least once a week while the project is active.</span></li>
+    </ol>
+  </section>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">3</span>Fees and payment</h2>
+    <ol>
+      <li><span>3.1</span><span>The total fee for the Services is <span class="blank" style="min-width:32mm"></span> (in words: <span class="blank" style="min-width:58mm"></span>), payable in <span class="blank" style="min-width:24mm"></span> (Naira or US dollars).</span></li>
+      <li><span>3.2</span><span>Unless Schedule B sets a different schedule, the fee is paid in two parts: <strong>50% before work starts</strong> (the <strong>deposit</strong>) and <strong>50% on delivery</strong>, before the website or app is launched or handed over.</span></li>
+      <li><span>3.3</span><span>Invoices are due within 7 days. If a payment is more than 14 days late, the Developer may pause work until it is paid, and the timeline moves accordingly.</span></li>
+    </ol>
+  </section>
+
+  <footer class="page-foot"><span>Layò · Web &amp; Software Development Services Agreement · Initials: ______ / ______</span><span class="num">1 / 6</span></footer>
+</div>
+
+<!-- Page 2 -->
+<div class="page">
+  <section class="clause">
+    <ol>
+      <li><span>3.4</span><span>The deposit secures the Developer's time for the project and is not refundable once work has started, except as set out in clause 13.</span></li>
+      <li><span>3.5</span><span>Third-party costs such as domain names, hosting, paid plugins, licences, stock images and API usage are paid by the Client, either directly or reimbursed at cost with the Client's prior approval.</span></li>
+      <li><span>3.6</span><span>Each party pays its own bank charges. For international payments, the Client covers transfer fees so that the Developer receives the full invoiced amount.</span></li>
+    </ol>
+  </section>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">4</span>Client responsibilities</h2>
+    <ol>
+      <li><span>4.1</span><span>The Client will name one person to give feedback and approvals, provide text, images, brand assets and account access in good time, and reply to requests for feedback within 5 working days.</span></li>
+      <li><span>4.2</span><span>The Client confirms it has the rights to any material it supplies, and is responsible for the accuracy and legality of its content.</span></li>
+    </ol>
+  </section>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">5</span>Revisions</h2>
+    <ol>
+      <li><span>5.1</span><span>Each design and build milestone includes up to two rounds of revisions. A round is one consolidated list of changes. Further rounds are billed at the Developer's hourly rate in Schedule B.</span></li>
+    </ol>
+  </section>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">6</span>Changes to scope</h2>
+    <ol>
+      <li><span>6.1</span><span>Either party may propose changes. The Developer will confirm the effect on price and timeline in writing (email is enough) before doing the work. Changes only become part of the Services once the Client approves them in writing.</span></li>
+    </ol>
+  </section>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">7</span>Acceptance</h2>
+    <ol>
+      <li><span>7.1</span><span>When a milestone or the final work is delivered, the Client has 7 days to test it and report, in writing, anything that does not match Schedule A. The Developer will fix those items. If the Client reports nothing within 7 days, or launches or uses the work publicly, the work is treated as accepted.</span></li>
+    </ol>
+  </section>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">8</span>Ownership</h2>
+    <ol>
+      <li><span>8.1</span><span>Once the Client has paid all fees in full, the Client owns the final deliverables made specifically for this project, including the design, code and content created for it, and the Developer will hand over all source files, logins and access keys.</span></li>
+      <li><span>8.2</span><span>The Developer keeps ownership of its pre-existing tools, code libraries and know-how used in the project, and grants the Client a permanent, non-exclusive licence to use them as part of the deliverables.</span></li>
+      <li><span>8.3</span><span>Open-source and third-party components remain under their own licences.</span></li>
+      <li><span>8.4</span><span>Until full payment, the Developer keeps ownership of the deliverables and the Client may not launch or use them publicly.</span></li>
+    </ol>
+  </section>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">9</span>Portfolio</h2>
+    <ol>
+      <li><span>9.1</span><span>The Developer may show the finished work, the Client's name and a short description in its portfolio and marketing, unless the Client asks in writing for it to stay private. Confidential information is never shown.</span></li>
+    </ol>
+  </section>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">10</span>Confidentiality</h2>
+    <ol>
+      <li><span>10.1</span><span>Each party will keep the other's confidential information private and use it only for this project. This continues for 3 years after the Agreement ends. It does not apply to information that is already public, or that the law requires a party to disclose.</span></li>
+    </ol>
+  </section>
+
+  <footer class="page-foot"><span>Layò · Web &amp; Software Development Services Agreement · Initials: ______ / ______</span><span class="num">2 / 6</span></footer>
+</div>
+
+<!-- Page 3 -->
+<div class="page">
+  <section class="clause">
+    <h2 class="display"><span class="n">11</span>Data protection</h2>
+    <ol>
+      <li><span>11.1</span><span>Where the Developer handles personal data on the Client's behalf, it will do so only on the Client's instructions, keep it secure, and comply with the Nigeria Data Protection Act 2023 and, where it applies, the GDPR. The Client is responsible for having a lawful basis to collect that data and for its own privacy policy.</span></li>
+    </ol>
+  </section>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">12</span>Warranty and support</h2>
+    <ol>
+      <li><span>12.1</span><span>For 30 days after launch, the Developer will fix, at no cost, any defect that stops the work from performing as described in Schedule A.</span></li>
+      <li><span>12.2</span><span>This does not cover changes made by anyone other than the Developer, problems caused by hosting providers or other third-party services, browser or platform updates released after delivery, or new features. Ongoing maintenance is available under a separate monthly plan.</span></li>
+    </ol>
+  </section>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">13</span>Termination</h2>
+    <ol>
+      <li><span>13.1</span><span>Either party may end this Agreement with 14 days' written notice. Either party may end it immediately if the other seriously breaches it and does not fix the breach within 14 days of being asked to.</span></li>
+      <li><span>13.2</span><span>If the Agreement ends early, the Client pays for all work done up to the end date (at least the deposit) and any approved third-party costs. Once that is paid, the Developer hands over the work completed so far.</span></li>
+      <li><span>13.3</span><span>If the Developer ends the Agreement without cause, it refunds any amount paid for work not yet done.</span></li>
+    </ol>
+  </section>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">14</span>Limitation of liability</h2>
+    <ol>
+      <li><span>14.1</span><span>Neither party is liable for indirect or consequential losses, including lost profits, revenue or data. The Developer's total liability under this Agreement is limited to the fees the Client has paid under it. Nothing in this Agreement limits liability that cannot be limited by law.</span></li>
+    </ol>
+  </section>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">15</span>Independent contractor</h2>
+    <ol>
+      <li><span>15.1</span><span>The Developer works as an independent contractor, not an employee, and is responsible for its own taxes. The Developer may use trusted subcontractors for specialist tasks, remains responsible for their work, and will tell the Client in advance.</span></li>
+    </ol>
+  </section>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">16</span>Events outside anyone's control</h2>
+    <ol>
+      <li><span>16.1</span><span>Neither party is responsible for delays caused by events outside its reasonable control, such as power or internet outages, natural disasters, strikes or government action. The affected party will tell the other promptly, and the timeline moves accordingly.</span></li>
+    </ol>
+  </section>
+
+  <section class="clause">
+    <h2 class="display"><span class="n">17</span>Disputes and governing law</h2>
+    <ol>
+      <li><span>17.1</span><span>This Agreement is governed by the laws of the Federal Republic of Nigeria. The parties will first try to settle any dispute by good-faith discussion within 14 days. If that fails, they will try mediation at the Lagos Multi-Door Courthouse before going to court. The courts of Lagos State have jurisdiction.</span></li>
+    </ol>
+  </section>
+
+
+  <footer class="page-foot"><span>Layò · Web &amp; Software Development Services Agreement · Initials: ______ / ______</span><span class="num">3 / 6</span></footer>
+</div>
+
+<!-- Page 4 -->
+<div class="page">
+  <section class="clause">
+    <h2 class="display"><span class="n">18</span>General</h2>
+    <ol>
+      <li><span>18.1</span><span>This Agreement, with its schedules and the accepted proposal, is the whole agreement between the parties and replaces earlier discussions. If the proposal and this Agreement conflict, this Agreement wins.</span></li>
+      <li><span>18.2</span><span>Changes to this Agreement must be in writing and accepted by both parties. Notices may be sent by email to the addresses below.</span></li>
+      <li><span>18.3</span><span>This Agreement may be signed electronically and in counterparts; each signed copy counts as an original.</span></li>
+    </ol>
+  </section>
+
+  <h2 class="page-title display" style="margin-top:12mm">Signa<span class="tone">tures</span></h2>
+  <p class="intro">By signing, both parties agree to this Agreement and its schedules.</p>
+
+  <div class="sigs">
+    <div class="panel">
+      <span class="label">For the Developer</span>
+      <div class="line"></div>
+      <span class="small">Signature</span>
+      <div class="field">Name: Laniya Molayoninujesu</div>
+      <div class="field">Date: <span class="blank"></span></div>
+    </div>
+    <div class="card">
+      <span class="label">For the Client</span>
+      <div class="line"></div>
+      <span class="small">Signature</span>
+      <div class="field">Name: <span class="blank"></span></div>
+      <div class="field">Title: <span class="blank"></span></div>
+      <div class="field">Date: <span class="blank"></span></div>
+    </div>
+  </div>
+
+  <footer class="page-foot"><span>Layò · Web &amp; Software Development Services Agreement · Initials: ______ / ______</span><span class="num">4 / 6</span></footer>
+</div>
+
+<!-- Page 5 -->
+<div class="page">
+  <span class="eyebrow">Schedule A</span>
+  <h2 class="page-title display" style="margin-top:3mm">Project <span class="tone">details</span></h2>
+
+  <div class="form">
+    <div><span class="label">Project name</span><span></span></div>
+    <div>
+      <span class="label">Project type</span>
+      <span class="opts">
+        <span><span class="box"></span>Landing page</span>
+        <span><span class="box"></span>Business website</span>
+        <span><span class="box"></span>E-commerce</span>
+        <span><span class="box"></span>Web app</span>
+        <span><span class="box"></span>Mobile app</span>
+        <span><span class="box"></span>Integration</span>
+        <span><span class="box"></span>Other</span>
+      </span>
+    </div>
+    <div class="tall"><span class="label">Goal of the project</span><span></span></div>
+    <div class="tall"><span class="label">Deliverables</span><span></span></div>
+    <div class="tall"><span class="label">Pages / screens / features</span><span></span></div>
+    <div><span class="label">Technology</span><span></span></div>
+    <div class="tall"><span class="label">Not included</span><span></span></div>
+    <div><span class="label">Client will provide</span><span></span></div>
+    <div><span class="label">Start date</span><span></span></div>
+    <div><span class="label">Target launch date</span><span></span></div>
+  </div>
+
+  <h3 class="sub display">Milestones</h3>
+  <table>
+    <thead><tr><th><span class="label">#</span></th><th><span class="label">Milestone</span></th><th style="width:36mm"><span class="label">Due date</span></th></tr></thead>
+    <tbody>
+      <tr><td class="n">1</td><td></td><td></td></tr>
+      <tr><td class="n">2</td><td></td><td></td></tr>
+      <tr><td class="n">3</td><td></td><td></td></tr>
+      <tr><td class="n">4</td><td></td><td></td></tr>
+      <tr><td class="n">5</td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <footer class="page-foot"><span>Layò · Web &amp; Software Development Services Agreement · Initials: ______ / ______</span><span class="num">5 / 6</span></footer>
+</div>
+
+<!-- Page 6 -->
+<div class="page">
+  <span class="eyebrow">Schedule B</span>
+  <h2 class="page-title display" style="margin-top:3mm">Fees and <span class="tone">payment</span></h2>
+
+  <table style="margin-top:6mm">
+    <thead><tr>
+      <th style="width:38mm"><span class="label">Payment</span></th>
+      <th style="width:22mm"><span class="label">Share</span></th>
+      <th><span class="label">Amount</span></th>
+      <th style="width:50mm"><span class="label">Due</span></th>
+    </tr></thead>
+    <tbody>
+      <tr><td>Deposit</td><td>50%</td><td></td><td>On signing, before work starts</td></tr>
+      <tr><td>Final payment</td><td>50%</td><td></td><td>On delivery, before launch</td></tr>
+      <tr class="total"><td>Total</td><td>100%</td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="form">
+    <div>
+      <span class="label">Currency</span>
+      <span class="opts">
+        <span><span class="box"></span>Nigerian Naira (₦)</span>
+        <span><span class="box"></span>US Dollars ($)</span>
+      </span>
+    </div>
+    <div><span class="label">Hourly rate for extra work</span><span></span></div>
+    <div class="tall"><span class="label">Expected third-party costs</span><span></span></div>
+    <div class="tall"><span class="label">Payment details</span><span></span></div>
+  </div>
+
+  <p class="note callout small">Receipts are issued for every payment. Quoted prices are valid for 30 days from the proposal date.</p>
+
+  <footer class="page-foot"><span>Layò · Web &amp; Software Development Services Agreement · Initials: ______ / ______</span><span class="num">6 / 6</span></footer>
+</div>
+</body>
+</html>

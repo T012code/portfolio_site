@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Layò receipt</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .top .who { margin-top: 2.4mm; font-size: 8pt; color: var(--ink-muted); }
+  .top .title { text-align: right; }
+  .top h1 { font-size: 26pt; }
+  .top .title p { margin-top: 2mm; }
+
+  .facts {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 5mm;
+    margin-top: 9mm; padding: 5mm 6mm; border-radius: var(--radius); border: 1px solid var(--accent-line); background: var(--accent-soft);
+  }
+  .facts .label { color: var(--accent-strong); }
+  .facts p { margin-top: 1.6mm; font-weight: 600; min-height: 5.2mm; }
+  .facts p:has(.blank) { min-height: 0; }
+  .facts .blank { display: block; min-width: 0; margin-top: 7mm; }
+
+  .parties { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; margin-top: 8mm; }
+  .parties p { margin-top: 2mm; line-height: 1.75; }
+  .parties .lines { display: grid; gap: 5.2mm; margin-top: 5mm; }
+  .parties .lines span { display: block; border-bottom: 1px solid var(--rule-strong); }
+
+  .items { margin-top: 9mm; }
+  .items .head { display: flex; justify-content: space-between; padding-bottom: 2.4mm; border-bottom: 1.5px solid var(--ink); }
+  .items .head .label { color: var(--accent-strong); }
+  .items .row { display: flex; justify-content: space-between; gap: 6mm; padding: 3.2mm 0; border-bottom: 1px solid var(--rule); min-height: 9mm; }
+
+  .totals { width: 92mm; margin: 4mm 0 0 auto; }
+  .totals div { display: flex; justify-content: space-between; align-items: baseline; padding: 2.4mm 0; border-bottom: 1px solid var(--rule); }
+  .totals .value { min-width: 28mm; text-align: right; }
+  .totals .fill { border-bottom: 1px solid var(--rule-strong); min-height: 4mm; }
+  .totals .received {
+    margin: 2mm 0; padding: 3.6mm 4mm; border: none; border-radius: var(--radius-sm); background: var(--navy); color: var(--navy-ink);
+  }
+  .totals .received span:first-child { font-size: 11pt; }
+  .totals .received .value { font-size: 13pt; color: var(--pop); }
+  .totals .received .fill { border-color: oklch(100% 0 0 / 0.5); }
+
+  .words { margin-top: 8mm; }
+  .words p { margin-top: 2mm; font-weight: 600; min-height: 6mm; }
+  .words .fill { margin-top: 3mm; border-bottom: 1px solid var(--rule-strong); }
+
+  .sign { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; margin-top: 10mm; }
+  .signature { display: flex; align-items: flex-end; height: 12mm; padding-bottom: 1mm; margin-bottom: 2mm; border-bottom: 1px solid var(--rule-strong); font-size: 15pt; color: var(--accent-strong); font-stretch: 80%; font-weight: 300; letter-spacing: 0.01em; }
+
+  .thanks { margin-top: 7mm; max-width: 120mm; font-size: 8.5pt; color: var(--ink-muted); }
+  .page-foot .motto { font-weight: 600; color: var(--accent-strong); }
+
+  .watermark {
+    position: absolute; top: 118mm; left: 0; right: 0; text-align: center; pointer-events: none;
+    font-size: 110pt; font-weight: 800; font-stretch: 112%; letter-spacing: 0.04em;
+    color: oklch(55.5% 0.215 263 / 0.07); transform: rotate(-28deg);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="watermark" data-sample hidden>SAMPLE</div>
+
+  <header class="top">
+    <div>
+      <span class="lockup">
+        <img class="mark" src="assets/mark-cobalt.svg" alt="">
+        <img class="wordmark" src="assets/wordmark-ink.svg" alt="Layò">
+      </span>
+      <p class="who">Laniya Molayoninujesu, trading as Layò the developer</p>
+    </div>
+    <div class="title">
+      <h1 class="display">Receipt</h1>
+      <p class="muted">Official receipt of payment</p>
+    </div>
+  </header>
+
+  <div class="facts">
+    <div><span class="label">Receipt no.</span><p data-f="number"></p></div>
+    <div><span class="label">Date</span><p data-f="date"></p></div>
+    <div><span class="label">Payment method</span><p data-f="method"></p></div>
+    <div><span class="label">Payment reference</span><p data-f="reference"></p></div>
+  </div>
+
+  <div class="parties">
+    <div>
+      <span class="label">Received from</span>
+      <div data-f="from" data-blank-lines="4"></div>
+    </div>
+    <div>
+      <span class="label">Issued by</span>
+      <p><strong>Laniya Molayoninujesu (Layò)</strong><br>Lagos, Nigeria<br>hello@layothedeveloper.com<br>+234 807 945 1031</p>
+    </div>
+  </div>
+
+  <div class="items">
+    <div class="head"><span class="label">Description</span><span class="label">Amount</span></div>
+    <div data-f="items"></div>
+  </div>
+
+  <div class="totals">
+    <div><span>Project total</span><span class="value money" data-f="total"></span></div>
+    <div><span>Paid before this receipt</span><span class="value money" data-f="paid"></span></div>
+    <div class="received"><span class="display">Amount received</span><span class="value display money" data-f="received"></span></div>
+    <div><span>Balance outstanding</span><span class="value money" data-f="balance"></span></div>
+  </div>
+
+  <div class="words callout">
+    <span class="label">Amount in words</span>
+    <div data-f="words"></div>
+  </div>
+
+  <div class="sign">
+    <div><p class="signature" data-f="signature"></p><span class="label">Signature</span></div>
+    <div><p class="signature"></p><span class="label">Name and date</span></div>
+  </div>
+
+  <p class="thanks">Thank you for your payment. This receipt confirms money received for the work described above under the signed service agreement. Keep it for your records. Questions: hello@layothedeveloper.com.</p>
+
+  <footer class="page-foot"><span>layothedeveloper.com</span><span class="motto">Everything is possible.</span></footer>
+</div>
+
+<script>
+  // Open with ?sample to fill in the example payment; without it the page is a blank template.
+  const SAMPLE = {
+    number: "LTD-2026-0001",
+    date: "14 October 2026",
+    method: "Bank transfer",
+    reference: "TRF/2026/10/4471",
+    from: "<p><strong>Ada Obi</strong><br>Sample Client Ltd<br>12 Example Street, Ikeja, Lagos<br>ada@sampleclient.ng</p>",
+    items: [["Business website build: deposit (50% of ₦850,000)", "₦425,000.00"]],
+    total: "₦850,000.00",
+    paid: "₦0.00",
+    received: "₦425,000.00",
+    balance: "₦425,000.00",
+    words: "<p>Four hundred and twenty-five thousand naira only</p>",
+    signature: "L. Molayoninujesu",
+  };
+
+  const sample = new URLSearchParams(location.search).has("sample");
+  const blankRow = '<div class="row"><span></span><span></span></div>';
+
+  for (const el of document.querySelectorAll("[data-f]")) {
+    const key = el.dataset.f;
+    if (key === "items") {
+      el.innerHTML = sample
+        ? SAMPLE.items.map(([d, a]) => `<div class="row"><span>${d}</span><span class="money">${a}</span></div>`).join("")
+        : blankRow.repeat(3);
+    } else if (sample) {
+      el.innerHTML = SAMPLE[key];
+    } else if (el.dataset.blankLines) {
+      el.innerHTML = `<div class="lines">${"<span></span>".repeat(+el.dataset.blankLines)}</div>`;
+    } else if (key === "words") {
+      el.innerHTML = '<div class="fill"></div>';
+    } else if (el.classList.contains("value")) {
+      el.innerHTML = '<div class="fill"></div>';
+    } else if (key !== "signature") {
+      el.innerHTML = '<span class="blank"></span>';
+    }
+  }
+  if (sample) {
+    document.querySelector("[data-sample]").hidden = false;
+    document.title = "Layò receipt (sample)";
+  }
+</script>
+</body>
+</html>

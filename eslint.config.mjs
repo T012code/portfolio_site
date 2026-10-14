@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Print documents, rendered with Playwright rather than shipped with the site.
+    "documents/**",
   ]),
 ]);
 
