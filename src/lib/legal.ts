@@ -35,7 +35,8 @@ These keep the site working and secure, so they don't need your consent, but you
 - Your cookie choice (layo-consent, in your browser's local storage): your choice, its date and a random ID. Kept for 12 months, after which you're asked again.
 - Theme (layo-theme, local storage): your light or dark choice, if you pick one.
 - Intro and tip (layo-preloaded and layo-theme-hint, session storage): whether you've seen the intro animation and the theme tip during this visit. Deleted when you close the tab.
-- Google reCAPTCHA, on the contact page: checks form submissions for spam using browser and interaction signals, and may set Google cookies such as _GRECAPTCHA, under Google's own privacy policy (policies.google.com/privacy).
+- Google reCAPTCHA, on the contact page when switched on: checks form submissions for spam using browser and interaction signals, and may set Google cookies such as _GRECAPTCHA, under Google's own privacy policy (policies.google.com/privacy).
+- Cloudflare Turnstile, on the contact page when switched on: checks that a person, not a bot, is sending the form, using browser and device signals, and may set short-lived security cookies. Cloudflare uses these signals only to detect bots (cloudflare.com/turnstile-privacy-policy).
 - Cal.com, only if you book a call: the booking calendar loads from Cal.com and may set its own cookies to complete the booking.
 - Cloudflare: protects the site from attacks and may set short-lived security cookies such as __cf_bm.
 
@@ -58,7 +59,7 @@ The legal basis is your consent when you submit a form or accept visit counting,
 I don't sell or rent personal information. It is shared only with the services that run this website, each bound by its own privacy and security terms:
 - Supabase: stores form submissions, site files and visit statistics
 - Vercel: hosts the website
-- Cloudflare: sits in front of the website to protect it and keep it fast, so it handles every request, including your IP address
+- Cloudflare: sits in front of the website to protect it and keep it fast, so it handles every request, including your IP address, and, when switched on, runs the Turnstile spam check on the contact forms
 - Cal.com: handles call bookings
 - WhatsApp (Meta): carries WhatsApp messages to and from my business number
 - Google reCAPTCHA: checks contact form submissions for spam. It looks at browser and interaction signals, under Google's own privacy policy (policies.google.com/privacy)
