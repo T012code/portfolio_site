@@ -4,7 +4,6 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { Mark } from "@/components/brand/Mark";
 import { whenPreloaded } from "@/components/preloader/events";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -21,26 +20,35 @@ type CardProps = {
   inline?: boolean;
 };
 
-// The card itself, laid out like the ID badge: mark and a mono label at the top, a dashed rule above
-// the foot. Kept to one line of text; the privacy policy has the details.
+// The card itself: the ID badge's punched slot and laminate, a title, one sentence and the two
+// choices. The privacy policy, linked from the sentence, has the details.
 function Card({ consent, titleRef, onChoose, onClose, inline }: CardProps) {
   return (
     <>
-      <div className={styles.head}>
-        <Mark className={styles.mark} />
-        <span className={styles.kind}>Cookie notice</span>
-        {onClose ? (
-          <button type="button" className={styles.close} onClick={onClose} aria-label="Close cookie settings">
-            <Icon name="x" size={16} />
-          </button>
-        ) : null}
-      </div>
+      {onClose ? (
+        <button type="button" className={styles.close} onClick={onClose} aria-label="Close cookie settings">
+          <Icon name="x" size={16} />
+        </button>
+      ) : null}
 
-      <div className={styles.text}>
+      <div className={styles.text} data-close={onClose ? "" : undefined}>
         <h2 ref={titleRef} tabIndex={-1} className={styles.title}>
           Can I count your visit?
         </h2>
-        <p className={styles.body}>Only to see which pages get read. No ads, nothing sold.</p>
+        <p className={styles.body}>
+          Only to see which pages get read. No ads, nothing sold.{" "}
+          {inline ? (
+            "Change it any time here or in the footer."
+          ) : (
+            <>
+              Change it any time in the footer, or read the{" "}
+              <Link href={PRIVACY_PATH} className={styles.link}>
+                privacy policy
+              </Link>
+              .
+            </>
+          )}
+        </p>
       </div>
 
       {consent ? (
@@ -56,15 +64,6 @@ function Card({ consent, titleRef, onChoose, onClose, inline }: CardProps) {
         <Button type="button" icon={null} block className={styles.choice} onClick={() => onChoose(true)}>
           Accept
         </Button>
-      </div>
-
-      <div className={styles.foot}>
-        <span>Change it in the footer.</span>
-        {inline ? null : (
-          <Link href={PRIVACY_PATH} className={styles.policy}>
-            Privacy policy
-          </Link>
-        )}
       </div>
     </>
   );
