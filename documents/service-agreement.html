@@ -34,6 +34,8 @@
   .sigs { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; margin-top: 8mm; }
   .sigs .label { color: var(--accent-strong); }
   .sigs .line { height: 20mm; margin-bottom: 1.6mm; border-bottom: 1px solid var(--rule-strong); }
+  .sigs .line[data-sign] { display: flex; align-items: flex-end; }
+  .sigs .line img { height: 18mm; width: auto; margin: 0 0 -1.5mm -1mm; }
   .sigs .small { color: var(--ink-muted); }
   .sigs .field { margin-top: 2.6mm; }
 
@@ -263,7 +265,7 @@
   <div class="sigs">
     <div class="panel">
       <span class="label">For the Developer</span>
-      <div class="line"></div>
+      <div class="line" data-sign></div>
       <span class="small">Signature</span>
       <div class="field">Name: Laniya Molayoninujesu</div>
       <div class="field">Date: <span class="blank"></span></div>
@@ -361,5 +363,11 @@
 
   <footer class="page-foot"><span>Layò · Web &amp; Software Development Services Agreement · Initials: ______ / ______</span><span class="num">6 / 6</span></footer>
 </div>
+<script>
+  // ?signed adds the developer's signature from private/signature.png (kept out of git).
+  if (new URLSearchParams(location.search).has("signed")) {
+    document.querySelector("[data-sign]").innerHTML = '<img src="private/signature.png" alt="Signature">';
+  }
+</script>
 </body>
 </html>

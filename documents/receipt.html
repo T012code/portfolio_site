@@ -46,6 +46,7 @@
   .words .fill { margin-top: 3mm; border-bottom: 1px solid var(--rule-strong); }
 
   .sign { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; margin-top: 10mm; }
+  .signature img { height: 15mm; width: auto; margin: 0 0 -3mm -1mm; }
   .signature { display: flex; align-items: flex-end; height: 12mm; padding-bottom: 1mm; margin-bottom: 2mm; border-bottom: 1px solid var(--rule-strong); font-size: 15pt; color: var(--accent-strong); font-stretch: 80%; font-weight: 300; letter-spacing: 0.01em; }
 
   .thanks { margin-top: 7mm; max-width: 120mm; font-size: 8.5pt; color: var(--ink-muted); }
@@ -158,6 +159,10 @@
     } else if (key !== "signature") {
       el.innerHTML = '<span class="blank"></span>';
     }
+  }
+  // ?signed adds the developer's signature from private/signature.png (kept out of git).
+  if (new URLSearchParams(location.search).has("signed")) {
+    document.querySelector('[data-f="signature"]').innerHTML = '<img src="private/signature.png" alt="Signature">';
   }
   if (sample) {
     document.querySelector("[data-sample]").hidden = false;

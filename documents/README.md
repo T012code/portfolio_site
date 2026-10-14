@@ -24,3 +24,9 @@ node documents/build.mjs
 
 This needs Playwright with Chromium. Each page is a fixed A4 sheet, and the build fails with a warning
 if any page's content runs past its sheet.
+
+## Signed copies
+
+Put the signature at `documents/private/signature.png` (transparent PNG). The build then also writes
+signed copies of the receipt and service agreement to `documents/private/pdf`. The `private` folder is
+git-ignored because this repository is public, so the signature never gets committed.

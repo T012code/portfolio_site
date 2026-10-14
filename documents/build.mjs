@@ -1,6 +1,6 @@
 // Renders the HTML documents in this folder to print-ready PDFs in ./pdf.
 // Usage: node documents/build.mjs   (needs Playwright with Chromium)
-import { mkdir } from "node:fs/promises";
+import { access, mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
@@ -18,6 +18,19 @@ const docs = [
   { file: "receipt.html", query: "?sample", pdf: "Layo-Receipt-Sample.pdf" },
   { file: "service-agreement.html", pdf: "Layo-Service-Agreement.pdf" },
 ];
+
+// Signed copies need private/signature.png, which stays out of git because the repo is public.
+// They are written to private/pdf so they never land in the committed pdf folder.
+const privateDir = join(here, "private");
+const hasSignature = await access(join(privateDir, "signature.png")).then(() => true, () => false);
+if (hasSignature) {
+  docs.push(
+    { file: "receipt.html", query: "?signed", pdf: "Layo-Receipt-Template-Signed.pdf", dir: join(privateDir, "pdf") },
+    { file: "receipt.html", query: "?sample&signed", pdf: "Layo-Receipt-Sample-Signed.pdf", dir: join(privateDir, "pdf") },
+    { file: "service-agreement.html", query: "?signed", pdf: "Layo-Service-Agreement-Signed.pdf", dir: join(privateDir, "pdf") },
+  );
+  await mkdir(join(privateDir, "pdf"), { recursive: true });
+}
 
 await mkdir(out, { recursive: true });
 const browser = await chromium.launch();
@@ -38,13 +51,13 @@ for (const doc of docs) {
   }
 
   await page.pdf({
-    path: join(out, doc.pdf),
+    path: join(doc.dir ?? out, doc.pdf),
     printBackground: true,
     preferCSSPageSize: !doc.width,
     width: doc.width,
     height: doc.height,
   });
-  console.log(`wrote pdf/${doc.pdf}`);
+  console.log(`wrote ${doc.dir ? "private/pdf" : "pdf"}/${doc.pdf}`);
 }
 
 await browser.close();
