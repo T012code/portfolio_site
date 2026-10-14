@@ -20,11 +20,10 @@
   .front { padding: 0.22in 0.24in; display: flex; flex-direction: column; justify-content: space-between; background: var(--paper); color: var(--ink); }
   .front .head { display: flex; justify-content: space-between; align-items: flex-start; }
   .front .mark { height: 7mm; width: auto; }
-  .front .name { font-size: 10.5pt; }
+  .front .name { font-size: 20pt; }
   .front .role { margin-top: 1.4mm; font-size: 5.2pt; }
   .front .foot { display: flex; justify-content: space-between; align-items: flex-end; padding-top: 2.4mm; border-top: 1px solid var(--rule); }
   .contact { line-height: 1.65; font-size: 6pt; }
-  .front .wordmark { height: 4.6mm; width: auto; }
 
   /* Back: solid cobalt, white mark with the QR in its counter */
   .back { display: grid; place-items: center; background: var(--accent); }
@@ -35,7 +34,7 @@
   <section class="side front">
     <div class="head">
       <div>
-        <p class="name display">Laniya Molayoninujesu</p>
+        <p class="name display">Lay<span class="tone">ò</span></p>
         <p class="role label">Software engineer · Consultant</p>
       </div>
       <img class="mark" src="assets/mark-cobalt.svg" alt="">
@@ -46,7 +45,6 @@
         +234 807 945 1031<br>
         layothedeveloper.com
       </p>
-      <img class="wordmark" src="assets/wordmark-ink.svg" alt="Layò">
     </div>
   </section>
 
