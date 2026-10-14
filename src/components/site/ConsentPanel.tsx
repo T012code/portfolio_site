@@ -11,6 +11,8 @@ import { onOpenConsent, saveConsent, useConsent, type Consent } from "@/lib/cons
 import styles from "./ConsentPanel.module.css";
 
 const PRIVACY_PATH = "/privacy";
+/** Matches the phone layout in ConsentPanel.module.css. */
+const PHONE_QUERY = "(max-width: 560px)";
 
 type CardProps = {
   consent: Consent | null | undefined;
@@ -72,8 +74,8 @@ function Card({ consent, titleRef, onChoose, onClose, inline }: CardProps) {
 /**
  * The cookie notice: says what is used and how to withdraw, and offers an explicit accept or reject
  * (Nigeria's GAID 2025, Art. 19); the privacy policy it links to covers the rest. It sits at the
- * bottom left (along the bottom on phones) until the visitor chooses, and reopens from "Cookie
- * settings" in the footer. GAID Art. 7(l) treats a bottom notice "where it may be ignored or be
+ * bottom left (along the bottom on phones, where it waits until the visitor scrolls) until the
+ * visitor chooses, and reopens from "Cookie settings" in the footer. GAID Art. 7(l) treats a bottom notice "where it may be ignored or be
  * unnoticed" as a lack of transparency, so this one is fixed in view, animates in and can't be
  * dismissed without a choice the first time; no choice is ever assumed. On the privacy page the
  * same card sits in the page instead (ConsentSettings).
@@ -87,15 +89,27 @@ export function ConsentPanel() {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
 
-  // First visit: wait for the intro to finish so the notice isn't hidden behind it.
+  // First visit: wait for the intro to finish so the notice isn't hidden behind it. On phones it
+  // waits longer, until 2 seconds after the visitor starts scrolling, so the first screen stays
+  // clear; a page too short to scroll shows it 2 seconds after the intro instead.
   useEffect(() => {
     let timer: number | undefined;
+    let onScroll: (() => void) | undefined;
+    const showIn = (ms: number) => {
+      timer = window.setTimeout(() => setReady(true), ms);
+    };
     const stop = whenPreloaded(() => {
-      timer = window.setTimeout(() => setReady(true), 400);
+      const phone = window.matchMedia(PHONE_QUERY).matches;
+      const scrollable = document.documentElement.scrollHeight > window.innerHeight;
+      if (!phone) return showIn(400);
+      if (!scrollable) return showIn(2000);
+      onScroll = () => showIn(2000);
+      window.addEventListener("scroll", onScroll, { once: true, passive: true });
     });
     return () => {
       stop();
       window.clearTimeout(timer);
+      if (onScroll) window.removeEventListener("scroll", onScroll);
     };
   }, []);
 
