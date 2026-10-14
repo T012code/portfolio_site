@@ -21,7 +21,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         Skip to content
       </a>
       {/* Early in the page so keyboard users reach the choice first. */}
-      <ConsentPanel owner={settings.full_name} name={settings.display_name} />
+      <ConsentPanel />
       <div id="top" />
       <SiteHeader name={settings.display_name} />
       <main id="main" tabIndex={-1}>

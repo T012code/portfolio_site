@@ -15,13 +15,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PrivacyPage() {
-  const [{ page }, settings] = await Promise.all([getBlocks("privacy"), getSettings()]);
-  return (
-    <LegalPage
-      title={page.title}
-      updated={page.updated}
-      body={page.body}
-      preface={<ConsentSettings owner={settings.full_name} name={settings.display_name} />}
-    />
-  );
+  const { page } = await getBlocks("privacy");
+  return <LegalPage title={page.title} updated={page.updated} body={page.body} preface={<ConsentSettings />} />;
 }

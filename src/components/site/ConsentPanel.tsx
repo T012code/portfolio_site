@@ -1,6 +1,5 @@
 "use client";
 
-import { ShieldCheckIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -13,11 +12,8 @@ import { onOpenConsent, saveConsent, useConsent, type Consent } from "@/lib/cons
 import styles from "./ConsentPanel.module.css";
 
 const PRIVACY_PATH = "/privacy";
-const dateFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeZone: "Africa/Lagos" });
 
-type Owner = { owner: string; name: string };
-
-type CardProps = Owner & {
+type CardProps = {
   consent: Consent | null | undefined;
   titleRef: RefObject<HTMLHeadingElement | null>;
   onChoose: (analytics: boolean) => void;
@@ -25,8 +21,9 @@ type CardProps = Owner & {
   inline?: boolean;
 };
 
-// The card itself, laid out like the ID badge: mark and a mono label at the top, a dashed rule above the foot.
-function Card({ owner, name, consent, titleRef, onChoose, onClose, inline }: CardProps) {
+// The card itself, laid out like the ID badge: mark and a mono label at the top, a dashed rule above
+// the foot. Kept to one line of text; the privacy policy has the details.
+function Card({ consent, titleRef, onChoose, onClose, inline }: CardProps) {
   return (
     <>
       <div className={styles.head}>
@@ -39,47 +36,30 @@ function Card({ owner, name, consent, titleRef, onChoose, onClose, inline }: Car
         ) : null}
       </div>
 
-      <div>
+      <div className={styles.text}>
         <h2 ref={titleRef} tabIndex={-1} className={styles.title}>
           Can I count your visit?
         </h2>
-        <p className={styles.owner}>
-          Run by {owner} ({name})
-        </p>
-      </div>
-
-      <p className={styles.body}>
-        If you accept, I count the pages you open, the site that sent you, your device type and your rough
-        location (from your IP address). A random ID that ends when you close the tab groups your visit. No
-        cookies, no ads, nothing sold.
-      </p>
-
-      <div className={styles.always}>
-        <ShieldCheckIcon size={18} weight="duotone" aria-hidden="true" className={styles.alwaysIcon} />
-        <p>
-          <strong>Always on:</strong> your theme choice, and Google reCAPTCHA on the contact forms, which keeps out
-          spam and may set Google cookies. Cal.com loads only if you book a call.
-        </p>
+        <p className={styles.body}>Only to see which pages get read. No ads, nothing sold.</p>
       </div>
 
       {consent ? (
         <p className={styles.status} role={inline ? "status" : undefined}>
-          Visit counting is {consent.analytics ? "on" : "off"}. You chose this on{" "}
-          {dateFormat.format(new Date(consent.at))}.
+          Visit counting is {consent.analytics ? "on" : "off"}.
         </p>
       ) : null}
 
       <div className={styles.actions}>
-        <Button type="button" icon="x" block className={styles.choice} onClick={() => onChoose(false)}>
+        <Button type="button" icon={null} block className={styles.choice} onClick={() => onChoose(false)}>
           Reject
         </Button>
-        <Button type="button" icon="check" block className={styles.choice} onClick={() => onChoose(true)}>
+        <Button type="button" icon={null} block className={styles.choice} onClick={() => onChoose(true)}>
           Accept
         </Button>
       </div>
 
       <div className={styles.foot}>
-        <span>Change this any time from Cookie settings at the bottom of every page.</span>
+        <span>Change it in the footer.</span>
         {inline ? null : (
           <Link href={PRIVACY_PATH} className={styles.policy}>
             Privacy policy
@@ -92,13 +72,13 @@ function Card({ owner, name, consent, titleRef, onChoose, onClose, inline }: Car
 
 /**
  * The cookie notice. Nigeria's GAID 2025 asks for a notice that covers the middle, left or right of
- * the page (Art. 7(l)), names who is responsible, explains each tool and how to withdraw, and offers
- * an explicit accept or reject (Art. 19). It floats on the right, vertically centred, until the
- * visitor chooses, and reopens from "Cookie settings" in the footer. It can't be dismissed without
- * a choice the first time, so no choice is ever assumed. On the privacy page the same card sits in
- * the page instead (ConsentSettings), so it never covers the policy it points to.
+ * the page (Art. 7(l)), says what is used and how to withdraw, and offers an explicit accept or
+ * reject (Art. 19); the privacy policy it links to covers the rest. It floats on the left,
+ * vertically centred, until the visitor chooses, and reopens from "Cookie settings" in the footer.
+ * It can't be dismissed without a choice the first time, so no choice is ever assumed. On the
+ * privacy page the same card sits in the page instead (ConsentSettings).
  */
-export function ConsentPanel({ owner, name }: Owner) {
+export function ConsentPanel() {
   const consent = useConsent();
   const pathname = usePathname();
   const reduce = useReducedMotion();
@@ -146,9 +126,9 @@ export function ConsentPanel({ owner, name }: Owner) {
   const motionProps = reduce
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0.15 } }
     : {
-        initial: { opacity: 0, x: 48, rotate: 2 },
+        initial: { opacity: 0, x: -48, rotate: -2 },
         animate: { opacity: 1, x: 0, rotate: 0 },
-        exit: { opacity: 0, x: 48, rotate: 2 },
+        exit: { opacity: 0, x: -48, rotate: -2 },
         transition: { type: "spring" as const, stiffness: 260, damping: 26 },
       };
 
@@ -166,8 +146,6 @@ export function ConsentPanel({ owner, name }: Owner) {
             {...motionProps}
           >
             <Card
-              owner={owner}
-              name={name}
               consent={consent}
               titleRef={titleRef}
               onChoose={(analytics) => {
@@ -184,7 +162,7 @@ export function ConsentPanel({ owner, name }: Owner) {
 }
 
 /** The same card in the flow of the privacy page, where it doubles as the page's cookie settings. */
-export function ConsentSettings({ owner, name }: Owner) {
+export function ConsentSettings() {
   const consent = useConsent();
   const ref = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -201,7 +179,7 @@ export function ConsentSettings({ owner, name }: Owner) {
 
   return (
     <section ref={ref} id="cookies" className={`${styles.card} ${styles.inline}`} aria-label="Cookie notice">
-      <Card owner={owner} name={name} consent={consent} titleRef={titleRef} onChoose={saveConsent} inline />
+      <Card consent={consent} titleRef={titleRef} onChoose={saveConsent} inline />
     </section>
   );
 }
