@@ -71,12 +71,13 @@ function Card({ consent, titleRef, onChoose, onClose, inline }: CardProps) {
 }
 
 /**
- * The cookie notice. Nigeria's GAID 2025 asks for a notice that covers the middle, left or right of
- * the page (Art. 7(l)), says what is used and how to withdraw, and offers an explicit accept or
- * reject (Art. 19); the privacy policy it links to covers the rest. It floats on the left,
- * vertically centred, until the visitor chooses, and reopens from "Cookie settings" in the footer.
- * It can't be dismissed without a choice the first time, so no choice is ever assumed. On the
- * privacy page the same card sits in the page instead (ConsentSettings).
+ * The cookie notice: says what is used and how to withdraw, and offers an explicit accept or reject
+ * (Nigeria's GAID 2025, Art. 19); the privacy policy it links to covers the rest. It sits at the
+ * bottom left (along the bottom on phones) until the visitor chooses, and reopens from "Cookie
+ * settings" in the footer. GAID Art. 7(l) treats a bottom notice "where it may be ignored or be
+ * unnoticed" as a lack of transparency, so this one is fixed in view, animates in and can't be
+ * dismissed without a choice the first time; no choice is ever assumed. On the privacy page the
+ * same card sits in the page instead (ConsentSettings).
  */
 export function ConsentPanel() {
   const consent = useConsent();
@@ -126,9 +127,9 @@ export function ConsentPanel() {
   const motionProps = reduce
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0.15 } }
     : {
-        initial: { opacity: 0, x: -48, rotate: -2 },
-        animate: { opacity: 1, x: 0, rotate: 0 },
-        exit: { opacity: 0, x: -48, rotate: -2 },
+        initial: { opacity: 0, y: 32, rotate: -2 },
+        animate: { opacity: 1, y: 0, rotate: 0 },
+        exit: { opacity: 0, y: 32, rotate: -2 },
         transition: { type: "spring" as const, stiffness: 260, damping: 26 },
       };
 

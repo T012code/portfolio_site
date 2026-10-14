@@ -1,16 +1,13 @@
 /* Cookie notice: a small card in the ID badge's language (punched slot, mark and mono label, dashed
-   foot), fixed on the left and vertically centred at every screen size, away from the header's
-   theme toggle and the hero's ID badge on the right. */
+   foot), fixed at the bottom left on larger screens and along the bottom on phones. */
 
 .dock {
   position: fixed;
   /* Lined up with the page's content edge, where the logo and headings start. */
-  inset: 0 auto 0 max(var(--edge), calc((100vw - var(--wrap)) / 2));
+  left: max(var(--edge), calc((100vw - var(--wrap)) / 2));
+  bottom: var(--space-6);
   /* Under the open phone menu (which uses --z-overlay), over everything else. */
   z-index: calc(var(--z-overlay) - 1);
-  display: grid;
-  align-items: center;
-  pointer-events: none;
 }
 
 .card {
@@ -18,7 +15,7 @@
   display: grid;
   gap: var(--space-4);
   width: min(20rem, calc(100vw - 2 * var(--space-4)));
-  max-height: calc(100dvh - 2 * var(--space-4));
+  max-height: calc(100dvh - var(--space-6) - var(--space-4));
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: var(--space-8) var(--space-5) var(--space-4);
@@ -31,8 +28,7 @@
     var(--color-card);
   color: var(--color-ink);
   box-shadow: var(--shadow-float);
-  pointer-events: auto;
-  transform-origin: 0% 50%;
+  transform-origin: 0% 100%;
 }
 
 /* The punched slot a lanyard hook would go through. */
@@ -200,11 +196,19 @@
   inset: -0.625rem -0.25rem;
 }
 
-/* Phones: a little narrower, still on the left. */
+/* Phones: across the bottom, clear of the home indicator. */
 @media (max-width: 560px) {
+  .dock {
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  }
+
   .card:not(.inline) {
-    width: min(18rem, calc(100vw - 2 * var(--space-4)));
+    width: 100%;
+    max-height: calc(100dvh - 2 * var(--space-3) - env(safe-area-inset-bottom, 0px));
     padding-inline: var(--space-4);
+    transform-origin: 50% 100%;
   }
 }
 
