@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { TURNSTILE_SITE_KEY } from "@/lib/env";
 import { getBrowserClient } from "@/lib/supabase/browser";
 import styles from "../admin.module.css";
-import { Turnstile } from "./Turnstile";
+import { Turnstile } from "@/components/ui/Turnstile";
 
 type Step =
   | { kind: "loading" }

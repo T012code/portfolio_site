@@ -1,34 +1,49 @@
 import Link from "next/link";
 import { requireAdminPage } from "@/lib/admin/auth";
-import { InboxItem, type InboxEntry } from "./InboxItem";
+import { InboxTable, type InboxRow, type MailEntry } from "./InboxTable";
+import { statusLabel } from "./labels";
 import styles from "../../admin.module.css";
 
-const ENQUIRY_FILTERS = ["all", "new", "booked", "replied", "archived"] as const;
-const MESSAGE_FILTERS = ["all", "new", "replied", "archived"] as const;
+const TYPES = ["all", "enquiries", "messages"] as const;
+const STATUSES = ["open", "new", "booked", "replied", "archived"] as const;
+const TYPE_LABEL: Record<string, string> = { all: "Everything", enquiries: "Enquiries", messages: "Quick messages" };
 
-export default async function InboxPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tab?: string; status?: string; q?: string }>;
-}) {
+type Params = { type?: string; tab?: string; status?: string; q?: string };
+
+export default async function InboxPage({ searchParams }: { searchParams: Promise<Params> }) {
   const params = await searchParams;
-  const tab = params.tab === "messages" ? "messages" : "enquiries";
-  const filters: readonly string[] = tab === "enquiries" ? ENQUIRY_FILTERS : MESSAGE_FILTERS;
-  const status = params.status && filters.includes(params.status) ? params.status : "all";
+  // `tab` is the old parameter name; links from the email log still use it.
+  const rawType = params.type ?? params.tab;
+  const type = TYPES.find((t) => t === rawType) ?? "all";
+  const status = STATUSES.find((s) => s === params.status) ?? "open";
   const search = (params.q ?? "").trim().slice(0, 100);
   const { supabase } = await requireAdminPage();
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Lagos" }).format(new Date());
 
-  let query = supabase.from(tab).select("*").order("created_at", { ascending: false }).limit(200);
-  if (search) {
-    // Search covers every status, archived included.
-    const term = search.replace(/[%_,()\\]/g, " ").trim();
-    if (term) query = query.or(`name.ilike.%${term}%,email.ilike.%${term}%,message.ilike.%${term}%`);
-  } else if (status === "all") query = query.neq("status", "archived");
-  else query = query.eq("status", status);
-  const { data, error } = await query;
+  const load = async (table: "enquiries" | "messages") => {
+    let query = supabase.from(table).select("*").order("created_at", { ascending: false }).limit(300);
+    if (search) {
+      // Search covers every status, archived included.
+      const term = search.replace(/[%_,()\\]/g, " ").trim();
+      if (term) query = query.or(`name.ilike.%${term}%,email.ilike.%${term}%,message.ilike.%${term}%`);
+    } else if (status === "open") query = query.neq("status", "archived");
+    else query = query.eq("status", status);
+    const { data, error } = await query;
+    return { rows: (data ?? []).map((r) => ({ ...r, kind: table }) as InboxRow), error };
+  };
+
+  const [enquiries, messages] = await Promise.all([
+    type === "messages" ? null : load("enquiries"),
+    // Only enquiries can be booked.
+    type === "enquiries" || (status === "booked" && !search) ? null : load("messages"),
+  ]);
+  const rows = [...(enquiries?.rows ?? []), ...(messages?.rows ?? [])].sort((a, b) =>
+    b.created_at.localeCompare(a.created_at),
+  );
+  const error = enquiries?.error ?? messages?.error;
 
   // Emails already sent about each item (notification, autoreply, your replies).
-  const ids = (data ?? []).map((r) => r.id);
+  const ids = rows.map((r) => r.id);
   const { data: mail } = ids.length
     ? await supabase
         .from("mail_log")
@@ -36,17 +51,19 @@ export default async function InboxPage({
         .in("ref_id", ids)
         .order("created_at", { ascending: true })
     : { data: [] };
-  const mailByItem = new Map<string, NonNullable<typeof mail>>();
+  const mailByItem: Record<string, MailEntry[]> = {};
   for (const m of mail ?? []) {
-    if (!m.ref_id) continue;
-    mailByItem.set(m.ref_id, [...(mailByItem.get(m.ref_id) ?? []), m]);
+    if (m.ref_id) (mailByItem[m.ref_id] ??= []).push(m);
   }
 
-  const href = (next: { tab?: string; status?: string }) => {
+  const href = (next: { type?: string; status?: string }) => {
     const q = new URLSearchParams();
-    q.set("tab", next.tab ?? tab);
-    if (next.status && next.status !== "all") q.set("status", next.status);
-    return `/admin/inbox?${q}`;
+    const t = next.type ?? type;
+    const s = next.status ?? status;
+    if (t !== "all") q.set("type", t);
+    if (s !== "open") q.set("status", s);
+    const qs = q.toString();
+    return qs ? `/admin/inbox?${qs}` : "/admin/inbox";
   };
 
   return (
@@ -55,60 +72,63 @@ export default async function InboxPage({
         <div>
           <h1 className={styles.pageTitle}>Inbox</h1>
           <p className={styles.pageIntro}>
-            Enquiries become &ldquo;booked&rdquo; automatically when someone picks a call time on Cal.com.
+            Enquiries and quick messages from the contact page. Enquiries become &ldquo;booked&rdquo; automatically when
+            someone picks a call time.
           </p>
         </div>
       </header>
 
-      <nav className={styles.tabs} aria-label="Inbox">
-        <Link href={href({ tab: "enquiries" })} className={styles.tab} aria-current={tab === "enquiries" ? "page" : undefined}>
-          Enquiries
-        </Link>
-        <Link href={href({ tab: "messages" })} className={styles.tab} aria-current={tab === "messages" ? "page" : undefined}>
-          Messages
-        </Link>
-      </nav>
-
-      <form className={styles.searchForm} role="search" action="/admin/inbox">
-        <input type="hidden" name="tab" value={tab} />
-        <label htmlFor="inbox-search" className="visually-hidden">
-          Search {tab}
-        </label>
-        <input
-          id="inbox-search"
-          name="q"
-          type="search"
-          className={styles.input}
-          defaultValue={search}
-          placeholder="Search by name, email or message"
-        />
-        <button type="submit" className={styles.smallButton}>
-          Search
-        </button>
-        {search ? (
-          <Link href={href({})} className={styles.smallButton}>
-            Clear
-          </Link>
-        ) : null}
-      </form>
-
-      <div className={styles.mediaButtons} style={{ marginBottom: "var(--space-6)" }} role="group" aria-label="Filter by status">
-        {filters.map((f) => (
-          <Link key={f} href={href({ status: f })} className={styles.pill} aria-pressed={!search && status === f}>
-            {f === "all" ? "Open" : f}
-          </Link>
-        ))}
+      <div className={styles.filterBar}>
+        <div className={styles.mediaButtons} role="group" aria-label="Show">
+          {TYPES.map((t) => (
+            <Link key={t} href={href({ type: t })} className={styles.pill} aria-pressed={type === t}>
+              {TYPE_LABEL[t]}
+            </Link>
+          ))}
+        </div>
+        <form className={styles.searchForm} role="search" action="/admin/inbox">
+          {type !== "all" ? <input type="hidden" name="type" value={type} /> : null}
+          <label htmlFor="inbox-search" className="visually-hidden">
+            Search the inbox
+          </label>
+          <input
+            id="inbox-search"
+            name="q"
+            type="search"
+            className={styles.input}
+            defaultValue={search}
+            placeholder="Name, email or message"
+          />
+          <button type="submit" className={styles.smallButton}>
+            Search
+          </button>
+          {search ? (
+            <Link href={href({})} className={styles.smallButton}>
+              Clear
+            </Link>
+          ) : null}
+        </form>
       </div>
 
+      {!search ? (
+        <div className={styles.mediaButtons} style={{ marginBottom: "var(--space-5)" }} role="group" aria-label="Status">
+          {STATUSES.filter((s) => s !== "booked" || type !== "messages").map((s) => (
+            <Link key={s} href={href({ status: s })} className={styles.pill} aria-pressed={status === s}>
+              {s === "open" ? "All open" : statusLabel(s)}
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <p className={styles.muted} style={{ marginBottom: "var(--space-5)" }}>
+          Results for &ldquo;{search}&rdquo; across every status.
+        </p>
+      )}
+
       {error ? <p className={styles.alertError}>{error.message}</p> : null}
-      {data && data.length === 0 ? (
+      {rows.length === 0 && !error ? (
         <p className={styles.empty}>{search ? `Nothing matches “${search}”.` : "Nothing here."}</p>
       ) : null}
-      <ul className={styles.list}>
-        {(data ?? []).map((row) => (
-          <InboxItem key={row.id} kind={tab} entry={row as InboxEntry} mail={mailByItem.get(row.id) ?? []} />
-        ))}
-      </ul>
+      {rows.length > 0 ? <InboxTable rows={rows} mail={mailByItem} today={today} /> : null}
     </>
   );
 }

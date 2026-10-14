@@ -10,5 +10,6 @@ export const SUPABASE_KEY = required(
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
 );
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
-// Cloudflare Turnstile site key for the admin sign-in. Public by design; Supabase Auth holds the secret.
+// Cloudflare Turnstile site key for the admin sign-in and the contact forms. Public by design; Supabase Auth
+// holds the secret for sign-in, TURNSTILE_SECRET_KEY for the forms.
 export const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "0x4AAAAAAFT0J6iuOU4RqKkc";

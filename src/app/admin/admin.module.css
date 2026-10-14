@@ -824,24 +824,136 @@ textarea.input {
 }
 
 /* ── Inbox ── */
-.inboxItem {
-  display: grid;
-  gap: var(--space-3);
-  padding: var(--space-5) var(--space-6);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius);
-  background: var(--color-card);
+.primaryButton {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
 }
 
-.inboxItem + .inboxItem {
-  margin-top: var(--space-3);
+.primaryButton:hover {
+  border-color: var(--color-accent-strong);
+  background: var(--color-accent-strong);
+  color: var(--color-accent-ink);
 }
 
-.inboxHead {
+.filterBar {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
-  gap: var(--space-2) var(--space-4);
+  gap: var(--space-3) var(--space-5);
+  margin-bottom: var(--space-3);
+}
+
+.filterBar .searchForm {
+  flex: 1 1 18rem;
+  margin: 0;
+}
+
+.inboxTable tbody tr {
+  cursor: pointer;
+  transition: background-color var(--dur-micro) var(--ease-out);
+}
+
+.inboxTable tbody tr:hover {
+  background: var(--color-surface);
+}
+
+.inboxTable td:first-child,
+.inboxTable th:first-child {
+  padding-left: var(--space-3);
+}
+
+.inboxTable td {
+  vertical-align: middle;
+}
+
+/* Unhandled items read heavier, like unread mail. */
+.inboxTable tr[data-new] .subjectButton,
+.inboxTable tr[data-new] .preview {
+  font-weight: var(--weight-strong);
+  color: var(--color-ink);
+}
+
+.inboxTable .subjectButton {
+  text-decoration: none;
+}
+
+.inboxTable .subjectButton:hover {
+  text-decoration: underline;
+  color: inherit;
+}
+
+.fromCell {
+  display: grid;
+  max-width: 16rem;
+}
+
+.fromCell > * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview {
+  display: block;
+  overflow: hidden;
+  color: var(--color-ink-muted);
+  font-weight: var(--weight-body);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .wideOnly {
+    display: none;
+  }
+}
+
+.inboxDialog {
+  width: min(94vw, 44rem);
+}
+
+.inboxDialog .dialogHead .cardTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dialogNav {
+  display: flex;
+  flex: none;
+  gap: var(--space-2);
+}
+
+.dialogNav .smallButton {
+  padding-inline: var(--space-3);
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 9rem), 1fr));
+  gap: var(--space-3) var(--space-5);
+  margin: 0;
+  font-size: var(--text-small);
+}
+
+.detailGrid dt {
+  color: var(--color-ink-muted);
+  font-size: var(--text-label);
+}
+
+.detailGrid dd {
+  margin: 0;
+  font-weight: var(--weight-strong);
+  overflow-wrap: anywhere;
+}
+
+.messageBox {
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius);
+  background: var(--color-surface);
 }
 
 .meta {

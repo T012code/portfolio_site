@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { startTransition, useActionState, useCallback, useEffect, useId, useRef, useState } from "react";
 import { SentMark, SubmitButton } from "@/components/ui/SubmitButton";
+import { Turnstile } from "@/components/ui/Turnstile";
 import { normalisePhone } from "@/lib/phone";
 import { emailProblem } from "@/lib/validate";
 import { PhoneField } from "./PhoneField";
@@ -21,6 +22,8 @@ type Props = {
   email: string;
   /** reCAPTCHA v3 site key when spam protection is on. */
   recaptchaKey: string | null;
+  /** Cloudflare Turnstile site key when the human check is set up. */
+  turnstileKey: string | null;
 };
 
 type Grecaptcha = { ready: (cb: () => void) => void; execute: (key: string, opts: { action: string }) => Promise<string> };
@@ -56,7 +59,7 @@ async function recaptchaToken(key: string | null, action: string) {
 
 const IDLE: SubmitState = { status: "idle" };
 
-export function ContactForms({ labels, options, calLink, email, recaptchaKey }: Props) {
+export function ContactForms({ labels, options, calLink, email, recaptchaKey, turnstileKey }: Props) {
   const [tab, setTab] = useState<"enquiry" | "message">("enquiry");
   const tabsId = useId();
 
@@ -103,6 +106,7 @@ export function ContactForms({ labels, options, calLink, email, recaptchaKey }: 
           email={email}
           responseNote={labels.responseNote}
           recaptchaKey={recaptchaKey}
+          turnstileKey={turnstileKey}
         />
       </div>
       <div
@@ -111,7 +115,7 @@ export function ContactForms({ labels, options, calLink, email, recaptchaKey }: 
         aria-labelledby={`${tabsId}-message-tab`}
         hidden={tab !== "message"}
       >
-        <MessageForm responseNote={labels.responseNote} recaptchaKey={recaptchaKey} />
+        <MessageForm responseNote={labels.responseNote} recaptchaKey={recaptchaKey} turnstileKey={turnstileKey} />
       </div>
       {recaptchaKey ? (
         <p className={styles.recaptchaNote}>
@@ -130,15 +134,39 @@ export function ContactForms({ labels, options, calLink, email, recaptchaKey }: 
   );
 }
 
+const HUMAN_WAIT_MS = 12000;
+
 function useSubmit(
   action: (prev: SubmitState, form: FormData) => Promise<SubmitState>,
   recaptcha: { key: string | null; action: "enquiry" | "message" },
+  turnstileKey: string | null,
 ) {
   const [state, formAction, submitting] = useActionState(action, IDLE);
   const [checking, setChecking] = useState(false);
   const pending = submitting || checking;
   const startedAt = useRef(0);
   const alertRef = useRef<HTMLParagraphElement>(null);
+
+  // Cloudflare Turnstile: usually passes unseen; shows a box only when it wants a tick.
+  const human = useRef<string | null>(null);
+  const humanWaiters = useRef<((token: string | null) => void)[]>([]);
+  const [humanAttempt, setHumanAttempt] = useState(0);
+  const [humanBroken, setHumanBroken] = useState(false);
+  const onHumanToken = useCallback((token: string | null) => {
+    human.current = token;
+    if (token) {
+      setHumanBroken(false);
+      for (const resolve of humanWaiters.current.splice(0)) resolve(token);
+    }
+  }, []);
+  const onHumanError = useCallback(() => setHumanBroken(true), []);
+  const humanToken = () =>
+    human.current
+      ? Promise.resolve(human.current)
+      : new Promise<string | null>((resolve) => {
+          humanWaiters.current.push(resolve);
+          setTimeout(() => resolve(human.current), HUMAN_WAIT_MS);
+        });
 
   useEffect(() => {
     startedAt.current = Date.now();
@@ -147,6 +175,24 @@ function useSubmit(
   useEffect(() => {
     if (state.status === "error") alertRef.current?.focus();
   }, [state]);
+
+  const humanCheck = turnstileKey ? (
+    <div className={styles.humanCheck}>
+      <Turnstile
+        key={humanAttempt}
+        quiet
+        siteKey={turnstileKey}
+        action={recaptcha.action}
+        onToken={onHumanToken}
+        onError={onHumanError}
+      />
+      {humanBroken ? (
+        <p className={styles.error} role="alert">
+          The spam check couldn&apos;t load. Turn off any blocker for this page, or email me directly.
+        </p>
+      ) : null}
+    </div>
+  ) : null;
 
   // Checked here first so a mistyped email or number never makes the round trip.
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
@@ -167,6 +213,20 @@ function useSubmit(
       return;
     }
     data.set("started", String(startedAt.current));
+    if (turnstileKey) {
+      setChecking(true);
+      const token = await humanToken();
+      if (!token) {
+        setChecking(false);
+        setClientErrors({ human: "Tick the box to show you're human, then send again." });
+        return;
+      }
+      data.set("turnstile_token", token);
+      // Each token works once: start a fresh check in case this attempt comes back with an error.
+      human.current = null;
+      setHumanAttempt((n) => n + 1);
+      setChecking(false);
+    }
     if (recaptcha.key) {
       setChecking(true);
       data.set("recaptcha_token", await recaptchaToken(recaptcha.key, recaptcha.action));
@@ -175,7 +235,7 @@ function useSubmit(
     startTransition(() => formAction(data));
   };
 
-  return { state, pending, onSubmit, alertRef, clientErrors };
+  return { state, pending, onSubmit, alertRef, clientErrors, humanCheck };
 }
 
 function EnquiryForm({
@@ -184,14 +244,20 @@ function EnquiryForm({
   email,
   responseNote,
   recaptchaKey,
+  turnstileKey,
 }: {
   options: Props["options"];
   calLink: string;
   email: string;
   responseNote: string;
   recaptchaKey: string | null;
+  turnstileKey: string | null;
 }) {
-  const { state, pending, onSubmit, alertRef, clientErrors } = useSubmit(submitEnquiry, { key: recaptchaKey, action: "enquiry" });
+  const { state, pending, onSubmit, alertRef, clientErrors, humanCheck } = useSubmit(
+    submitEnquiry,
+    { key: recaptchaKey, action: "enquiry" },
+    turnstileKey,
+  );
   const [booked, setBooked] = useState(false);
   const [skipped, setSkipped] = useState(false);
   const onBooked = useCallback(() => setBooked(true), []);
@@ -270,6 +336,12 @@ function EnquiryForm({
         error={errors.message}
         hint="What you're building, what exists already, and what a good outcome looks like."
       />
+      {humanCheck}
+      {errors.human ? (
+        <p className={styles.error} role="alert">
+          {errors.human}
+        </p>
+      ) : null}
       <div className={styles.submitRow}>
         <SubmitButton pending={pending}>Continue to booking</SubmitButton>
         <p className={styles.note}>{responseNote}</p>
@@ -278,8 +350,20 @@ function EnquiryForm({
   );
 }
 
-function MessageForm({ responseNote, recaptchaKey }: { responseNote: string; recaptchaKey: string | null }) {
-  const { state, pending, onSubmit, alertRef, clientErrors } = useSubmit(submitMessage, { key: recaptchaKey, action: "message" });
+function MessageForm({
+  responseNote,
+  recaptchaKey,
+  turnstileKey,
+}: {
+  responseNote: string;
+  recaptchaKey: string | null;
+  turnstileKey: string | null;
+}) {
+  const { state, pending, onSubmit, alertRef, clientErrors, humanCheck } = useSubmit(
+    submitMessage,
+    { key: recaptchaKey, action: "message" },
+    turnstileKey,
+  );
   const doneRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -315,6 +399,12 @@ function MessageForm({ responseNote, recaptchaKey }: { responseNote: string; rec
       </div>
       <PhoneField name="whatsapp" label="WhatsApp number" value={values.whatsapp} error={errors.whatsapp} />
       <TextField name="message" label="Message" multiline required value={values.message} error={errors.message} />
+      {humanCheck}
+      {errors.human ? (
+        <p className={styles.error} role="alert">
+          {errors.human}
+        </p>
+      ) : null}
       <div className={styles.submitRow}>
         <SubmitButton pending={pending}>Send message</SubmitButton>
       </div>

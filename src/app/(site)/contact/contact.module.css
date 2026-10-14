@@ -668,3 +668,15 @@ textarea.input {
 .phoneInput:focus {
   outline: none;
 }
+
+/* Cloudflare's human check: empty unless it needs a tick. */
+.humanCheck:empty {
+  display: none;
+}
+
+.humanCheck {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 100%;
+  overflow: hidden;
+}

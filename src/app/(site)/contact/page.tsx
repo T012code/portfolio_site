@@ -4,7 +4,9 @@ import { PageTransition } from "@/components/motion/PageTransition";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { getBlocks, getSettings } from "@/lib/content";
 import { whatsappUrl } from "@/lib/format";
+import { TURNSTILE_SITE_KEY } from "@/lib/env";
 import { pageMetadata } from "@/lib/seo";
+import { turnstileReady } from "@/lib/turnstile";
 import { ContactForms } from "./ContactForms";
 import shared from "../page.module.css";
 import styles from "./contact.module.css";
@@ -62,6 +64,7 @@ export default async function ContactPage() {
           calLink={settings.cal_link}
           email={settings.email}
           recaptchaKey={settings.recaptcha_enabled && settings.recaptcha_site_key ? settings.recaptcha_site_key : null}
+          turnstileKey={turnstileReady() ? TURNSTILE_SITE_KEY : null}
         />
 
         <aside aria-label="Other ways to reach me">
