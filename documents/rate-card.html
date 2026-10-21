@@ -120,7 +120,7 @@
 <div class="page">
   <section>
     <div class="section-head"><span class="label">Monthly care plans</span></div>
-    <p class="intro">For sites I build or take over. Cancel any time with 30 days' notice.</p>
+    <p class="intro">For sites I build or take over. Unused hours don't roll over, and work beyond them is billed at the hourly rate. Cancel any time with 30 days' notice.</p>
     <div class="plans">
       <div class="card">
         <h3 class="display">Essential care</h3>
@@ -130,6 +130,7 @@
           <li>Daily backups</li>
           <li>Uptime and security monitoring</li>
           <li>Monthly check-up report</li>
+          <li data-k="essentialHours"></li>
         </ul>
       </div>
       <div class="callout">
@@ -137,7 +138,7 @@
         <p class="cost display"><span class="tone" data-k="growth"></span> <small>/ month</small></p>
         <ul class="ticks">
           <li>Everything in Essential care</li>
-          <li>4 hours of content or page changes a month</li>
+          <li data-k="growthHours"></li>
           <li>Priority support, replies within one working day</li>
           <li>Quarterly speed and SEO review</li>
         </ul>
@@ -173,7 +174,7 @@
     <div class="section-head"><span class="label">What every project includes</span></div>
     <ul class="ticks">
       <li>Two revision rounds per milestone</li>
-      <li>30 days of free fixes after launch</li>
+      <li>30 days of free fixes for defects in the agreed scope</li>
       <li>Full handover of code, files and logins once paid</li>
       <li>Mobile, tablet and desktop testing</li>
       <li>Basic on-page SEO and analytics</li>
@@ -187,7 +188,7 @@
       <li>Domain, hosting and paid licences</li>
       <li>Copywriting and photography</li>
       <li>Paid advertising and ongoing SEO campaigns</li>
-      <li>Changes after sign-off (hourly rate)</li>
+      <li>New features or changes after sign-off (quoted separately)</li>
     </ul>
   </section>
 
@@ -221,6 +222,8 @@
       },
       essential: "₦50,000",
       growth: "₦100,000",
+      essentialHours: "",
+      growthHours: "4 hours of content or page changes a month",
       schedule: "50% to start, 50% on delivery before launch. Builds over ₦2,000,000 can be split into milestones.",
       tax: "Prices exclude any applicable VAT.",
       payment: `
@@ -238,14 +241,16 @@
       audience: "International clients",
       pricesIn: "Prices in US dollars ($)",
       prices: {
-        landing: "$500", business: "$1,000", shop: "$2,000",
-        webapp: "$2,000", mobile: "$2,500", plugin: "$1,200",
+        landing: "$600", business: "$1,300", shop: "$2,500",
+        webapp: "$5,000", mobile: "$5,000", plugin: "$1,200",
         integration: "$500", security: "$400",
-        devHour: "$50", consultHour: "$50", consultDay: "$375", hardwareDay: "$250", training: "$125",
+        devHour: "$25", consultHour: "$30", consultDay: "$200", hardwareDay: "$120", training: "$75",
       },
-      essential: "$125",
-      growth: "$250",
-      schedule: "50% to start, 50% on delivery before launch. Builds over $5,000 can be split into milestones.",
+      essential: "$75",
+      growth: "$175",
+      essentialHours: "Up to 1 hour of small fixes a month",
+      growthHours: "Up to 3 hours of content or page changes a month",
+      schedule: "50% to start, 50% on delivery before launch. Builds over $3,000 are paid by milestone.",
       tax: "Prices exclude any local taxes in your country.",
       payment: `
         <h3 class="display">Payment in US dollars</h3>
@@ -298,7 +303,11 @@
   const c = CURRENCIES[code] || CURRENCIES.NGN;
   document.title = `Layò rate card (${c.code})`;
 
-  for (const el of document.querySelectorAll("[data-k]")) el.innerHTML = c[el.dataset.k];
+  for (const el of document.querySelectorAll("[data-k]")) {
+    const value = c[el.dataset.k];
+    if (value === "" && el.tagName === "LI") el.remove();
+    else el.innerHTML = value;
+  }
 
   for (const el of document.querySelectorAll("[data-services]")) {
     el.innerHTML = SERVICES[el.dataset.services].map(([name, desc, key, time, items]) => `
