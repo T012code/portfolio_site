@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* Hallmark · macrostructure: one continuous take · tone: modern-premium, night to daylight · anchor hue: 263 (cobalt) */
+      @font-face {
+        font-family: "Archivo";
+        src: url("assets/fonts/archivo-latin.woff2") format("woff2-variations");
+        font-weight: 100 900;
+        font-stretch: 62% 125%;
+        font-style: normal;
+      }
+      :root {
+        /* Tokens from layothedeveloper.com (src/app/globals.css) */
+        --night: oklch(20% 0.055 266);
+        --night-2: oklch(25% 0.065 266);
+        --night-3: oklch(16% 0.035 266);
+        --cobalt: oklch(55.5% 0.215 263);
+        --cobalt-deep: oklch(47% 0.22 265);
+        --paper: oklch(98.4% 0.006 250);
+        --ink: oklch(22% 0.045 266);
+        --ink-muted: oklch(48% 0.03 262);
+        --white: oklch(96% 0.01 250);
+        --dim: oklch(78% 0.035 255);
+        --lime: oklch(89% 0.19 125);
+        --sky: oklch(83% 0.1 232);
+        --danger: oklch(68% 0.19 25);
+        --rule-w: oklch(96% 0.01 250 / 0.14);
+        --font: "Archivo", "Inter", sans-serif;
+        --mono: "JetBrains Mono", monospace;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--night); }
+      #root { width: 100%; height: 100%; position: relative; overflow: hidden; font-family: var(--font); color: var(--white); }
+      #take { position: absolute; inset: 0; overflow: hidden; }
+      #ground { position: absolute; inset: 0; background: var(--night); }
+
+      /* Camera rig: three depth layers, all 1080x1920 boxes scaled about the frame centre */
+      .layer { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 540px 960px; }
+      #far .grid { position: absolute; left: -2200px; top: -1600px; width: 5480px; height: 9600px;
+        background-image: linear-gradient(var(--rule-w) 2px, transparent 2px), linear-gradient(90deg, var(--rule-w) 2px, transparent 2px);
+        background-size: 120px 120px; opacity: 0.55; }
+      #far .ghost { position: absolute; width: 900px; fill: none; stroke: oklch(96% 0.01 250 / 0.07); stroke-width: 1.2; }
+
+      /* Editor surface: line numbers, syntax colour, caret. No window chrome. */
+      .editor { position: absolute; left: 90px; width: 900px; background: var(--night-3); border: 2px solid var(--rule-w);
+        border-radius: 34px; padding: 40px 40px 40px 34px; font-family: var(--mono); font-size: 31px; line-height: 54px; color: var(--white); }
+      .editor .file { font-size: 28px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); margin-bottom: 14px; font-family: var(--font); font-weight: 600; }
+      .row { display: flex; white-space: pre; }
+      .row .n { width: 54px; flex: none; color: oklch(78% 0.035 255 / 0.45); }
+      .k { color: var(--sky); } .s { color: var(--lime); } .f { color: oklch(85% 0.11 300); } .c { color: oklch(78% 0.035 255 / 0.6); }
+      .row.bad { background: oklch(68% 0.19 25 / 0.16); border-radius: 12px; margin: 0 -14px; padding: 0 14px; }
+      .errline { margin-top: 18px; padding: 10px 18px; border-radius: 14px; border: 2px solid oklch(68% 0.19 25 / 0.8);
+        background: oklch(68% 0.19 25 / 0.14); color: var(--danger); font-weight: 700; white-space: nowrap; }
+      .caret { display: inline-block; width: 16px; height: 38px; background: var(--lime); vertical-align: -6px; margin-left: 2px; }
+
+      .card { position: absolute; width: 780px; padding: 38px 44px; border-radius: 30px; background: var(--night-2);
+        border: 2px solid var(--rule-w); font-size: 54px; font-weight: 680; font-stretch: 110%; letter-spacing: -0.025em; line-height: 1.08;
+        box-shadow: 0 40px 80px -30px oklch(5% 0.02 266 / 0.8); }
+      .card .tag { display: block; font-size: 28px; font-family: var(--mono); font-weight: 500; letter-spacing: 0; color: var(--danger); margin-bottom: 14px; }
+      .chip { position: absolute; font-family: var(--mono); font-size: 30px; padding: 10px 22px; border-radius: 999px;
+        border: 2px solid oklch(68% 0.19 25 / 0.55); color: oklch(80% 0.12 25); background: oklch(20% 0.055 266 / 0.7); white-space: nowrap; }
+      .streak { position: absolute; width: 4px; height: 260px; border-radius: 4px; background: linear-gradient(transparent, oklch(83% 0.1 232 / 0.5), transparent); }
+
+      /* Fix world */
+      .fixrow { position: absolute; left: 90px; width: 900px; height: 128px; border-radius: 26px; border: 2px solid oklch(96% 0.01 250 / 0.22);
+        background: oklch(20% 0.055 266 / 0.35); display: grid; grid-template-columns: 76px 1fr; align-items: center; gap: 22px; padding: 0 30px; }
+      .tickbox { width: 64px; height: 64px; border-radius: 50%; border: 3px solid oklch(96% 0.01 250 / 0.4); position: relative; }
+      .tickfill { position: absolute; inset: -3px; border-radius: 50%; background: var(--lime); display: grid; place-items: center; }
+      .tickfill svg { width: 36px; fill: var(--ink); }
+      .fixtext { position: relative; min-width: 0; }
+      .prob { font-size: 30px; color: var(--dim); position: relative; display: inline-block; white-space: nowrap; }
+      .prob .strike { position: absolute; left: -4px; right: -4px; top: 52%; height: 4px; border-radius: 4px; background: var(--lime); transform-origin: 0 50%; }
+      .sol { font-size: 42px; font-weight: 700; font-stretch: 108%; letter-spacing: -0.02em; line-height: 1.05; white-space: nowrap; }
+
+      /* HUD: screen-locked type */
+      .hud { position: absolute; inset: 0; pointer-events: none; }
+      .big { font-weight: 780; font-stretch: 118%; letter-spacing: -0.045em; line-height: 0.95; }
+      #h1 { position: absolute; left: 70px; top: 930px; width: 960px; font-size: 112px; }
+      #h1 .w2 { color: var(--danger); }
+      .ch { display: inline-block; white-space: pre; }
+      #void { position: absolute; inset: 0; background: var(--night); }
+      #t1 { position: absolute; left: 90px; top: 560px; width: 900px; font-size: 54px; font-weight: 500; color: var(--dim); }
+      #t2 { position: absolute; left: 90px; top: 660px; width: 920px; font-size: 168px; }
+      #t2 .line { display: block; position: relative; width: max-content; }
+      #t2 .hlbar { position: absolute; left: -16px; right: -18px; top: 8%; bottom: -2%; background: var(--lime); border-radius: 18px; transform-origin: 0 50%; z-index: 0; }
+      #t2 .ink { position: relative; z-index: 1; }
+      #t2wrap { position: absolute; inset: 0; isolation: isolate; }
+
+      /* Who */
+      #who { position: absolute; inset: 0; }
+      #win { position: absolute; left: 230px; top: 236px; width: 620px; height: 700px; border-radius: 120px 120px 120px 120px; overflow: hidden; background: var(--night-2); }
+      #win img { position: absolute; left: -40px; top: -60px; width: 700px; height: 875px; object-fit: cover; }
+      #dot { position: absolute; left: 790px; top: 196px; width: 104px; height: 104px; border-radius: 6px; background: var(--lime); }
+      #name { position: absolute; left: 90px; top: 990px; width: 900px; text-align: center; font-size: 132px; }
+      #role { position: absolute; left: 90px; top: 1150px; width: 900px; text-align: center; font-size: 40px; line-height: 1.3; color: var(--dim); }
+
+      /* End card */
+      #endg { position: absolute; inset: 0; background: var(--paper); }
+      #end { position: absolute; inset: 0; color: var(--ink); }
+      #e1 { position: absolute; left: 90px; top: 250px; width: 900px; font-size: 124px; }
+      #e1 .w { display: inline-block; }
+      .erow { position: absolute; left: 90px; display: flex; align-items: center; gap: 26px; white-space: nowrap; }
+      .eico { width: 84px; height: 84px; border-radius: 24px; background: var(--lime); display: grid; place-items: center; flex: none; }
+      .eico svg { width: 52px; fill: var(--ink); }
+      #wa { top: 590px; font-size: 66px; font-weight: 720; font-stretch: 108%; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+      #web { top: 714px; font-size: 52px; font-weight: 600; }
+      #web .eico { background: var(--cobalt); } #web .eico svg { fill: var(--white); }
+      #lock { position: absolute; left: 0; top: 880px; width: 1080px; display: grid; justify-items: center; gap: 26px; }
+      #lmark { width: 150px; fill: var(--ink); display: block; }
+      #lword { font-size: 82px; font-weight: 760; font-stretch: 112%; letter-spacing: -0.035em; }
+      #motto { position: absolute; left: 0; width: 1080px; top: 1196px; text-align: center; font-size: 40px; color: var(--ink-muted); }
+      #void, #t1, #t2wrap, #who, #endg, #end, #carry, .card { opacity: 0; }
+      #edeco { position: absolute; left: 380px; top: 1400px; width: 900px; fill: oklch(55.5% 0.215 263 / 0.09); }
+      #carry { position: absolute; left: 230px; top: 236px; width: 620px; height: 700px; border-radius: 120px; background: var(--ink); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30" data-width="1080" data-height="1920" data-motion-blur="on">
+      <div id="take" class="clip" data-start="0" data-duration="30" data-track-index="0" data-layout-allow-overflow data-layout-allow-overlap>
+        <div id="ground"></div>
+
+        <!-- FAR: grid + ghost marks, 0.35x -->
+        <div id="far" class="layer">
+          <div class="grid"></div>
+          <svg class="ghost" style="left:-260px;top:1500px" viewBox="65.058 26.17 119.883 106.061"><path d="M165.342 26.17h19.599v19.599h-19.599z"/><path d="M144.090 45.769L165.342 45.769L165.342 112.832C165.342 123.563 156.675 132.231 145.949 132.231L105.709 132.231C94.978 132.231 86.315 123.563 86.315 112.832L144.090 112.832ZM86.315 45.769L86.315 112.832L65.058 112.832L65.058 45.769C65.058 35.043 73.725 26.170 84.662 26.170L124.486 26.170C135.423 26.170 144.090 35.043 144.090 45.769Z"/></svg>
+          <svg class="ghost" style="left:420px;top:2600px" viewBox="65.058 26.17 119.883 106.061"><path d="M165.342 26.17h19.599v19.599h-19.599z"/><path d="M144.090 45.769L165.342 45.769L165.342 112.832C165.342 123.563 156.675 132.231 145.949 132.231L105.709 132.231C94.978 132.231 86.315 123.563 86.315 112.832L144.090 112.832ZM86.315 45.769L86.315 112.832L65.058 112.832L65.058 45.769C65.058 35.043 73.725 26.170 84.662 26.170L124.486 26.170C135.423 26.170 144.090 35.043 144.090 45.769Z"/></svg>
+        </div>
+
+        <!-- MID: editor, problem cards, fix world -->
+        <div id="mid" class="layer">
+          <div class="editor" id="ed1" style="top:300px">
+            <div class="file">checkout.ts</div>
+            <div class="row"><span class="n">1</span><span><span class="k">export async function</span> <span class="f">pay</span>(ref) {</span></div>
+            <div class="row"><span class="n">2</span><span>  <span class="k">const</span> res = <span class="k">await</span> paystack.<span class="f">verify</span>(ref);</span></div>
+            <div class="row bad" id="badrow"><span class="n">3</span><span>  <span class="k">if</span> (!res.ok) <span class="k">throw</span> <span class="f">Error</span>(<span class="s">"failed"</span>);</span></div>
+            <div class="row"><span class="n">4</span><span>  <span class="k">return</span> res.data;</span></div>
+            <div class="row"><span class="n">5</span><span>}</span></div>
+            <div class="errline" id="err">✕ Error: payment failed</div>
+          </div>
+
+          <div class="card" id="c1"><span class="tag">checkout.ts</span>Checkout keeps failing.</div>
+          <div class="card" id="c2"><span class="tag">notes.txt</span>App idea still in your notes.</div>
+          <div class="card" id="c3"><span class="tag">homepage</span>Pages take forever to load.</div>
+          <div class="card" id="c4"><span class="tag">crm · payments · bookings</span>Your tools don’t talk to each other.</div>
+
+          <div class="editor" id="ed2" style="top:4260px">
+            <div class="file" id="ed2file">payments.ts</div>
+            <div class="row"><span class="n">1</span><span id="L1"></span></div>
+            <div class="row"><span class="n">2</span><span id="L2"></span></div>
+            <div class="row"><span class="n">3</span><span id="L3" class="s"></span></div>
+          </div>
+          <div class="fixrow" id="r1" style="top:4728px"><div class="tickbox"><div class="tickfill"><svg viewBox="0 0 256 256"><path d="M232.49,80.49l-128,128a12,12,0,0,1-17,0l-56-56a12,12,0,1,1,17-17L96,183,215.51,63.51a12,12,0,0,1,17,17Z"/></svg></div></div><div class="fixtext"><div class="prob">Checkout keeps failing<span class="strike"></span></div><div class="sol">Payments that go through</div></div></div>
+          <div class="fixrow" id="r2" style="top:4870px"><div class="tickbox"><div class="tickfill"><svg viewBox="0 0 256 256"><path d="M232.49,80.49l-128,128a12,12,0,0,1-17,0l-56-56a12,12,0,1,1,17-17L96,183,215.51,63.51a12,12,0,0,1,17,17Z"/></svg></div></div><div class="fixtext"><div class="prob">App idea still in your notes<span class="strike"></span></div><div class="sol">Flutter app on iOS &amp; Android</div></div></div>
+          <div class="fixrow" id="r3" style="top:5012px"><div class="tickbox"><div class="tickfill"><svg viewBox="0 0 256 256"><path d="M232.49,80.49l-128,128a12,12,0,0,1-17,0l-56-56a12,12,0,1,1,17-17L96,183,215.51,63.51a12,12,0,0,1,17,17Z"/></svg></div></div><div class="fixtext"><div class="prob">Pages take forever to load<span class="strike"></span></div><div class="sol">Fast, accessible Next.js site</div></div></div>
+          <div class="fixrow" id="r4" style="top:5154px"><div class="tickbox"><div class="tickfill"><svg viewBox="0 0 256 256"><path d="M232.49,80.49l-128,128a12,12,0,0,1-17,0l-56-56a12,12,0,1,1,17-17L96,183,215.51,63.51a12,12,0,0,1,17,17Z"/></svg></div></div><div class="fixtext"><div class="prob">Your tools don’t talk to each other<span class="strike"></span></div><div class="sol">CRM, payments &amp; bookings in sync</div></div></div>
+        </div>
+
+        <!-- NEAR: error chips + light streaks, 2.2x -->
+        <div id="near" class="layer">
+          <div class="chip" style="left:40px;top:1420px">500</div>
+          <div class="chip" style="left:760px;top:1650px">timeout</div>
+          <div class="chip" style="left:620px;top:2050px">TypeError</div>
+          <div class="chip" style="left:60px;top:2380px">404</div>
+          <div class="chip" style="left:700px;top:2800px">CORS blocked</div>
+          <div class="chip" style="left:120px;top:3150px">undefined</div>
+          <div class="streak" style="left:980px;top:1500px"></div>
+          <div class="streak" style="left:60px;top:2200px"></div>
+          <div class="streak" style="left:900px;top:3000px"></div>
+        </div>
+
+        <!-- HUD -->
+        <div class="hud">
+          <div id="h1" class="big"><span class="w1">Your checkout</span><br /><span class="w2">just broke.</span></div>
+          <div id="void"></div>
+          <div id="t2wrap">
+            <div id="t1">Whatever the problem is,</div>
+            <div id="t2" class="big"><span class="line"><span class="hlbar" id="hl1"></span><span class="ink" id="t2a">I make</span></span><span class="line"><span class="hlbar" id="hl2"></span><span class="ink" id="t2b">it work.</span></span></div>
+          </div>
+          <div id="who">
+            <div id="win"><img id="pimg" src="assets/img/portrait.jpg" alt="" /></div>
+            <div id="dot"></div>
+            <div id="name" class="big">I’m Layò.</div>
+            <div id="role">Software engineer · 7+ years<br />Lagos, working worldwide.</div>
+          </div>
+          <div id="endg"></div>
+          <div id="carry"></div>
+          <div id="end">
+            <div id="e1" class="big"><span class="w">Tell</span> <span class="w">me</span> <span class="w">the</span><br /><span class="w">problem.</span></div>
+            <div class="erow" id="wa"><span class="eico"><svg viewBox="0 0 256 256"><path d="M152.58,145.23l23,11.48A24,24,0,0,1,152,176a72.08,72.08,0,0,1-72-72A24,24,0,0,1,99.29,80.46l11.48,23L101,118a8,8,0,0,0-.73,7.51,56.47,56.47,0,0,0,30.15,30.15A8,8,0,0,0,138,155ZM232,128A104,104,0,0,1,79.12,219.82L45.07,231.17a16,16,0,0,1-20.24-20.24l11.35-34.05A104,104,0,1,1,232,128Zm-40,24a8,8,0,0,0-4.42-7.16l-32-16a8,8,0,0,0-8,.5l-14.69,9.8a40.550,40.550,0,0,1-16-16l9.8-14.69a8,8,0,0,0,.5-8l-16-32A8,8,0,0,0,104,64a40,40,0,0,0-40,40,88.1,88.1,0,0,0,88,88A40,40,0,0,0,192,152Z"/></svg></span><span id="watext">+234 807 945 1031</span></div>
+            <div class="erow" id="web"><span class="eico"><svg viewBox="0 0 256 256"><path d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm83.13,96H179.56a144.3,144.3,0,0,0-21.35-66.36A84.22,84.22,0,0,1,211.13,116ZM128,207c-9.36-10.81-24.460-33.130-27.450-67h54.94a119.74,119.74,0,0,1-17.11,52.77A108.61,108.61,0,0,1,128,207Zm-27.45-91a119.74,119.74,0,0,1,17.11-52.77A108.61,108.61,0,0,1,128,49c9.36,10.81,24.46,33.13,27.45,67ZM97.79,49.64A144.3,144.3,0,0,0,76.44,116H44.87A84.22,84.22,0,0,1,97.79,49.64ZM44.87,140H76.44a144.3,144.3,0,0,0,21.35,66.36A84.22,84.22,0,0,1,44.87,140Zm113.34,66.36A144.3,144.3,0,0,0,179.56,140h31.57A84.22,84.22,0,0,1,158.21,206.36Z"/></svg></span><span>layothedeveloper.com</span></div>
+            <div id="lock">
+              <svg id="lmark" viewBox="65.058 26.17 119.883 106.061"><path d="M165.342 26.17h19.599v19.599h-19.599z"/><path d="M144.090 45.769L165.342 45.769L165.342 112.832C165.342 123.563 156.675 132.231 145.949 132.231L105.709 132.231C94.978 132.231 86.315 123.563 86.315 112.832L144.090 112.832ZM86.315 45.769L86.315 112.832L65.058 112.832L65.058 45.769C65.058 35.043 73.725 26.170 84.662 26.170L124.486 26.170C135.423 26.170 144.090 35.043 144.090 45.769Z"/></svg>
+              <div id="lword">layothedeveloper</div>
+            </div>
+            <div id="motto">Everything is possible.</div>
+            <svg id="edeco" viewBox="65.058 26.17 119.883 106.061" aria-hidden="true"><path d="M165.342 26.17h19.599v19.599h-19.599z"/><path d="M144.090 45.769L165.342 45.769L165.342 112.832C165.342 123.563 156.675 132.231 145.949 132.231L105.709 132.231C94.978 132.231 86.315 123.563 86.315 112.832L144.090 112.832ZM86.315 45.769L86.315 112.832L65.058 112.832L65.058 45.769C65.058 35.043 73.725 26.170 84.662 26.170L124.486 26.170C135.423 26.170 144.090 35.043 144.090 45.769Z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sound -->
+      <audio id="m-tense" data-timeline-role="music" class="clip" src="assets/music/a_tense.wav" data-start="0" data-duration="8.6" data-volume="0.55" data-fade-out="0.12" data-track-index="2"></audio>
+      <audio id="m-bright" data-timeline-role="music" class="clip" src="assets/music/a_bright.wav" data-start="9.3" data-duration="20.7" data-volume="0.6" data-fade-out="1.6" data-track-index="3"></audio>
+      <audio id="sx-riser" class="clip" src="assets/sfx/riser.mp3" data-start="5.05" data-duration="3.5" data-volume="0.4" data-fade-in="1" data-fade-out="0.08" data-track-index="4"></audio>
+      <audio id="sx-g0" class="clip" src="assets/sfx/glitch-1.mp3" data-start="0" data-duration="1.4" data-volume="0.55" data-track-index="5"></audio>
+      <audio id="sx-g1" class="clip" src="assets/sfx/glitch-3.mp3" data-start="3.2" data-duration="1" data-volume="0.5" data-track-index="5"></audio>
+      <audio id="sx-g2" class="clip" src="assets/sfx/glitch-2.mp3" data-start="4.25" data-duration="1" data-volume="0.45" data-track-index="6"></audio>
+      <audio id="sx-g3" class="clip" src="assets/sfx/glitch-1.mp3" data-start="5.3" data-duration="1" data-volume="0.5" data-track-index="5"></audio>
+      <audio id="sx-g4" class="clip" src="assets/sfx/glitch-3.mp3" data-start="6.35" data-duration="1" data-volume="0.5" data-track-index="6"></audio>
+      <audio id="sx-zoom" class="clip" src="assets/sfx/whoosh.mp3" data-start="8.05" data-duration="0.57" data-volume="0.8" data-track-index="7"></audio>
+      <audio id="sx-impact" class="clip" src="assets/sfx/impact-bass-1.mp3" data-start="9.3" data-duration="2.1" data-volume="0.9" data-track-index="7"></audio>
+      <audio id="sx-ty1" class="clip" src="assets/sfx/typing.mp3" data-start="11.3" data-duration="1.4" data-volume="0.45" data-track-index="8"></audio>
+      <audio id="sx-ty2" class="clip" src="assets/sfx/typing.mp3" data-start="13.25" data-duration="1.4" data-volume="0.45" data-track-index="8"></audio>
+      <audio id="sx-ty3" class="clip" src="assets/sfx/typing.mp3" data-start="15.2" data-duration="1.4" data-volume="0.45" data-track-index="8"></audio>
+      <audio id="sx-ty4" class="clip" src="assets/sfx/typing.mp3" data-start="17.15" data-duration="1.4" data-volume="0.45" data-track-index="8"></audio>
+      <audio id="sx-p1" class="clip" src="assets/sfx/pop.mp3" data-start="13.15" data-duration="0.7" data-volume="0.7" data-track-index="9"></audio>
+      <audio id="sx-p2" class="clip" src="assets/sfx/pop.mp3" data-start="15.18" data-duration="0.7" data-volume="0.7" data-track-index="9"></audio>
+      <audio id="sx-p3" class="clip" src="assets/sfx/pop.mp3" data-start="16.92" data-duration="0.7" data-volume="0.7" data-track-index="9"></audio>
+      <audio id="sx-p4" class="clip" src="assets/sfx/pop.mp3" data-start="18.98" data-duration="0.7" data-volume="0.7" data-track-index="9"></audio>
+      <audio id="sx-morph" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="20.05" data-duration="0.57" data-volume="0.7" data-track-index="7"></audio>
+      <audio id="sx-carry" class="clip" src="assets/sfx/whoosh.mp3" data-start="24.95" data-duration="0.57" data-volume="0.6" data-track-index="7"></audio>
+      <audio id="sx-keys" class="clip" src="assets/sfx/typing.mp3" data-start="25.95" data-duration="0.75" data-volume="0.35" data-fade-out="0.15" data-track-index="8"></audio>
+    </div>
+
+    <script>
+      (function () {
+        const tl = gsap.timeline({ paused: true });
+        const O = { x: 540, y: 960 };
+        const LAYERS = [["#far", 0.35], ["#mid", 1], ["#near", 2.2]];
+
+        // Camera: focus point (world coords of the mid layer) and zoom. Each layer
+        // scales by 1+(z-1)*d and shifts by its depth, so parallax falls out of one call.
+        function camVars(f, z, d) {
+          const s = 1 + (z - 1) * d;
+          return { x: -s * d * (f.x - O.x), y: -s * d * (f.y - O.y), scale: s };
+        }
+        function camSet(t, f, z) {
+          LAYERS.forEach(([sel, d]) => tl.set(sel, camVars(f, z, d), t));
+        }
+        function cam(t, dur, f, z, ease) {
+          LAYERS.forEach(([sel, d]) => tl.to(sel, { ...camVars(f, z, d), duration: dur, ease }, t));
+        }
+        const blurIn = (sel, t, dur = 0.16, extra = {}) =>
+          tl.fromTo(sel, { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: dur, ease: "power2.out", ...extra }, t);
+        const blurOut = (sel, t, dur = 0.16) =>
+          tl.to(sel, { opacity: 0, filter: "blur(8px)", duration: dur, ease: "power2.in" }, t);
+
+        // Split helpers (deterministic, built before the timeline)
+        // Characters are wrapped per word so a line can only break between words.
+        function splitChars(el) {
+          const text = el.textContent; el.textContent = "";
+          const out = [];
+          text.split(/(\s+)/).forEach((tok) => {
+            if (!tok) return;
+            if (/^\s+$/.test(tok)) { el.appendChild(document.createTextNode(" ")); return; }
+            const w = document.createElement("span"); w.style.display = "inline-block"; w.style.whiteSpace = "nowrap";
+            [...tok].forEach((c) => { const s = document.createElement("span"); s.className = "ch"; s.textContent = c; w.appendChild(s); out.push(s); });
+            el.appendChild(w);
+          });
+          return out;
+        }
+
+        // ---------- initial states ----------
+        tl.set("#ground", { backgroundColor: "oklch(20% 0.055 266)" }, 0);
+
+        // ---------- A1 hook: error at 3x, pull back ----------
+        camSet(0, { x: 400, y: 728 }, 2.6);
+        tl.to("#err", { opacity: 0.35, duration: 0.03, ease: "none" }, 0.1);
+        tl.to("#err", { opacity: 1, duration: 0.03, ease: "none" }, 0.16);
+        tl.to("#err", { opacity: 0.5, duration: 0.03, ease: "none" }, 0.23);
+        tl.to("#err", { opacity: 1, duration: 0.03, ease: "none" }, 0.28);
+        cam(0.35, 1.5, { x: 540, y: 960 }, 1.0, "expo.inOut");
+
+        const h1chars = [...splitChars(document.querySelector("#h1 .w1")), ...splitChars(document.querySelector("#h1 .w2"))];
+        h1chars.forEach((c, i) => tl.fromTo(c, { opacity: 0, filter: "blur(6px)", y: 30 }, { opacity: 1, filter: "blur(0px)", y: 0, duration: 0.22, ease: "expo.out" }, 0.95 + i * 0.033));
+        // shake on "broke."
+        [0, 1, 2, 3, 4].forEach((i) => tl.set("#h1 .w2", { x: [14, -11, 8, -5, 0][i] }, 1.62 + i * 0.033));
+        tl.fromTo("#badrow", { backgroundColor: "oklch(68% 0.19 25 / 0.16)" }, { backgroundColor: "oklch(68% 0.19 25 / 0.36)", duration: 0.2, ease: "power2.out" }, 1.62);
+        tl.to("#h1", { opacity: 0, filter: "blur(10px)", y: -40, duration: 0.25, ease: "power3.in" }, 2.95);
+
+        // ---------- A2 pile-up: drift down, cards land at three depths ----------
+        const D0 = 3.0, D1 = 8.0, FY0 = 960, FY1 = 2660;
+        const ease1 = gsap.parseEase("power1.inOut");
+        const fyAt = (t) => FY0 + (FY1 - FY0) * ease1(Math.min(1, Math.max(0, (t - D0) / (D1 - D0))));
+        cam(D0, D1 - D0, { x: 540, y: FY1 }, 1.0, "power1.inOut");
+        const cards = [
+          { id: "#c1", t: 3.2, sy: 600, x: 120, r: -4 },
+          { id: "#c2", t: 4.25, sy: 760, x: 190, r: 3 },
+          { id: "#c3", t: 5.3, sy: 900, x: 100, r: -2.5 },
+          { id: "#c4", t: 6.35, sy: 1040, x: 170, r: 3.5 },
+        ];
+        cards.forEach((c) => {
+          const wy = c.sy + (fyAt(c.t + 0.25) - FY0);
+          tl.set(c.id, { left: c.x, top: wy }, 0);
+          tl.fromTo(c.id, { opacity: 0, scale: 1.35, rotation: c.r * 4, filter: "blur(14px)" },
+            { opacity: 1, scale: 1, rotation: c.r, filter: "blur(0px)", duration: 0.55, ease: "back.out(1.5)" }, c.t);
+        });
+        cards.forEach((c, i) => {
+          if (i < 3) tl.to(c.id + " .tag", { opacity: 0.55, duration: 0.3 }, cards[i + 1].t);
+        });
+
+        // ---------- A3 zoom through the gap between card 3 and 4 ----------
+        const gapY = (900 + (fyAt(5.55) - FY0) + 1040 + (fyAt(6.6) - FY0)) / 2 + 60;
+        cam(8.0, 0.55, { x: 560, y: gapY + 40 }, 7, "power3.in");
+        tl.to("#void", { opacity: 1, duration: 0.12, ease: "power1.in" }, 8.43);
+        camSet(8.56, { x: 540, y: 4960 }, 1.9);
+        tl.set("#t2wrap", { opacity: 1 }, 8.56);
+        const t1w = (() => { const el = document.querySelector("#t1"); const words = el.textContent.split(" "); el.textContent = "";
+          return words.map((w, i) => { const s = document.createElement("span"); s.className = "ch"; s.textContent = (i ? " " : "") + w; el.appendChild(s); return s; }); })();
+        tl.set("#t1", { opacity: 1 }, 8.56);
+        t1w.forEach((w, i) => blurIn(w, 8.62 + i * 0.09, 0.14));
+        tl.fromTo("#t2a", { opacity: 0, y: 60, filter: "blur(10px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 9.0);
+        tl.fromTo("#t2b", { opacity: 0, y: 60, filter: "blur(10px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 9.1);
+        tl.fromTo("#hl1", { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: "power3.out" }, 9.3);
+        tl.fromTo("#hl2", { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: "power3.out" }, 9.4);
+        tl.to("#t2a", { color: "oklch(22% 0.045 266)", duration: 0.3, ease: "power3.out" }, 9.3);
+        tl.to("#t2b", { color: "oklch(22% 0.045 266)", duration: 0.3, ease: "power3.out" }, 9.4);
+        // exit: the line rushes at the camera, the fix world opens behind it
+        tl.to("#t2wrap", { scale: 2.6, opacity: 0, filter: "blur(16px)", duration: 0.45, ease: "power3.in", transformOrigin: "50% 40%" }, 10.75);
+        tl.to("#void", { opacity: 0, duration: 0.35, ease: "power2.out" }, 11.0);
+        cam(10.95, 1.3, { x: 540, y: 4960 }, 1.0, "expo.out");
+
+        // ---------- A4 live fix: code types, rows tick, colour floods ----------
+        tl.set(".tickfill", { scale: 0 }, 0);
+        tl.set(".strike", { scaleX: 0 }, 0);
+        tl.set(".sol", { opacity: 0 }, 0);
+        const snippets = [
+          { file: "payments.ts", a: 'const res = await paystack.verify(ref);', b: 'if (res.ok) fulfilOrder(res.data);', out: "✓ payment confirmed" },
+          { file: "main.dart", a: "runApp(MaterialApp(home: Tickets()));", b: "// flutter build ios · flutter build apk", out: "✓ built for iOS & Android" },
+          { file: "page.tsx", a: '<Image src={hero} priority alt="" />', b: "export const revalidate = 3600;", out: "✓ fast, accessible pages" },
+          { file: "sync.ts", a: "await hubspot.contacts.upsert(lead);", b: 'webhook.on("booking.created", sync);', out: "✓ CRM, payments & bookings in sync" },
+        ];
+        const L1 = document.getElementById("L1"), L2 = document.getElementById("L2"), L3 = document.getElementById("L3");
+        const fileEl = document.getElementById("ed2file");
+        // Pre-build one span per character for every snippet, stacked in the same line slot.
+        const build = (host, text, k) => { const g = document.createElement("span"); g.id = `g${host.id}${k}`; g.style.position = "absolute"; g.style.whiteSpace = "pre";
+          [...text].forEach((c) => { const s = document.createElement("span"); s.textContent = c; g.appendChild(s); }); host.appendChild(g); return g; };
+        [L1, L2, L3].forEach((h) => { h.style.position = "relative"; h.style.display = "block"; h.style.height = "54px"; });
+        fileEl.textContent = "";
+        const files = snippets.map((s, k) => { const f = document.createElement("span"); f.textContent = s.file; f.style.position = "absolute"; fileEl.appendChild(f); return f; });
+        fileEl.style.position = "relative"; fileEl.style.height = "36px";
+        const caret = document.createElement("span"); caret.className = "caret"; caret.id = "caret";
+
+        const starts = [11.3, 13.25, 15.2, 17.15];
+        snippets.forEach((s, k) => {
+          const t0 = starts[k];
+          const ga = build(L1, s.a, k), gb = build(L2, s.b, k), go = build(L3, s.out, k);
+          tl.set([...ga.children, ...gb.children, ...go.children], { opacity: 0 }, 0);
+          tl.set(files[k], { opacity: 0 }, 0);
+          tl.set(files[k], { opacity: 1 }, t0 - 0.05);
+          const cps = 1 / 46;
+          [...ga.children].forEach((c, i) => tl.set(c, { opacity: 1 }, t0 + i * cps));
+          const tb = t0 + ga.children.length * cps + 0.08;
+          [...gb.children].forEach((c, i) => tl.set(c, { opacity: 1 }, tb + i * cps));
+          const tout = tb + gb.children.length * cps + 0.12;
+          tl.fromTo([...go.children], { opacity: 0 }, { opacity: 1, duration: 0.01, stagger: 0.008 }, tout);
+          const row = `#r${k + 1}`;
+          tl.fromTo(`${row} .strike`, { scaleX: 0 }, { scaleX: 1, duration: 0.22, ease: "power3.out" }, tout + 0.02);
+          tl.to(`${row} .prob`, { opacity: 0.55, duration: 0.2 }, tout + 0.1);
+          tl.fromTo(`${row} .tickfill`, { scale: 0 }, { scale: 1, duration: 0.38, ease: "back.out(2.2)" }, tout + 0.05);
+          tl.fromTo(`${row} .sol`, { opacity: 0, filter: "blur(8px)", x: -20 }, { opacity: 1, filter: "blur(0px)", x: 0, duration: 0.3, ease: "expo.out" }, tout + 0.1);
+          tl.fromTo(row, { borderColor: "oklch(96% 0.01 250 / 0.22)" }, { borderColor: "oklch(89% 0.19 125 / 0.9)", duration: 0.25 }, tout + 0.05);
+          if (k < 3) {
+            tl.to([ga, gb, go, files[k]], { opacity: 0, filter: "blur(6px)", duration: 0.12, ease: "power2.in" }, starts[k + 1] - 0.16);
+            tl.set([ga, gb, go, files[k]], { filter: "blur(0px)" }, starts[k + 1] - 0.02);
+          }
+        });
+        // colour flood on the second fix
+        tl.to("#ground", { backgroundColor: "oklch(55.5% 0.215 263)", duration: 0.45, ease: "power2.inOut" }, 13.2);
+        tl.to("#far .grid", { opacity: 0.35, duration: 0.45 }, 13.2);
+        // a slow camera dolly keeps the frame alive while the code runs
+        cam(12.3, 7.6, { x: 540, y: 4985 }, 1.03, "sine.inOut");
+
+        // ---------- A5 who: editor folds into the mark window ----------
+        tl.to(".fixrow", { opacity: 0, filter: "blur(8px)", y: 40, duration: 0.2, stagger: 0.04, ease: "power2.in" }, 19.95);
+        tl.to("#ed2", { scale: 0.62, opacity: 0, borderRadius: 120, filter: "blur(10px)", duration: 0.5, ease: "power3.in", transformOrigin: "50% 50%" }, 20.0);
+        tl.to("#ground", { backgroundColor: "oklch(20% 0.055 266)", duration: 0.45, ease: "power2.inOut" }, 20.15);
+        tl.set("#who", { opacity: 1 }, 20.2);
+        tl.fromTo("#win", { scale: 0.55, opacity: 0, filter: "blur(14px)", borderRadius: 34 }, { scale: 1, opacity: 1, filter: "blur(0px)", borderRadius: 120, duration: 0.6, ease: "expo.out" }, 20.25);
+        tl.fromTo("#dot", { scale: 0, rotation: -90 }, { scale: 1, rotation: 0, duration: 0.5, ease: "back.out(1.8)" }, 20.55);
+        tl.fromTo("#pimg", { scale: 1.18, y: 30 }, { scale: 1.0, y: -30, duration: 4.7, ease: "sine.out" }, 20.25);
+        tl.fromTo("#dot", { x: 0, y: 0 }, { x: 10, y: -14, duration: 4.0, ease: "sine.inOut" }, 21.0);
+        const nameChars = splitChars(document.getElementById("name"));
+        nameChars.forEach((c, i) => tl.fromTo(c, { opacity: 0.0, filter: "blur(5px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power2.out" }, 20.75 + i * 0.07));
+        blurIn("#role", 21.55, 0.2);
+        tl.to("#name, #role", { opacity: 0, filter: "blur(8px)", duration: 0.15, ease: "power2.in" }, 24.8);
+
+        // ---------- A6 end card: the window is carried into the mark ----------
+        tl.to("#win", { opacity: 0, duration: 0.18 }, 24.95);
+        tl.to("#dot", { opacity: 0, duration: 0.18 }, 24.95);
+        tl.set("#carry", { opacity: 1 }, 24.95);
+        tl.to("#endg", { opacity: 1, duration: 0.35, ease: "power2.inOut" }, 24.95);
+        tl.fromTo("#carry", { x: 0, y: 0, scaleX: 1, scaleY: 1, borderRadius: 120 },
+          { x: 0, y: 946 - 586, scaleX: 150 / 620, scaleY: 133 / 700, borderRadius: 160, duration: 0.42, ease: "power3.inOut", transformOrigin: "50% 50%" }, 24.97);
+        tl.set("#end", { opacity: 1 }, 25.0);
+        tl.set("#lmark, #lword, #wa, #web, #motto", { opacity: 0 }, 25.0);
+        tl.to("#carry", { opacity: 0, duration: 0.08 }, 25.38);
+        tl.set("#lmark", { opacity: 1 }, 25.38);
+        tl.fromTo("#lmark", { scale: 1.08 }, { scale: 1, duration: 0.35, ease: "expo.out" }, 25.38);
+        document.querySelectorAll("#e1 .w").forEach((w, i) => tl.fromTo(w, { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.15, ease: "power2.out" }, 25.15 + i * 0.09));
+        tl.set("#lword", { opacity: 1 }, 25.6);
+        tl.fromTo("#lword", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.45, ease: "power3.out" }, 25.6);
+        tl.set("#wa", { opacity: 1 }, 25.9);
+        tl.fromTo("#wa .eico", { scale: 0 }, { scale: 1, duration: 0.35, ease: "back.out(2)" }, 25.9);
+        const waChars = splitChars(document.getElementById("watext"));
+        waChars.forEach((c, i) => tl.fromTo(c, { opacity: 0 }, { opacity: 1, duration: 0.01 }, 26.0 + i * 0.04));
+        tl.set("#web", { opacity: 1 }, 26.55);
+        tl.fromTo("#web", { filter: "blur(8px)", opacity: 0 }, { filter: "blur(0px)", opacity: 1, duration: 0.2, ease: "power2.out" }, 26.55);
+        tl.fromTo("#motto", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 26.85);
+        tl.fromTo("#edeco", { opacity: 0, y: 160 }, { opacity: 1, y: 0, duration: 1.1, ease: "expo.out" }, 25.2);
+        // dead still from 27.2 to 30
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>

@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Video and flyer sources (HyperFrames + Playwright), not part of the site.
+    "marketing/**",
   ]),
 ]);
 
