@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>layothedeveloper · WhatsApp cover</title>
+    <style>
+      /* Hallmark · macrostructure: single statement banner · tone: minimal night · anchor hue: 263 (cobalt) */
+      @font-face {
+        font-family: "Archivo";
+        src: url("assets/archivo-latin.woff2") format("woff2-variations");
+        font-weight: 100 900;
+        font-stretch: 62% 125%;
+      }
+      :root {
+        --night: oklch(20% 0.055 266);
+        --white: oklch(96% 0.01 250);
+        --dim: oklch(72% 0.035 255);
+        --lime: oklch(89% 0.19 125);
+        --font: "Archivo", sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { background: var(--night); }
+      body { width: 1920px; height: 1080px; overflow: hidden; font-family: var(--font); color: var(--white); }
+
+      /* Everything sits in the upper, centred part of the frame: WhatsApp crops the sides
+         on narrow phones and the profile photo overlaps the bottom edge. */
+      .page { height: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 230px; }
+      .mark { width: 76px; fill: var(--white); display: block; margin-bottom: 52px; }
+      h1 { font-size: 128px; font-weight: 780; font-stretch: 118%; letter-spacing: -0.05em; line-height: 0.92; }
+      h1 em { font-style: normal; color: var(--lime); }
+      .what { margin-top: 40px; font-size: 38px; color: var(--dim); }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <svg class="mark" viewBox="65.058 26.17 119.883 106.061" aria-label="layothedeveloper"><path d="M165.342 26.17h19.599v19.599h-19.599z"/><path d="M144.090 45.769L165.342 45.769L165.342 112.832C165.342 123.563 156.675 132.231 145.949 132.231L105.709 132.231C94.978 132.231 86.315 123.563 86.315 112.832L144.090 112.832ZM86.315 45.769L86.315 112.832L65.058 112.832L65.058 45.769C65.058 35.043 73.725 26.170 84.662 26.170L124.486 26.170C135.423 26.170 144.090 35.043 144.090 45.769Z"/></svg>
+      <h1>I make it <em>work.</em></h1>
+      <p class="what">layothedeveloper.com</p>
+    </main>
+  </body>
+</html>

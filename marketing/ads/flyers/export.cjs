@@ -1,4 +1,4 @@
-// Renders each flyer to PNG (4:5 feed and 9:16 status) and PDF.
+// Renders each flyer to PNG (4:5 feed and 9:16 status) and PDF, plus the WhatsApp cover.
 // Usage: node marketing/ads/flyers/export.cjs
 const path = require("path");
 const fs = require("fs");
@@ -32,5 +32,12 @@ const sizes = [
     }
     fs.unlinkSync(built);
   }
+  // WhatsApp Business cover photo, 16:9
+  const cover = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+  await cover.goto(`file://${path.join(dir, "whatsapp-cover.html")}`);
+  await cover.evaluate(() => document.fonts.ready);
+  await cover.screenshot({ path: path.join(out, "layothedeveloper-whatsapp-cover-1920x1080.png") });
+  await cover.close();
+  console.log("wrote whatsapp cover");
   await browser.close();
 })();
