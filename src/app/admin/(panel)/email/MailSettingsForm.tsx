@@ -12,6 +12,7 @@ const PRESETS = [
   { label: "Zoho EU, own domain", host: "smtppro.zoho.eu", port: 465, security: "ssl", dkim: "zmail" },
   { label: "Zoho, personal", host: "smtp.zoho.com", port: 465, security: "ssl", dkim: "zmail" },
   { label: "Gmail / Google Workspace", host: "smtp.gmail.com", port: 465, security: "ssl", dkim: "google" },
+  { label: "Resend", host: "smtp.resend.com", port: 465, security: "ssl", dkim: "resend" },
 ] as const;
 
 const PROVIDER_HELP = {
@@ -28,6 +29,12 @@ const PROVIDER_HELP = {
     from: "Workspace: any address on your domain. Personal Gmail: your Gmail address, or one added under Gmail → Settings → Accounts → Send mail as.",
     dkim: "Set in Google Admin when you turn on DKIM (usually google). Used by the DNS check below.",
   },
+  resend: {
+    username: "Always resend (the word itself, not an email address).",
+    password: "A Resend API key with sending access: Resend → API Keys → Create API key.",
+    from: "Any address on a domain you've verified in Resend → Domains.",
+    dkim: "resend (Resend's key lives at resend._domainkey). Used by the DNS check below.",
+  },
   other: {
     username: "Usually the full email address.",
     password: "Use an app password if your provider offers them.",
@@ -37,7 +44,9 @@ const PROVIDER_HELP = {
 } as const;
 
 function providerOf(host: string) {
-  return /zoho/i.test(host) ? "zoho" : /gmail|google/i.test(host) ? "google" : "other";
+  if (/zoho/i.test(host)) return "zoho";
+  if (/gmail|google/i.test(host)) return "google";
+  return /resend/i.test(host) ? "resend" : "other";
 }
 
 const INITIAL: FormState = { status: "idle" };
@@ -170,7 +179,8 @@ export function MailSettingsForm({
             <p className={styles.hint}>
               If hello@layothedeveloper.com is a Zoho mailbox, use &ldquo;Zoho, own domain&rdquo; (or the EU option if your Zoho
               account lives at zoho.eu). Pick Gmail if you send through a Gmail or Google Workspace account instead. Gmail allows
-              about 500 messages a day on a personal account and 2,000 on Workspace.
+              about 500 messages a day on a personal account and 2,000 on Workspace. Resend signs mail as your own domain on
+              its free plan (100 a day), which Yahoo and Outlook require.
             </p>
           </div>
           <Field label="SMTP server" error={errors.host} half>

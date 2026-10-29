@@ -67,7 +67,10 @@ export async function saveMailSettings(_prev: FormState, form: FormData): Promis
   const errors: Record<string, string> = {};
   if (values.host && !HOST.test(values.host)) errors.host = "Enter a server name like smtppro.zoho.com.";
   if (!Number.isInteger(values.port) || values.port < 1 || values.port > 65535) errors.port = "Enter a port, usually 465 or 587.";
-  if (values.username && !EMAIL.test(values.username)) errors.username = "For Zoho, the username is the full email address.";
+  // Zoho and Gmail sign in with the mailbox address; services like Resend use a fixed word instead.
+  if (values.username && /zoho|gmail|google/i.test(values.host) && !EMAIL.test(values.username)) {
+    errors.username = "For Zoho and Gmail, the username is the full email address.";
+  } else if (/\s/.test(values.username)) errors.username = "The username can't contain spaces.";
   if (!values.from_email || !EMAIL.test(values.from_email)) errors.from_email = "Enter the address emails are sent from.";
   if (values.notify_email && !EMAIL.test(values.notify_email)) errors.notify_email = "Check this address.";
   if (!/^[a-z0-9._-]{1,63}$/.test(values.dkim_selector)) errors.dkim_selector = "Letters, numbers, dots and dashes only.";
@@ -87,7 +90,7 @@ export async function saveMailSettings(_prev: FormState, form: FormData): Promis
 
   refresh();
   const warning =
-    values.username && values.from_email.split("@")[1] !== values.username.split("@")[1]
+    /zoho/i.test(values.host) && values.username && values.from_email.split("@")[1] !== values.username.split("@")[1]
       ? " Note: the sender address is on a different domain from the SMTP account, which Zoho usually rejects."
       : "";
   return { status: "success", message: `Email settings saved.${warning}` };

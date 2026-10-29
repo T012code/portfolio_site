@@ -45,11 +45,12 @@ async function safely(fn: () => Promise<DnsCheck>, fallback: Omit<DnsCheck, "sta
   }
 }
 
-export type MailProvider = "zoho" | "google" | "other";
+export type MailProvider = "zoho" | "google" | "resend" | "other";
 
 export function providerFromHost(host: string): MailProvider {
   if (/zoho/i.test(host)) return "zoho";
   if (/gmail|google/i.test(host)) return "google";
+  if (/resend/i.test(host)) return "resend";
   return "other";
 }
 
@@ -60,6 +61,8 @@ const PROVIDERS = {
     mxPattern: /zoho/i,
     spf: "v=spf1 include:zohomail.com ~all",
     spfPattern: /include:(zoho|zohomail)\./i,
+    spfHost: "",
+    sendOnly: false,
     dkim: "Copy the TXT value from Zoho Mail Admin → Domains → Email configuration → DKIM.",
   },
   google: {
@@ -68,7 +71,19 @@ const PROVIDERS = {
     mxPattern: /google|googlemail/i,
     spf: "v=spf1 include:_spf.google.com ~all",
     spfPattern: /include:_spf\.google\.com/i,
+    spfHost: "",
+    sendOnly: false,
     dkim: "Generate the key in Google Admin → Apps → Google Workspace → Gmail → Authenticate email, then add it here.",
+  },
+  resend: {
+    name: "Resend",
+    mx: "Any inbox service: Resend only sends. Cloudflare Email Routing, Zoho or Google all work.",
+    mxPattern: /./,
+    spf: "The TXT record Resend gives you on the send subdomain (v=spf1 …).",
+    spfPattern: /^v=spf1/i,
+    spfHost: "send",
+    sendOnly: true,
+    dkim: "Copy the resend._domainkey TXT value from Resend → Domains.",
   },
   other: {
     name: "your email provider",
@@ -76,6 +91,8 @@ const PROVIDERS = {
     mxPattern: /./,
     spf: "v=spf1 include:<your provider's SPF domain> ~all",
     spfPattern: /include:/i,
+    spfHost: "",
+    sendOnly: false,
     dkim: "Copy the DKIM TXT value from your email provider's admin console.",
   },
 } as const;
@@ -95,7 +112,8 @@ export async function checkDomain(
     host: d,
     expected: p.mx,
   };
-  const spfBase = { key: "spf" as const, label: "SPF", host: d, expected: p.spf };
+  // Resend publishes its SPF on a subdomain (send.<domain>), where its bounces return.
+  const spfBase = { key: "spf" as const, label: "SPF", host: p.spfHost ? `${p.spfHost}.${d}` : d, expected: p.spf };
   const dkimBase = {
     key: "dkim" as const,
     label: "DKIM",
@@ -120,13 +138,15 @@ export async function checkDomain(
         note:
           found.length === 0
             ? "No mail servers: email to this domain bounces."
-            : match
-              ? `Mail is delivered to ${p.name}.`
-              : `Mail goes somewhere other than ${p.name}.`,
+            : p.sendOnly
+              ? `Incoming mail has somewhere to go. ${p.name} only sends, so any inbox service is fine.`
+              : match
+                ? `Mail is delivered to ${p.name}.`
+                : `Mail goes somewhere other than ${p.name}.`,
       };
     }, mxBase),
     safely(async () => {
-      const found = (await lookup(d, "TXT")).filter((r) => /^v=spf1/i.test(r));
+      const found = (await lookup(spfBase.host, "TXT")).filter((r) => /^v=spf1/i.test(r));
       const status = found.length === 0 ? "missing" : found.length > 1 ? "warn" : p.spfPattern.test(found[0]) ? "ok" : "warn";
       const note =
         found.length === 0
@@ -145,7 +165,7 @@ export async function checkDomain(
         ...dkimBase,
         found,
         status: ok ? "ok" : "missing",
-        note: ok ? "Emails are signed, so they can't be altered in transit unnoticed." : `No DKIM key at selector "${dkimSelector}". Check the selector name in Zoho.`,
+        note: ok ? "Emails are signed, so they can't be altered in transit unnoticed." : `No DKIM key at selector "${dkimSelector}". Check the selector name in ${p.name}.`,
       };
     }, dkimBase),
     safely(async () => {
